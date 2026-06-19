@@ -1,0 +1,8 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "API_AGENTS.md",
+    "API_IMPLEMENTATION_PLAN.md",
+    "API_SESSION_MANIFEST.md"
+  ]
+}
