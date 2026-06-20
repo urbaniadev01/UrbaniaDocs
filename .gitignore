@@ -1,0 +1,25 @@
+# Proyectos con repos independientes
+/API/
+/Web/
+/App/
+
+# Configuracion local
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+/.idea/
+/.vscode/
+/.fleet/
+/.nova/
+/.zed/
+/.phpactor.json
+
+# Cache
+*.log

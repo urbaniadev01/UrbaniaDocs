@@ -1,0 +1,10 @@
+/* Mermaid: scroll horizontal en lugar de expandir la página */
+.block-language-mermaid {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.block-language-mermaid svg {
+  max-width: unset !important;
+  height: auto;
+}
