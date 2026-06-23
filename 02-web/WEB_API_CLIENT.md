@@ -3,7 +3,7 @@ title: WEB_API_CLIENT
 type: especificacion-tecnica
 tags: [urbania-web, api, tanstack-query, axios]
 status: vigente
-ultima_revision: 2026-06-17
+ultima_revision: 2026-06-19
 ---
 
 # 🔌 WEB_API_CLIENT
@@ -14,9 +14,9 @@ ultima_revision: 2026-06-17
 > Fuente única de verdad para integración.
 
 > [!note] Fuente de verdad de endpoints
-> `API_CONTRACT.md` del repositorio del API. Este documento define cómo **consumirlos** desde el
+> [[01-api/API_CONTRACT]] — accesible directamente en este vault. Este documento define cómo **consumirlos** desde el
 > cliente web. Antes de implementar cualquier módulo, verificar los endpoints contra
-> `API_CONTRACT.md`.
+> [[01-api/API_CONTRACT]].
 
 ---
 
@@ -44,12 +44,16 @@ export interface PaginatedResponse<T> {
 }
 
 // Error tipado del API
+// Nota: algunas respuestas de error incluyen un campo `data` adicional (ej: 403 FORCE_PASSWORD_CHANGE
+// incluye data.limited_token). Ver [[01-api/endpoints/AUTH]] §1.1 para el shape completo.
 export interface ApiErrorResponse {
   error: {
     code: ApiErrorCode;
     message: string;
     trace_id: string;
   };
+  /** Presente solo en errores que traen payload adicional (ej: FORCE_PASSWORD_CHANGE) */
+  data?: Record<string, unknown>;
 }
 
 // Clase de error para manejar en hooks y componentes
@@ -57,6 +61,8 @@ export class ApiError extends Error {
   code: ApiErrorCode;
   traceId: string;
   status: number;
+  /** Datos adicionales presentes en algunas respuestas de error (ej: limited_token en FORCE_PASSWORD_CHANGE) */
+  data?: Record<string, unknown>;
 
   constructor(response: ApiErrorResponse, status: number) {
     super(response.error.message);
@@ -64,6 +70,7 @@ export class ApiError extends Error {
     this.code = response.error.code;
     this.traceId = response.error.trace_id;
     this.status = status;
+    this.data = response.data;
   }
 }
 
@@ -75,7 +82,7 @@ export type ApiErrorCode =
   | 'INVALID_CREDENTIALS' | 'TOKEN_EXPIRED' | 'TOKEN_INVALID' | 'UNAUTHORIZED'
   | 'FORBIDDEN' | 'MFA_REQUIRED' | 'MFA_INVALID_CODE' | 'MFA_BACKUP_USED'
   | 'FORCE_PASSWORD_CHANGE' | 'PASSWORD_REUSED' | 'DEVICE_NOT_RECOGNIZED'
-  | 'SESSION_NOT_FOUND' | 'RATE_LIMIT_EXCEEDED'
+  | 'ACCOUNT_LOCKED' | 'SESSION_NOT_FOUND' | 'RATE_LIMIT_EXCEEDED'
   // Entidades
   | 'USER_NOT_FOUND' | 'PROPERTY_NOT_FOUND' | 'ZONE_NOT_FOUND'
   | 'RESERVATION_NOT_FOUND' | 'PAYMENT_NOT_FOUND' | 'PQR_NOT_FOUND'
@@ -118,12 +125,12 @@ export type CreatePaymentDto = z.infer<typeof createPaymentSchema>;
 ```
 
 Los DTOs de **respuesta** (lo que el API devuelve) se tipan como interfaces TypeScript planas en
-`<modulo>.types.ts`, reflejando exactamente la forma documentada en `API_CONTRACT.md` — no se
+`<modulo>.types.ts`, reflejando exactamente la forma documentada en [[01-api/API_CONTRACT]] — no se
 valida con Zod en runtime por defecto (el costo de parsear cada respuesta no se justifica salvo
 en endpoints críticos de seguridad, p. ej. `/auth/me`).
 
 > [!tip] Si el equipo migra a generación automática desde OpenAPI
-> Si `API_CONTRACT.md` se formaliza algún día como spec OpenAPI, evaluar `openapi-typescript`
+> Si [[01-api/API_CONTRACT]] se formaliza algún día como spec OpenAPI, evaluar `openapi-typescript`
 > para generar los tipos de respuesta automáticamente y reducir el riesgo de desincronización
 > manual. Documentar esa decisión como un nuevo ADR en [[WEB_ARCHITECTURE]] §8 si se adopta.
 
@@ -358,7 +365,7 @@ mutation.mutate({ id, status }, {
 
 ## 7. Endpoints por Módulo
 
-Lista de endpoints consumidos. Para request/response completos, **ver `API_CONTRACT.md`**.
+Lista de endpoints consumidos. Para request/response completos, **ver `01-api/endpoints/<FEATURE>.md`** (detalle) o [[01-api/API_CONTRACT]] (índice).
 
 ### Auth (`/api/v1/auth`)
 | Endpoint | Servicio | Hook |
@@ -374,8 +381,11 @@ Lista de endpoints consumidos. Para request/response completos, **ver `API_CONTR
 | `GET /auth/sessions` | `auth.service.getSessions()` | `useSessions()` |
 | `DELETE /auth/sessions/{id}` | `auth.service.revokeSession()` | `useRevokeSession()` |
 | `DELETE /auth/sessions` | `auth.service.revokeAllSessions()` | `useRevokeAllSessions()` |
+| `POST /auth/verify-email` | `auth.service.verifyEmail()` | `useVerifyEmail()` |
+| `POST /auth/resend-verification` | `auth.service.resendVerification()` | `useResendVerification()` |
 | `POST /auth/mfa/setup` | `auth.service.setupMfa()` | `useMfaSetup()` |
 | `POST /auth/mfa/verify` | `auth.service.verifyMfa()` | `useMfaVerify()` |
+| `POST /auth/mfa/verify-backup` | `auth.service.verifyMfaBackup()` | `useMfaVerifyBackup()` |
 | `POST /auth/mfa/enable` | `auth.service.enableMfa()` | `useMfaEnable()` |
 | `POST /auth/mfa/disable` | `auth.service.disableMfa()` | `useMfaDisable()` |
 | `POST /auth/mfa/backup-codes` | `auth.service.regenerateBackupCodes()` | `useRegenerateBackupCodes()` |

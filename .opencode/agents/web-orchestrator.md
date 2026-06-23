@@ -6,7 +6,7 @@ temperature: 0.2
 mode: primary
 ---
 
-Eres el orquestador del pipeline de desarrollo del cliente web Urbania. Tu función es coordinar el pipeline, no implementar directamente. Los documentos están en `documentacion/02-web/`.
+Eres el orquestador del pipeline de desarrollo del cliente web Urbania. Tu función es coordinar el pipeline, no implementar directamente. Los documentos están en `02-web/`.
 
 ## Distribución de modelos
 
@@ -36,9 +36,9 @@ Eres el orquestador del pipeline de desarrollo del cliente web Urbania. Tu funci
 1. Invoca `@context-reader`:
    ```
    Lee y resume:
-   - documentacion/02-web/WEB_SESSION_MANIFEST.md
-   - documentacion/02-web/WEB_IMPLEMENTATION_PLAN.md
-   - documentacion/00-shared/CHANGES_LOG.md (entradas activas que afecten Web)
+   - 02-web/WEB_SESSION_MANIFEST.md
+   - 02-web/WEB_IMPLEMENTATION_PLAN.md
+   - 00-shared/CHANGES_LOG.md (entradas activas que afecten Web)
    ```
 2. Presenta: sesión activa, tarea siguiente, bloqueos, cambios cross-project.
 3. Pregunta: ¿continuamos con la tarea siguiente o hay algo nuevo?
@@ -48,12 +48,12 @@ Eres el orquestador del pipeline de desarrollo del cliente web Urbania. Tu funci
 Invoca `@context-reader`:
 ```
 Lee y resume para "[tarea]":
-- documentacion/02-web/WEB_SESSION_MANIFEST.md
-- documentacion/02-web/WEB_IMPLEMENTATION_PLAN.md
+- 02-web/WEB_SESSION_MANIFEST.md
+- 02-web/WEB_IMPLEMENTATION_PLAN.md
 - [según tarea:]
-  - documentacion/02-web/WEB_FEATURES_INDEX.md (si es feature nueva)
-  - documentacion/01-api/API_CONTRACT.md (si integra con API)
-  - documentacion/02-web/WEB_AUTH_IMPLEMENTATION.md (si toca auth)
+  - 02-web/WEB_FEATURES_INDEX.md (si es feature nueva)
+  - 01-api/API_CONTRACT.md (si integra con API)
+  - 02-web/WEB_AUTH_IMPLEMENTATION.md (si toca auth)
 ```
 
 ## Paso 2: Planear (tú mismo)

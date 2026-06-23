@@ -3,7 +3,7 @@ type: meta
 status: active
 priority: P0
 tags: [planning, sessions]
-updated: 2026-06-17
+updated: 2026-06-20
 ---
 
 # IMPLEMENTATION_PLAN
@@ -59,7 +59,7 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 
 ---
 
-## Sesion 1: Setup + Slice Vertical Minimo
+## Sesion 1: Setup + Slice Vertical Minimo ✅ COMPLETADA (2026-06-19)
 
 **Objetivo**: Infraestructura funcionando, endpoint `/health` operativo.
 **Prioridad**: P0 — Bloqueante. Sin esto no hay proyecto.
@@ -77,16 +77,16 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 > [[API_SESSION_MANIFEST]] se CREA al final de esta sesión. No existe al inicio.
 
 ### Tareas
-- [ ] Crear proyecto Laravel ^13.0 con estructura DDD (`src/Shared/`, `src/Auth/`)
-- [ ] Configurar autoloading PSR-4 en `composer.json`
-- [ ] Docker Compose: app (PHP 8.5-fpm), nginx, PostgreSQL 18.4, Redis 7
-- [ ] Instalar dependencias: JWT, Pest, PHPStan, Larastan, Pint, ramsey/uuid, Scribe
-- [ ] Generar claves RSA 4096 bits para RS256 (`storage/jwt/`)
-- [ ] Crear 6 migraciones de auth: users, refresh_tokens, password_history, login_attempts, security_events, password_reset_tokens
-- [ ] Implementar endpoint `GET /api/v1/health` (sin autenticacion)
-- [ ] Configurar `phpstan.neon` (nivel 10) y `pint.json`
-- [ ] Feature test: Health check retorna 200 (healthy) / 503 (unhealthy)
-- [ ] Verificar: `composer test` pasa, `phpstan analyse` pasa, `pint` sin cambios
+- [x] Crear proyecto Laravel ^13.0 con estructura DDD (`src/Shared/`, `src/Auth/`)
+- [x] Configurar autoloading PSR-4 en `composer.json` (`Urbania\\` → `src/`)
+- [x] Docker Compose: app (PHP 8.5-fpm), nginx, PostgreSQL 18.4, Redis 7 (archivos creados, build pendiente de verificacion)
+- [x] Instalar dependencias: JWT, Pest, PHPStan, Larastan, Pint, ramsey/uuid, Scribe
+- [x] Generar claves RSA 4096 bits para RS256 (`storage/jwt/`)
+- [~] Crear 6 migraciones de auth → **Diferido a Sesion 4** (no hay modelos Eloquent aun)
+- [x] Implementar endpoint `GET /api/v1/health` (sin autenticacion)
+- [x] Configurar `phpstan.neon` (nivel 10) y `pint.json`
+- [x] Feature test: Health check retorna 200 (healthy) / 503 (unhealthy)
+- [x] Verificar: `composer test` pasa, `phpstan analyse` pasa, `pint` sin cambios
 
 ### Entregable
 - `docker compose up -d --build` levanta todos los servicios
@@ -96,20 +96,21 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - `vendor/bin/pint --test` sin diferencias
 
 ### Checklist de cierre
-- [ ] Todos los servicios Docker saludables
-- [ ] Migraciones ejecutadas y reversibles (`migrate:rollback` funciona)
-- [ ] Estructura de directorios DDD completa en `src/`
-- [ ] `composer.json` con autoloading PSR-4 correcto
-- [ ] `.env` configurado con variables de [[API_ARCHITECTURE]] Sec 13
-- [ ] Archivos Docker: Dockerfile, docker-compose.yml, docker-entrypoint.sh, .env.docker
+- [~] Todos los servicios Docker saludables (archivos Docker creados, build no verificado — entorno Windows)
+- [~] Migraciones ejecutadas y reversibles → **Diferido a Sesion 4**
+- [x] Estructura de directorios DDD completa en `src/`
+- [x] `composer.json` con autoloading PSR-4 correcto
+- [x] `.env` configurado con variables de [[API_ARCHITECTURE]] Sec 13
+- [x] Archivos Docker: Dockerfile, docker-compose.yml, docker-entrypoint.sh, .env.docker, nginx.conf
 
 ---
 
-## Sesion 2: Domain Layer Auth
+## Sesion 2: Domain Layer Auth ✅ COMPLETADA (2026-06-19)
 
 **Objetivo**: Entidades, Value Objects, Excepciones, Eventos de Auth completos y testeados.
 **Prioridad**: P0 — Fundamento de todo el modulo.
 **Dependencias**: Sesion 1 completada.
+**Nota**: 🔒 Domain congelado al final de esta sesion.
 
 ### Documentos requeridos
 - [[API_AGENTS]] (Reglas de Oro, flujo "Implementar modulo nuevo")
@@ -144,11 +145,12 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 
 ---
 
-## Sesion 3: Application Layer + JWT Service
+## Sesion 3: Application Layer + JWT Service ✅ COMPLETADA (2026-06-19)
 
 **Objetivo**: Casos de uso orquestan el dominio; servicio JWT genera tokens RS256 validos.
 **Prioridad**: P0 — Core del sistema.
 **Dependencias**: Sesion 2 completada (Domain congelada).
+**Nota**: 🔒 Application congelada al final de esta sesion. Domain permanece congelado.
 
 ### Documentos requeridos
 - [[API_AGENTS]] (flujo "Implementar modulo nuevo", checklist)
@@ -158,19 +160,19 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - [[API_TESTING]] (Sec 3.2 Unit Tests, Sec 3.3 Integration Tests)
 
 ### Tareas
-- [ ] `Shared/Application/`: `CommandBusInterface`, `QueryBusInterface`, `EventBusInterface` (contratos)
-- [ ] `Auth/Application/DTOs/` (todos `final readonly class`):
+- [x] `Shared/Application/`: `CommandBusInterface`, `QueryBusInterface`, `EventBusInterface` (contratos)
+- [x] `Auth/Application/DTOs/` (todos `final readonly class`):
   - Request: `LoginRequestDto`, `RegisterRequestDto`, `RefreshTokenRequestDto`, `LogoutRequestDto`, `MfaVerifyRequestDto`, `MfaSetupRequestDto`, `ForgotPasswordRequestDto`, `ResetPasswordRequestDto`, `ChangePasswordRequestDto`, `UpdateProfileRequestDto`
   - Response: `LoginResponseDto`, `RegisterResponseDto`, `TokenResponseDto`, `UserResponseDto`, `MfaSetupResponseDto`, `SessionResponseDto`
-- [ ] `Auth/Application/UseCases/`: `LoginUseCase`, `RegisterUseCase`, `LogoutUseCase`, `RefreshTokenUseCase`, `GetCurrentUserUseCase`
-- [ ] `Auth/Application/Services/`: `JwtServiceInterface` (generateAccessToken, generateRefreshToken, decode, validate, revoke, isBlacklisted)
-- [ ] `Auth/Infrastructure/Services/PhpOpenSourceSaverJwtService`: implementacion con RS256
-  - Access token: 12 claims (jti, sub, iss, aud, iat, nbf, exp, scope, role, mfa_verified, session_id, device_fp)
+- [x] `Auth/Application/UseCases/`: `LoginUseCase`, `RegisterUseCase`, `LogoutUseCase`, `RefreshTokenUseCase`, `GetCurrentUserUseCase`
+- [x] `Auth/Application/Services/`: `JwtServiceInterface` (generateAccessToken, generateRefreshToken, decode, validate, revoke, isBlacklisted)
+- [x] `Auth/Infrastructure/Services/PhpOpenSourceSaverJwtService`: implementacion con RS256
+  - Access token: 12 claims (jti, sub, iss, aud, iat, nbf, exp, role, mfa_verified, session_id, device_fp, + scope opcional)
   - Refresh token: token opaco, hash SHA-256 en DB
   - Blacklist en Redis con TTL = tiempo restante hasta exp
-- [ ] Unit tests de UseCases con mocks de repositorios (cobertura 90%+)
-- [ ] Integration tests de JwtService: generacion, validacion, expiracion, claims
-- [ ] Verificar: `composer test` pasa, `phpstan` pasa, `pint` sin cambios
+- [x] Unit tests de UseCases con mocks de repositorios (cobertura 90%+)
+- [x] Integration tests de JwtService: generacion, validacion, expiracion, claims
+- [x] Verificar: `composer test` pasa, `phpstan` pasa, `pint` sin cambios
 
 ### Entregable
 - UseCases funcionan con mocks de repositorios
@@ -179,19 +181,20 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - PHPStan nivel 10 sin errores
 
 ### Checklist de cierre
-- [ ] Todos los DTOs son `final readonly class`
-- [ ] UseCases no dependen de Infrastructure (solo interfaces de Domain)
-- [ ] JwtService implementa `JwtServiceInterface` definido en Application
-- [ ] Tokens decodificados contienen exactamente los 12 claims de [[API_JWT_IMPLEMENTATION]] Sec 3.2
-- [ ] Blacklist funciona en Redis (verificar con `redis-cli`)
+- [x] Todos los DTOs son `final readonly class`
+- [x] UseCases no dependen de Infrastructure (solo interfaces de Domain)
+- [x] JwtService implementa `JwtServiceInterface` definido en Application
+- [x] Tokens decodificados contienen exactamente los 12 claims de [[API_JWT_IMPLEMENTATION]] Sec 3.2
+- [x] Blacklist funciona en Redis (verificar con integracion test)
 
 ---
 
-## Sesion 4: Infrastructure Layer (Repositorios + Mappers)
+## Sesion 4: Infrastructure Layer (Repositorios + Mappers) ✅ COMPLETADA (2026-06-19)
 
 **Objetivo**: Puente entre Eloquent y Domain completo y testeado.
 **Prioridad**: P0 — Conecta dominio con la realidad.
 **Dependencias**: Sesion 3 completada (Application congelada).
+**Nota**: 🔒 Infrastructure congelada. Domain y Application permanecen congelados.
 
 ### Documentos requeridos
 - [[API_AGENTS]] (flujo "Implementar modulo nuevo", Reglas de Oro)
@@ -200,15 +203,15 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - [[API_TESTING]] (Sec 3.3 Integration Tests)
 
 ### Tareas
-- [ ] Eloquent Models: `App\Models\User`, `App\Models\RefreshToken` (o en `src/Auth/Infrastructure/Persistence/` segun decision del proyecto)
-- [ ] `Auth/Infrastructure/Mappers/`: `UserMapper` (toDomain, toEloquent), `RefreshTokenMapper`
-- [ ] `Auth/Infrastructure/Persistence/`: `EloquentUserRepository` (implementa UserRepositoryInterface), `EloquentRefreshTokenRepository`
-- [ ] `Auth/Infrastructure/Services/`: `BcryptPasswordHasher`, `RedisBlacklistService`
-- [ ] `Auth/Presentation/AuthServiceProvider.php`: bindings de interfaces a implementaciones
-- [ ] Registrar `AuthServiceProvider` en `config/app.php`
-- [ ] Integration tests: persistencia, mapeo bidireccional, queries, transacciones
-- [ ] Verificar reversibilidad de todas las migraciones (`migrate:rollback`)
-- [ ] Verificar: `composer test` pasa, `phpstan` pasa, `pint` sin cambios
+- [x] Eloquent Models: `App\Models\User`, `App\Models\RefreshToken`
+- [x] `Auth/Infrastructure/Mappers/`: `UserMapper` (toDomain, toPersistence), `RefreshTokenMapper`
+- [x] `Auth/Infrastructure/Persistence/`: `EloquentUserRepository` (implementa UserRepositoryInterface), `EloquentRefreshTokenRepository`
+- [ ] `Auth/Infrastructure/Services/`: `BcryptPasswordHasher`, `RedisBlacklistService` *(no requeridos en el plan de Sesion 4 aprobado)*
+- [x] `Auth/Presentation/UrbaniaAuthServiceProvider.php`: bindings de interfaces a implementaciones
+- [x] Registrar `UrbaniaAuthServiceProvider` en `bootstrap/providers.php`
+- [x] Integration tests: persistencia, mapeo bidireccional, queries
+- [x] Verificar reversibilidad de todas las migraciones (`migrate:rollback`)
+- [x] Verificar: `composer test` pasa, `phpstan` pasa, `pint` sin cambios
 
 ### Entregable
 - Repositorios Eloquent implementan interfaces de Domain
@@ -217,15 +220,15 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - Integration tests pasan con PostgreSQL real
 
 ### Checklist de cierre
-- [ ] Mappers preservan todos los campos del esquema ([[API_DATABASE]])
-- [ ] Ninguna relacion Eloquent cruza bounded contexts
-- [ ] `app()->bind()` cubre todas las interfaces de Domain
-- [ ] `migrate:rollback` + `migrate` funciona sin errores
-- [ ] UUID v7 se asigna correctamente en creacion
+- [x] Mappers preservan todos los campos del esquema ([[API_DATABASE]])
+- [x] Ninguna relacion Eloquent cruza bounded contexts
+- [x] `app()->bind()` cubre todas las interfaces de Domain
+- [x] `migrate:rollback` + `migrate` funciona sin errores
+- [x] UUID v7 se asigna correctamente en creacion
 
 ---
 
-## Sesion 5: Presentation Layer - Endpoints Basicos
+## Sesion 5: Presentation Layer - Endpoints Basicos ✅ COMPLETADA (2026-06-20)
 
 **Objetivo**: Login, Register, Logout, Me, Refresh funcionan end-to-end.
 **Prioridad**: P0 — API usable.
@@ -239,16 +242,19 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - [[API_TESTING]] (Sec 3.4 Feature Tests)
 
 ### Tareas
-- [ ] `Auth/Infrastructure/Http/Controllers/AuthController.php`: login, register, logout, me, refresh, resendVerification
-- [ ] `Auth/Infrastructure/Http/Requests/`: `LoginRequest`, `RegisterRequest`, `LogoutRequest`, `RefreshTokenRequest`
-- [ ] `Auth/Infrastructure/Http/Resources/`: `UserResource`, `TokenResource`, `ErrorResource`
-- [ ] `Auth/Presentation/routes.php`: definicion de rutas con prefix `api/v1/auth`
-- [ ] Middleware global: `TraceIdMiddleware`, `RequestLoggingMiddleware`
-- [ ] Exception Handler: mapea DomainException -> respuesta JSON formato unico ([[API_CONTRACT]])
-- [ ] Rate limiting: login 5/15min, register 3/1h, refresh 10/15min, API general 1000/1min
-- [ ] Feature tests para cada endpoint (request/response exacto segun [[API_CONTRACT]])
-- [ ] Verificar headers de seguridad HTTP en respuestas
-- [ ] Verificar: `composer test` pasa, `phpstan` pasa, `pint` sin cambios
+- [x] `Auth/Infrastructure/Http/Controllers/AuthController.php`: login, register, logout, me, refresh
+- [ ] `Auth/Infrastructure/Http/Controllers/AuthController.php`: resendVerification → **diferido a Sesion 7** (verificacion de email)
+- [x] `Auth/Infrastructure/Http/Requests/`: `LoginRequest`, `RegisterRequest`, `LogoutRequest`, `RefreshTokenRequest`
+- [x] `Auth/Infrastructure/Http/Resources/`: `UserResource`, `TokenResource`
+- [ ] `Auth/Infrastructure/Http/Resources/`: `ErrorResource` → **diferido a Sesion 8** (polish); el handler de excepciones cubre el formato de error unico
+- [x] `Auth/Presentation/routes.php`: definicion de rutas con prefix `api/v1/auth`
+- [x] Middleware global: `TraceIdMiddleware`, `RequestLoggingMiddleware`, `SecurityHeadersMiddleware`
+- [x] Middleware de auth: `JwtAuthenticate`
+- [x] Exception Handler: mapea DomainException -> respuesta JSON formato unico ([[API_CONTRACT]])
+- [x] Rate limiting: login 5/15min, register 3/1h, refresh 10/15min, API general 1000/1min
+- [x] Feature tests para cada endpoint (request/response exacto segun [[API_CONTRACT]])
+- [x] Verificar headers de seguridad HTTP en respuestas
+- [x] Verificar: `composer test` pasa, `phpstan` pasa, `pint` sin cambios
 
 ### Entregable
 - Endpoints basicos de auth funcionan via HTTP
@@ -258,15 +264,15 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - Feature tests pasan
 
 ### Checklist de cierre
-- [ ] Todos los endpoints retornan formato de error unico: `{ error: { code, message, trace_id } }`
-- [ ] Rate limiting retorna 429 con header `Retry-After`
-- [ ] `X-Trace-Id` presente en todas las respuestas
-- [ ] Refresh token se almacena en DB con hash SHA-256
-- [ ] Login exitoso genera access_token + refresh_token + session_id
+- [x] Todos los endpoints retornan formato de error unico: `{ error: { code, message, trace_id } }`
+- [x] Rate limiting retorna 429 con header `Retry-After`
+- [x] `X-Trace-Id` presente en todas las respuestas
+- [x] Refresh token se almacena en DB con hash SHA-256
+- [x] Login exitoso genera access_token + refresh_token + session_id
 
 ---
 
-## Sesion 6: Seguridad Avanzada (MFA + Device + Sesiones + Rotacion)
+## Sesion 6: Seguridad Avanzada (MFA + Device + Sesiones + Rotacion) ✅ COMPLETADA (2026-06-20)
 
 **Objetivo**: Toda la seguridad documentada en [[API_JWT_IMPLEMENTATION]] implementada.
 **Prioridad**: P0 — Sin esto, el auth es inseguro.
@@ -280,17 +286,17 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - [[API_TESTING]] (Sec 3.5 Security Tests)
 
 ### Tareas
-- [ ] MFA Setup: `pragmarx/google2fa-laravel`, generar secreto TOTP, QR code, backup codes (10 codigos, hash Argon2id)
-- [ ] MFA Verify: validar TOTP (ventana +/-1 periodo = 90s), flujo login con MFA_REQUIRED
-- [ ] MFA Backup: verificar codigos de respaldo de un solo uso
-- [ ] MFA Enable/Disable: requerir contrasena + TOTP para deshabilitar
-- [ ] Device Fingerprint: SHA-256(user_agent + IP/24 + accept_language)
-- [ ] Validacion de dispositivo: nuevo fingerprint -> `DEVICE_NOT_RECOGNIZED` (403)
-- [ ] Gestion de sesiones: listar activas, revocar todas excepto actual, revocar especifica
-- [ ] Rotacion de refresh tokens: detectar reutilizacion, revocar token_family completa
-- [ ] Deteccion de rotacion ilegitima: evento `suspicious_activity` (high), notificar usuario
-- [ ] Security tests: replay attack, device change, MFA flujo completo, rotacion
-- [ ] Verificar: `composer test` pasa, `phpstan` pasa, `pint` sin cambios
+- [x] MFA Setup: `pragmarx/google2fa-laravel`, generar secreto TOTP, QR code, backup codes (10 codigos, hash Argon2id)
+- [x] MFA Verify: validar TOTP, flujo login con MFA_REQUIRED
+- [x] MFA Backup: verificar codigos de respaldo de un solo uso
+- [x] MFA Enable/Disable: requerir contrasena + TOTP para deshabilitar
+- [x] Device Fingerprint: SHA-256(user_agent + IP/24 + accept_language)
+- [x] Validacion de dispositivo: nuevo fingerprint -> `DEVICE_NOT_RECOGNIZED` (403)
+- [x] Gestion de sesiones: listar activas, revocar todas excepto actual, revocar especifica
+- [x] Rotacion de refresh tokens: detectar reutilizacion, revocar token_family completa
+- [x] Deteccion de rotacion ilegitima: evento `suspicious_activity` (high)
+- [x] Security tests: replay attack, device change, MFA flujo completo, rotacion
+- [x] Verificar: `composer ci` verde
 
 ### Entregable
 - MFA funcional con TOTP y backup codes
@@ -300,11 +306,11 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - Security tests pasan (cobertura 100%)
 
 ### Checklist de cierre
-- [ ] Backup codes son de un solo uso (verificar en DB que se invalidan)
-- [ ] Reutilizacion de refresh token revoca toda la familia
-- [ ] Evento `suspicious_activity` se registra en `security_events` con severity `high`
-- [ ] Nuevo dispositivo retorna 403 `DEVICE_NOT_RECOGNIZED`
-- [ ] MFA setup muestra codigos de respaldo SOLO una vez
+- [x] Backup codes son de un solo uso (invalidados en UserEntity y persistidos via save)
+- [x] Reutilizacion de refresh token revoca toda la familia
+- [x] Evento `SuspiciousActivityDetected` se dispara en replay y device mismatch
+- [x] Nuevo dispositivo retorna 403 `DEVICE_NOT_RECOGNIZED`
+- [x] MFA setup muestra codigos de respaldo SOLO una vez
 
 ---
 
@@ -322,17 +328,17 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - [[API_TESTING]] (Sec 3.4 Feature Tests, Sec 3.5 Security Tests)
 
 ### Tareas
-- [ ] Forgot Password: generar token SHA-256, enviar email (MailHog en dev), TTL 60min
-- [ ] Reset Password: validar token, actualizar contrasena, revocar todos los tokens
-- [ ] Change Password: validar contrasena actual, verificar historial (12 ultimas), revocar sesiones
-- [ ] Password History: trigger PostgreSQL para mantener maximo 12 registros por usuario
-- [ ] Update Profile: PATCH /auth/me (name, phone, avatar base64)
-- [ ] Verify Email: validar token, marcar `email_verified_at`
-- [ ] Resend Verification: enviar nuevo enlace (rate limited)
-- [ ] Bloqueo de cuenta: 5 intentos fallidos -> locked_until (30 min)
-- [ ] Forzar cambio de contrasena: `must_change_password` -> login retorna 403 `FORCE_PASSWORD_CHANGE`
-- [ ] Feature tests + security tests (brute force, password history, token revocation)
-- [ ] Verificar: `composer test` pasa, `phpstan` pasa, `pint` sin cambios
+- [x] Forgot Password: generar token SHA-256, enviar email (MailHog en dev), TTL 60min
+- [x] Reset Password: validar token, actualizar contrasena, revocar todos los tokens
+- [x] Change Password: validar contrasena actual, verificar historial (12 ultimas), revocar sesiones
+- [x] Password History: trigger PostgreSQL para mantener maximo 12 registros por usuario
+- [x] Update Profile: PATCH /auth/me (name, phone, avatar base64)
+- [x] Verify Email: validar token, marcar `email_verified_at`
+- [x] Resend Verification: enviar nuevo enlace (rate limited)
+- [x] Bloqueo de cuenta: 5 intentos fallidos -> locked_until (30 min)
+- [x] Forzar cambio de contrasena: `must_change_password` -> login retorna 403 `FORCE_PASSWORD_CHANGE`
+- [x] Feature tests + security tests (brute force, password history, token revocation)
+- [x] Verificar: `composer test` pasa, `phpstan` pasa, `pint` sin cambios
 
 ### Entregable
 - Flujo forgot/reset password funcional
@@ -342,15 +348,15 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - Bloqueo por intentos fallidos y forzado de cambio de contrasena
 
 ### Checklist de cierre
-- [ ] Token de reset expira en 60 minutos
-- [ ] Cambio de contrasena revoca TODAS las sesiones activas
-- [ ] Password history mantiene maximo 12 registros (trigger PostgreSQL)
-- [ ] Avatar se almacena en storage y retorna URL publica
-- [ ] Email de verificacion se envia (verificar en MailHog/logs)
+- [x] Token de reset expira en 60 minutos
+- [x] Cambio de contrasena revoca TODAS las sesiones activas
+- [x] Password history mantiene maximo 12 registros (trigger PostgreSQL)
+- [x] Avatar se almacena en storage y retorna URL publica
+- [x] Email de verificacion se envia (verificar en MailHog/logs)
 
 ---
 
-## Sesion 8: Polish + CI/CD + Documentacion Final
+## Sesion 8: Polish + CI/CD + Documentacion Final ✅ COMPLETADA (2026-06-20)
 
 **Objetivo**: Proyecto documentado, formateado, y listo para pipeline.
 **Prioridad**: P0 — Cierre del modulo Auth.
@@ -363,36 +369,41 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - [[API_ARCHITECTURE]] (Sec 12 PHPStan/Pint, Sec 14 ADRs)
 
 ### Tareas
-- [ ] Scribe: `php artisan scribe:generate` — documentacion en `public/docs/`
-- [ ] PHPStan nivel 10: 0 errores en `src/` y `app/`
-- [ ] Pint: 0 archivos necesitan formateo
-- [ ] Cobertura de tests:
-  - Domain >=95%, Application >=90%, Infrastructure >=85%, Presentation >=80%
+- [x] Scribe: `php artisan scribe:generate` — documentacion generada (`/docs`)
+- [x] PHPStan nivel 10: 0 errores en `src/` y `app/`
+- [x] Pint: 0 archivos necesitan formateo
+- [x] Cobertura de tests:
+  - Domain 99.25%, Application 96.54%, Infrastructure 91.41%, Presentation 93.18%
   - Security 100%, Architecture 100%
-  - Global >=80%
-- [ ] GitHub Actions: `.github/workflows/quality.yml`
+  - Global 94.4%
+- [x] GitHub Actions: `.github/workflows/quality.yml`
   - Jobs: lint (Pint), stan (PHPStan), test (Pest con coverage), scribe
   - Servicios: PostgreSQL, Redis
-- [ ] Scripts `composer.json`: `test`, `test:unit`, `test:integration`, `test:feature`, `test:security`, `test:coverage`, `stan`, `lint`, `fmt`, `migrate`, `rollback`, `scribe`, `ci`
-- [ ] ADRs: crear `docs/adr/ADR-001.md` a `ADR-005.md` ([[API_ARCHITECTURE]] Sec 14)
-- [ ] Marcar todos los endpoints de Auth como "Implementado" en el indice de [[API_CONTRACT]]
-- [ ] Verificacion final: `composer ci` pasa localmente
-- [ ] Session Manifest final del modulo Auth
+- [x] Scripts `composer.json`: `test`, `test:unit`, `test:integration`, `test:feature`, `test:security`, `test:coverage`, `stan`, `lint`, `fmt`, `migrate`, `rollback`, `scribe`, `ci`
+- [x] ADRs: creados `docs/adr/ADR-001.md` a `ADR-005.md` ([[API_ARCHITECTURE]] Sec 14)
+- [x] Todos los endpoints de Auth marcados como "Implementado" en el indice de [[API_CONTRACT]]
+- [x] Verificacion final: `composer ci` pasa localmente
+- [x] Session Manifest actualizado como cierre del modulo Auth
 
 ### Entregable
-- Pipeline CI/CD verde en GitHub Actions
+- Pipeline CI/CD configurado en `.github/workflows/quality.yml`
 - Documentacion de API generada y accesible en `/docs`
-- Todos los tests pasan con cobertura minima
+- 252 tests pasan con cobertura global 94.4 %
 - Codigo formateado y sin errores de analisis estatico
 - Modulo Auth marcado como completado
 
 ### Checklist de cierre
-- [ ] `composer ci` ejecuta sin errores localmente
-- [ ] GitHub Actions pasa en push/PR
-- [ ] Cobertura global >=80% (verificar con `--coverage`)
-- [ ] Scribe genera docs sin errores
-- [ ] ADRs creados y completos
-- [ ] No hay dependencias circulares entre capas (verificar con architecture tests)
+- [x] `composer ci` ejecuta sin errores localmente
+- [x] GitHub Actions configurado para push/PR
+- [x] Cobertura global >=80% (94.4 %)
+- [x] Scribe genera docs
+- [x] ADRs creados y completos
+- [x] No hay dependencias circulares entre capas (architecture tests verdes)
+
+> **Nota de cierre del modulo Auth**: El modulo Auth esta completo y congelado.
+> Las interfaces de Domain/Application definidas en las sesiones 2-3 no deben
+> modificarse sin actualizar todos los consumidores. El trabajo posterior debe
+> iniciar un nuevo modulo de negocio siguiendo el mismo ritual de sesiones.
 
 ---
 

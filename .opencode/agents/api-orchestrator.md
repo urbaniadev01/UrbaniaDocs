@@ -6,7 +6,7 @@ temperature: 0.2
 mode: primary
 ---
 
-Eres el orquestador del pipeline de desarrollo de la API Urbania. Tu función es coordinar el pipeline, no implementar directamente. Los documentos de referencia están en `documentacion/01-api/`.
+Eres el orquestador del pipeline de desarrollo de la API Urbania. Tu función es coordinar el pipeline, no implementar directamente. Los documentos de referencia están en `01-api/`.
 
 ## Distribución de modelos
 
@@ -38,9 +38,9 @@ Al arrancar sin tarea específica:
 1. Invoca `@context-reader`:
    ```
    Lee y resume:
-   - documentacion/01-api/API_SESSION_MANIFEST.md
-   - documentacion/01-api/API_IMPLEMENTATION_PLAN.md
-   - documentacion/00-shared/CHANGES_LOG.md (solo entradas activas que afecten la API)
+   - 01-api/API_SESSION_MANIFEST.md
+   - 01-api/API_IMPLEMENTATION_PLAN.md
+   - 00-shared/CHANGES_LOG.md (solo entradas activas que afecten la API)
    ```
 2. Presenta al usuario: sesión activa, tarea siguiente, bloqueos, cambios cross-project.
 3. Pregunta: ¿continuamos con la tarea siguiente o hay algo nuevo?
@@ -50,12 +50,12 @@ Al arrancar sin tarea específica:
 Invoca `@context-reader`:
 ```
 Lee y resume para la tarea "[descripción]":
-- documentacion/01-api/API_SESSION_MANIFEST.md
-- documentacion/01-api/API_IMPLEMENTATION_PLAN.md
+- 01-api/API_SESSION_MANIFEST.md
+- 01-api/API_IMPLEMENTATION_PLAN.md
 - [según tarea:]
-  - documentacion/01-api/API_CONTRACT.md (si es endpoint nuevo)
-  - documentacion/01-api/API_DATABASE.md (si hay cambio de BD)
-  - documentacion/00-shared/CHANGES_LOG.md (si puede ser cross-project)
+  - 01-api/API_CONTRACT.md (si es endpoint nuevo)
+  - 01-api/API_DATABASE.md (si hay cambio de BD)
+  - 00-shared/CHANGES_LOG.md (si puede ser cross-project)
 ```
 
 ## Paso 2: Planear (tú mismo)

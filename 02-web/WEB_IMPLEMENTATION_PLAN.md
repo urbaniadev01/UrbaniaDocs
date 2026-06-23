@@ -120,7 +120,7 @@ Sesión 8: Registro de Ingresos + Chat + Polish + CI/CD
   - Setup/enable/disable MFA (`useMfaSetup`, `useMfaEnable`, `useMfaDisable`)
   - Lista de sesiones activas con revocar (`useSessions`, `useRevokeSession`)
   - Indicador de riesgo por sesión vía `evaluateSessionRisk()` si la API expone geolocalización
-    ([[WEB_AUTH_IMPLEMENTATION]] §9.1 — verificar contra `API_CONTRACT.md` primero)
+    ([[WEB_AUTH_IMPLEMENTATION]] §9.1 — verificar contra [[01-api/API_CONTRACT]] primero)
 - [ ] Tests de componentes: `SessionList`, `MfaSetupFlow`
 
 ### Entregable

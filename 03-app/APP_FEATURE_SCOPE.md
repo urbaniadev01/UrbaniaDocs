@@ -12,9 +12,11 @@ updated: 2026-06-18
 
 > [!info] Consultar
 > Antes de iniciar cualquier sesión nueva de [[APP_IMPLEMENTATION_PLAN]], para confirmar prioridad y dependencias del módulo de negocio que se va a tocar.
+> Para el diccionario global de features (incluyendo API y Web), ver [[00-shared/FEATURES_INDEX]].
+> Para el spec técnico de un feature en App, ver `03-app/features/<NOMBRE>.md` (ver [[03-app/features/_TEMPLATE]]).
 
 > [!warning] Sobre los endpoints de negocio
-> Hoy `API_CONTRACT.md` del backend **solo** documenta Auth + Health Check ([[01-api/API_AGENTS|AGENTS]] del API: "Describe la base técnica del proyecto y el módulo Auth, exclusivamente"). Todo lo de este documento que no sea Auth/Perfil es **diseño de producto adelantado** para guiar arquitectura del cliente — el contrato real de cada módulo se define en `API_CONTRACT.md` cuando el backend lo inicie, siguiendo el mismo patrón que ya usa Auth. Este documento no inventa contratos de API; donde se necesite uno para razonar sobre la app, se marca explícitamente como **(propuesto, pendiente de diseño en backend)**.
+> Hoy [[01-api/API_CONTRACT]] **solo** documenta Auth + Health Check. El detalle de cada endpoint vive en `01-api/endpoints/<FEATURE>.md`. Todo lo de este documento que no sea Auth/Perfil es **diseño de producto adelantado** para guiar arquitectura del cliente — el contrato real de cada módulo se define en `01-api/endpoints/<FEATURE>.md` cuando el backend lo inicie, siguiendo el mismo patrón que ya usa Auth ([[01-api/endpoints/AUTH]]). Este documento no inventa contratos de API; donde se necesite uno para razonar sobre la app, se marca explícitamente como **(propuesto, pendiente de diseño en backend)**.
 
 ---
 
@@ -41,7 +43,7 @@ Urbania App es el cliente móvil del sistema Urbania de administración de propi
 
 | Feature | Pantallas | Estado del API |
 |---|---|---|
-| Autenticación (login, registro, MFA, recuperación de contraseña) | `LoginScreen`, `RegisterScreen`, `MfaVerificationScreen`, `ForgotPasswordScreen`, `ResetPasswordScreen` | ✅ Diseñado en `API_CONTRACT.md` §1 |
+| Autenticación (login, registro, MFA, recuperación de contraseña) | `LoginScreen`, `RegisterScreen`, `MfaVerificationScreen`, `ForgotPasswordScreen`, `ResetPasswordScreen` | ✅ Diseñado en [[01-api/endpoints/AUTH]] |
 | Gestión de sesión (ver/revocar dispositivos) | `ActiveSessionsScreen` | ✅ Diseñado (`/auth/sessions`) |
 | Perfil de usuario | `ProfileScreen`, `EditProfileScreen`, `ChangePasswordScreen` | ✅ Diseñado (`/auth/me`) |
 | Onboarding / Splash con verificación de sesión + biometría | `SplashScreen`, `OnboardingScreen` | N/A (lógica de cliente) |

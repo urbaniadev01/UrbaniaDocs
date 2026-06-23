@@ -19,7 +19,7 @@ En caso de duda, tratarlo como cross-project.
 
 ## Flujo paso a paso
 
-### 1. Abrir entrada en documentacion/00-shared/CHANGES_LOG.md
+### 1. Abrir entrada en 00-shared/CHANGES_LOG.md
 ```markdown
 ## CAMBIO-NNN — <título corto>
 - Fecha de apertura: YYYY-MM-DD
@@ -32,7 +32,7 @@ En caso de duda, tratarlo como cross-project.
 ```
 NNN se incrementa sin reutilizar números.
 
-### 2. Actualizar documentacion/00-shared/SYSTEM_CONTRACT.md §1
+### 2. Actualizar 00-shared/SYSTEM_CONTRACT.md §1
 Modificar la fila de la interfaz afectada, marcando el cambio "en revisión".
 
 ### 3. Referenciar desde cada proyecto afectado

@@ -57,7 +57,7 @@ Cualquier persona del equipo, de cualquier proyecto. No requiere aprobación pre
 
 ## 4. Para Features Nuevas (no cambios reactivos)
 
-Si el cambio cross-project nace como una feature nueva planeada desde cero (no una corrección o ajuste a algo existente), usar [[FEATURE_PLANNING_TEMPLATE]] en vez de este flujo directamente — la plantilla ya incluye su propio enganche con `CHANGES_LOG.md`.
+Si el cambio cross-project nace como una feature nueva planeada desde cero (no una corrección o ajuste a algo existente), usar [[FEATURE_PLANNING_TEMPLATE]] en vez de este flujo directamente — la plantilla ya incluye su propio enganche con `CHANGES_LOG.md` y el registro en [[FEATURES_INDEX]].
 
 ---
 
@@ -66,5 +66,6 @@ Si el cambio cross-project nace como una feature nueva planeada desde cero (no u
 | Documento | Propósito |
 |---|---|
 | [[SYSTEM_CONTRACT]] | Qué interfaces están sujetas a este flujo |
+| [[FEATURES_INDEX]] | Diccionario global donde se registra el feature |
 | [[CHANGES_LOG]] | Dónde se registra cada cambio |
 | [[FEATURE_PLANNING_TEMPLATE]] | Variante de este flujo para features planeadas desde cero |

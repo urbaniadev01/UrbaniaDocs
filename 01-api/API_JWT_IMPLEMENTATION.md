@@ -113,12 +113,11 @@ sequenceDiagram
 {
   "jti": "uuid-v7-del-token",
   "sub": "uuid-v7-del-usuario",
-  "iss": "https://api.tudominio.com",
-  "aud": ["api.tudominio.com", "web.tudominio.com", "app.movil"],
+  "iss": "https://api.urbania.com",
+  "aud": ["api.urbania.com", "web.urbania.com", "app.urbania"],
   "iat": 1717776000,
   "nbf": 1717776000,
   "exp": 1717776900,
-  "scope": "resource:read resource:write",
   "role": "admin",
   "mfa_verified": true,
   "session_id": "uuid-v7-de-la-sesion",
@@ -127,22 +126,20 @@ sequenceDiagram
 ```
 
 > [!note] Nota sobre autorización (MVP)
-> - Los permisos se derivan del `role` (enum UserRole: `admin` o `user`).
-> - NO se implementa el claim `scope` de OAuth2 en el MVP.
-> - Para autorización granular en el futuro (ej: permisos de solo lectura sobre un recurso especifico), se evaluará la necesidad de una tabla `permissions` post-MVP.
-> - Ver esta misma sección (§3.2) para la estructura actual del token.
+> - Los permisos se derivan del `role` (enum UserRole: `admin` o `user`), almacenado en `users.role` (ver [[API_DATABASE]] §2.1).
+> - **NO** se implementa el claim `scope` de OAuth2 en el MVP — el token no incluye ese campo.
+> - Para autorización granular en el futuro (ej: permisos de solo lectura sobre un recurso específico), se evaluará la necesidad de una tabla `permissions` post-MVP.
 
 | Claim | Descripción | Validación Obligatoria |
 |-------|-------------|----------------------|
 | `jti` (JWT ID) | UUID v7 único por token | Verificar en blacklist de Redis antes de aceptar |
 | `sub` (Subject) | UUID v7 del usuario | Coincidir con usuario activo en DB |
-| `iss` (Issuer) | URL del emisor | Debe ser exactamente `https://api.tudominio.com` |
+| `iss` (Issuer) | URL del emisor | Debe ser exactamente `https://api.urbania.com` |
 | `aud` (Audience) | Array de audiencias permitidas | Debe contener el identificador del cliente solicitante |
 | `iat` (Issued At) | Timestamp de emisión | No aceptar tokens con `iat` en el futuro (tolerancia: 30 segundos de drift) |
 | `nbf` (Not Before) | Timestamp de inicio de validez | No procesar antes de este tiempo |
 | `exp` (Expiration) | Timestamp de expiración | Rechazar si `exp < now()` |
-| `scope` | Permisos OAuth2-style | Verificar contra recursos solicitados |
-| `role` | Rol del usuario | Usar para autorización de alto nivel |
+| `role` | Rol del usuario (`admin`/`user`) | Usar para autorización de alto nivel |
 | `mfa_verified` | Indica si MFA fue validado | Si `mfa_enabled=true` en usuario, este claim debe ser `true` |
 | `session_id` | ID de la sesión | Vincular con refresh token family |
 | `device_fp` | Fingerprint del dispositivo | Comparar con request actual (alertar si difiere significativamente) |
@@ -156,13 +153,10 @@ sequenceDiagram
 | **Refresh Token TTL (Móvil)** | 30 días (2592000 segundos) | UX mejorada para apps móviles, compensado con fingerprinting |
 | **Clock Skew Tolerancia** | 30 segundos | Evitar rechazos por desincronización de relojes |
 | **Max Refresh Token Chain** | 50 rotaciones | Detectar robo si un token se rota excesivamente |
+| **Absolute Session Max** | 30 días | Límite absoluto de vida de una sesión, independiente de rotaciones |
 
 > [!warning] Nota sobre Max Refresh Token Chain (50)
-> Este es un límite de seguridad
-> para detectar anomalías. Si una cadena de rotación excede 50 tokens, se considera 
-> sospechosa y se registra un evento `suspicious_activity` con severidad `medium`. 
-> No revoca automáticamente la sesión, pero alerta al equipo de seguridad para revisión.
-| **Absolute Session Max** | 30 días | Límite absoluto de vida de una sesión, independiente de rotaciones |
+> Este es un límite de seguridad para detectar anomalías. Si una cadena de rotación excede 50 tokens, se considera sospechosa y se registra un evento `suspicious_activity` con severidad `medium`. No revoca automáticamente la sesión, pero alerta al equipo de seguridad para revisión.
 
 > [!note] Detección Web vs Móvil
 > El servidor identifica el tipo de cliente analizando
@@ -323,7 +317,7 @@ Set-Cookie: refresh_token={opaque_token};
 2. Si MFA habilitado:
    a. Generar código TOTP (6 dígitos, 30s ventana)
    b. Almacenar estado `mfa:pending:{user_id}` en Redis (TTL: 5 min)
-   c. Retornar 401 Unauthorized con `error.code = "MFA_REQUIRED"`. Ver [API_CONTRACT.md §1.1](API_CONTRACT.md)
+   c. Retornar 401 Unauthorized con `error.code = "MFA_REQUIRED"`. Ver [[endpoints/AUTH]] §1.1
 3. Cliente solicita `/auth/mfa/verify` con código
 4. Validar código contra secreto TOTP del usuario
 5. Si válido:
@@ -350,22 +344,16 @@ Ver [[API_DATABASE]] §2.1 para la definición exacta de la columna mfa_backup_c
 
 
 
-### 7.4 Endpoints MFA (API Contract)
+### 7.3 TOTP Configuración
 
-| Endpoint | Método | Descripción |
-|----------|--------|-------------|
-| `/api/v1/auth/mfa/setup` | POST | Iniciar configuración MFA (generar secreto TOTP, retornar QR) |
-| `/api/v1/auth/mfa/verify` | POST | Verificar código TOTP durante login o setup |
-| `/api/v1/auth/mfa/enable` | POST | Habilitar MFA después de verificación exitosa |
-| `/api/v1/auth/mfa/disable` | POST | Deshabilitar MFA (requiere contraseña + código TOTP) |
-| `/api/v1/auth/mfa/backup-codes` | POST | Regenerar códigos de respaldo |
-| `/api/v1/auth/mfa/verify-backup` | POST | Verificar con código de respaldo |
-
-> [!note] Nota
-> Detalles de request/response en [[API_CONTRACT]] Sección 1 (Autenticación).
-
-
-
+| Parámetro | Valor | Nota |
+|-----------|-------|------|
+| Algoritmo | SHA-256 | Google Authenticator, Authy, y Microsoft Authenticator soportan SHA-256 desde 2020. SHA-1 está deprecado. |
+| Dígitos | 6 | — |
+| Período | 30 segundos | — |
+| Ventana de validación | ±1 período (90 segundos totales) | — |
+| Secreto | 160 bits (32 chars base32) | — |
+| Encriptación en DB | AES-256-GCM con clave de aplicación | Columna `mfa_secret` en `users` |
 
 > [!note] Librería recomendada
 > `pragmarx/google2fa-laravel` (compatible con Google Authenticator, Authy, Microsoft Authenticator).
@@ -379,16 +367,19 @@ Ver [[API_DATABASE]] §2.1 para la definición exacta de la columna mfa_backup_c
 > ```
 > Ver [documentación oficial](https://github.com/antonioribeiro/google2fa#hmac-algorithms).
 
-### 7.3 TOTP Configuración
+### 7.4 Endpoints MFA (API Contract)
 
-| Parámetro | Valor |
-|-----------|-------|
-| Algoritmo | SHA-256 | Google Authenticator, Authy, y Microsoft Authenticator soportan SHA-256 desde 2020. SHA-1 está deprecado. |
-| Dígitos | 6 |
-| Período | 30 segundos |
-| Ventana de validación | ±1 período (90 segundos totales) |
-| Secreto | 160 bits (32 chars base32) |
-| Encriptación en DB | AES-256-GCM con clave de aplicación |
+| Endpoint | Método | Descripción |
+|----------|--------|-------------|
+| `/api/v1/auth/mfa/setup` | POST | Iniciar configuración MFA (generar secreto TOTP, retornar QR y backup codes) |
+| `/api/v1/auth/mfa/enable` | POST | Confirmar y activar MFA con código TOTP (tras /mfa/setup) |
+| `/api/v1/auth/mfa/verify` | POST | Verificar código TOTP durante login (tipo `login`) |
+| `/api/v1/auth/mfa/verify-backup` | POST | Verificar código de respaldo durante login |
+| `/api/v1/auth/mfa/disable` | POST | Deshabilitar MFA (requiere contraseña + código TOTP) |
+| `/api/v1/auth/mfa/backup-codes` | POST | Regenerar códigos de respaldo |
+
+> [!note] Nota
+> Detalles de request/response en [[API_CONTRACT]] Sección 1 (Autenticación).
 
 ---
 

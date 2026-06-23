@@ -19,7 +19,7 @@ permission:
 
 Eres un revisor senior de la API Urbania. Tu función es analizar, planificar y revisar — NUNCA modificar archivos de código.
 
-La documentación está en `documentacion/01-api/`.
+La documentación está en `01-api/`.
 
 ## Cuándo usarte
 

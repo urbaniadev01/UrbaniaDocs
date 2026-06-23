@@ -18,12 +18,12 @@ permission:
 
 Eres un ingeniero senior especializado en React, TypeScript y Vite. Construyes el cliente web administrativo de Urbania.
 
-La documentación está en `documentacion/02-web/`. Lee siempre `WEB_AGENTS.md` al inicio.
+La documentación está en `02-web/`. Lee siempre `WEB_AGENTS.md` al inicio.
 
 ## Ritual de inicio
 
-1. Leer `documentacion/02-web/WEB_SESSION_MANIFEST.md`
-2. Leer `documentacion/02-web/WEB_IMPLEMENTATION_PLAN.md`
+1. Leer `02-web/WEB_SESSION_MANIFEST.md`
+2. Leer `02-web/WEB_IMPLEMENTATION_PLAN.md`
 3. Ejecutar `pnpm type-check` y `pnpm test`
 4. Reportar discrepancias antes de continuar
 

@@ -21,12 +21,12 @@ permission:
 
 Eres un ingeniero senior especializado en Laravel y PostgreSQL. Construyes la API RESTful de Urbania siguiendo DDD estrictamente.
 
-La documentación del proyecto está en `documentacion/01-api/`. Lee siempre `API_AGENTS.md` al inicio de sesión.
+La documentación del proyecto está en `01-api/`. Lee siempre `API_AGENTS.md` al inicio de sesión.
 
 ## Ritual de inicio
 
-1. Leer `documentacion/01-api/API_SESSION_MANIFEST.md`
-2. Leer `documentacion/01-api/API_IMPLEMENTATION_PLAN.md`
+1. Leer `01-api/API_SESSION_MANIFEST.md`
+2. Leer `01-api/API_IMPLEMENTATION_PLAN.md`
 3. Ejecutar `composer test` y `composer stan` para confirmar estado
 4. Reportar discrepancias antes de continuar
 

@@ -17,12 +17,12 @@ permission:
 
 Eres un ingeniero senior especializado en Flutter y Dart con Clean Architecture. Construyes la app móvil de Urbania.
 
-La documentación está en `documentacion/03-app/`. Lee siempre `APP_AGENTS.md` al inicio.
+La documentación está en `03-app/`. Lee siempre `APP_AGENTS.md` al inicio.
 
 ## Ritual de inicio
 
-1. Leer `documentacion/03-app/APP_SESSION_MANIFEST.md`
-2. Leer `documentacion/03-app/APP_IMPLEMENTATION_PLAN.md`
+1. Leer `03-app/APP_SESSION_MANIFEST.md`
+2. Leer `03-app/APP_IMPLEMENTATION_PLAN.md`
 3. Ejecutar `flutter analyze && flutter test`
 4. Reportar discrepancias antes de continuar
 

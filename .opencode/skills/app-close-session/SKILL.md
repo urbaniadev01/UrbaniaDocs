@@ -13,22 +13,22 @@ flutter test
 Si falla: reportar el error exacto y detenerse.
 
 ### 2. Actualizar APP_SESSION_MANIFEST.md
-Archivo: `documentacion/03-app/APP_SESSION_MANIFEST.md`
+Archivo: `03-app/APP_SESSION_MANIFEST.md`
 - Marcar tareas completadas
 - Agregar bloqueos si los hay
 - Actualizar estado general
 
 ### 3. Actualizar APP_IMPLEMENTATION_PLAN.md
-Archivo: `documentacion/03-app/APP_IMPLEMENTATION_PLAN.md`
+Archivo: `03-app/APP_IMPLEMENTATION_PLAN.md`
 - Marcar la sesión como cerrada con fecha
 - Confirmar próxima sesión
 
 ### 4. Verificar consistencia
 
-Verificar que `documentacion/01-api/API_CONTRACT.md` tiene implementados los endpoints consumidos en esta sesión.
+Verificar que `01-api/API_CONTRACT.md` tiene implementados los endpoints consumidos en esta sesión.
 
 Si había cambio cross-project activo:
-- Actualizar estado en `documentacion/00-shared/CHANGES_LOG.md`
+- Actualizar estado en `00-shared/CHANGES_LOG.md`
 
 ### 5. Commit
 ```bash

@@ -149,7 +149,22 @@ QUEUE_CONNECTION=redis
 > [!note] Nota
 > Redis se usa para: blacklist JWT, sesiones, rate limiting, cache, colas y MFA pending.
 
+### 4.4 Configurar Mail (Mailer)
 
+Editar `.env` para el entorno local (Mailhog o similar):
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=mailhog
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="noreply@urbania.com"
+MAIL_FROM_NAME="Urbania"
+```
+
+> [!note] Nota
+> Mail es requerido para `POST /auth/forgot-password` y notificaciones de seguridad (cambio de contraseña, nuevo dispositivo detectado). En desarrollo, agregar el servicio `mailhog` al `docker-compose.yml` o usar `MAIL_MAILER=array` para suprimir envíos reales durante testing. Ver `phpunit.xml` en [[API_SETUP_GUIDE]] §9.3.
 
 ### 4.5 Configurar Filesystem
 
@@ -209,8 +224,8 @@ return [
         'private' => env('JWT_PRIVATE_KEY_PATH', storage_path('jwt/private.pem')),
         'passphrase' => env('JWT_PASSPHRASE'),
     ],
-    'ttl' => env('JWT_TTL', 15), // minutos
-    'refresh_ttl' => env('JWT_REFRESH_TTL', 20160), // 14 días (ajustar según web/móvil)
+    'ttl' => env('JWT_TTL', 15), // minutos (Access Token TTL)
+    'refresh_ttl' => env('JWT_REFRESH_TTL', 10080), // minutos. Default: 7 días (web). Móvil usa 43200 (30 días). Ver [[API_JWT_IMPLEMENTATION]] §3.3
     'algo' => env('JWT_ALGO', 'RS256'),
     'required_claims' => [
         'iss',
@@ -427,20 +442,34 @@ Registrar provider en `config/app.php` segun **[[API_ARCHITECTURE]]** seccion 9.
 
 ### 8.6 Rutas del Modulo Auth
 
-Definir rutas segun **[[API_CONTRACT]]** seccion 1 (Autenticacion). Endpoints a implementar:
+Definir rutas segun **[[API_CONTRACT]]** seccion 1 (Autenticacion). Lista completa de endpoints a implementar:
 
-- `POST /api/v1/auth/login`
-- `POST /api/v1/auth/mfa/verify`
-- `POST /api/v1/auth/mfa/verify-backup` (ver [[API_CONTRACT]] §1.15.1)
-- `POST /api/v1/auth/register`
-- `POST /api/v1/auth/logout`
-- `POST /api/v1/auth/refresh`
-- `GET /api/v1/auth/me`
-- `POST /api/v1/auth/forgot-password`
-- `POST /api/v1/auth/reset-password`
-- `GET /api/v1/auth/sessions`
-- `DELETE /api/v1/auth/sessions` (revocar todas excepto actual)
-- `DELETE /api/v1/auth/sessions/{session_id}` (revocar específica)
+**Endpoints públicos (sin auth):**
+- `POST /api/v1/auth/login` (§1.1)
+- `POST /api/v1/auth/register` (§1.2)
+- `POST /api/v1/auth/refresh` (§1.4)
+- `POST /api/v1/auth/forgot-password` (§1.6)
+- `POST /api/v1/auth/reset-password` (§1.7)
+- `POST /api/v1/auth/verify-email` (§1.12)
+- `POST /api/v1/auth/mfa/verify` (§1.16 — completar login MFA con TOTP)
+- `POST /api/v1/auth/mfa/verify-backup` (§1.17 — completar login MFA con código de respaldo)
+
+**Endpoints protegidos (requieren Bearer token):**
+- `POST /api/v1/auth/logout` (§1.3)
+- `GET /api/v1/auth/me` (§1.5)
+- `POST /api/v1/auth/change-password` (§1.11 — también acepta `limited_token` de FORCE_PASSWORD_CHANGE)
+- `POST /api/v1/auth/resend-verification` (§1.13)
+- `PATCH /api/v1/auth/me` (§1.14)
+- `POST /api/v1/auth/mfa/setup` (§1.15)
+- `POST /api/v1/auth/mfa/enable` (§1.18)
+- `POST /api/v1/auth/mfa/disable` (§1.19)
+- `POST /api/v1/auth/mfa/backup-codes` (§1.20)
+- `GET /api/v1/auth/sessions` (§1.8)
+- `DELETE /api/v1/auth/sessions` (§1.9 — revocar todas excepto la actual)
+- `DELETE /api/v1/auth/sessions/{session_id}` (§1.10 — revocar sesión específica)
+
+**Endpoint de infraestructura:**
+- `GET /api/v1/health` (§11.1 — implementado en Sesión 1, no en el ServiceProvider de Auth)
 
 Formatos de request/response, codigos HTTP y manejo de errores definidos en **[[API_CONTRACT]]**.
 

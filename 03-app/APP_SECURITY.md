@@ -12,7 +12,7 @@ updated: 2026-06-18
 
 > [!info] Consultar
 > Antes de tocar tokens, biometría, almacenamiento local, pagos, o cualquier dato sensible.
-> **Fuente única para la seguridad del lado servidor**: `JWT_IMPLEMENTATION.md` del API. Este documento cubre exclusivamente lo que es responsabilidad del cliente.
+> **Fuente única para la seguridad del lado servidor**: [[01-api/API_JWT_IMPLEMENTATION]]. Este documento cubre exclusivamente lo que es responsabilidad del cliente.
 
 > [!danger] Regla de oro
 > Ningún secreto (token, contraseña, código TOTP, datos de tarjeta) se escribe jamás en `shared_preferences`, archivos planos, logs, ni se incluye en reportes de crash. Solo `flutter_secure_storage` (o el SDK de la pasarela de pago, que nunca expone el dato crudo a la app).

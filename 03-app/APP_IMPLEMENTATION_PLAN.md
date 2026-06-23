@@ -18,7 +18,7 @@ updated: 2026-06-18
 ## Principios del Plan
 
 1. **Slice vertical primero, ancho después**: la Sesión 1 produce algo ejecutable de punta a punta (app que arranca, llama al `/health` del API, muestra el resultado) antes de construir cualquier feature de negocio completa.
-2. **Auth es el único módulo de negocio con contrato de API real hoy.** El resto del plan (Reservas, Visitas, Pagos, Chat) depende de que `API_CONTRACT.md` del backend incorpore esos módulos — ver [[APP_FEATURE_SCOPE]]. Este plan no asume fechas para eso; cuando el backend defina un módulo nuevo, se agrega una sesión nueva aquí siguiendo el mismo patrón.
+2. **Auth es el único módulo de negocio con contrato de API real hoy.** El resto del plan (Reservas, Visitas, Pagos, Chat) depende de que [[01-api/API_CONTRACT]] del backend incorpore esos módulos — ver [[APP_FEATURE_SCOPE]]. Este plan no asume fechas para eso; cuando el backend defina un módulo nuevo, se agrega una sesión nueva aquí siguiendo el mismo patrón.
 3. **No bloquear UI esperando al backend**: las sesiones de infraestructura offline/sync (Sesión 7) se construyen contra un mock server basado en el contrato esperado (ver [[APP_TESTING]] §4), para que el equipo móvil avance en paralelo al de backend.
 4. **Seguridad y accesibilidad no son una fase final**: se verifican al cierre de cada sesión que toque UI o datos sensibles, no se acumulan para el final.
 
@@ -30,7 +30,7 @@ updated: 2026-06-18
 |---|---|---|---|
 | 1 | Setup + Design System Base + Slice Vertical Mínimo | P0 | SETUP_GUIDE del backend (API corriendo) |
 | 2 | Domain Layer Auth | P0 | Sesión 1 |
-| 3 | Data Layer Auth + Cliente HTTP | P0 | Sesión 2, `API_CONTRACT.md` §1 |
+| 3 | Data Layer Auth + Cliente HTTP | P0 | Sesión 2, [[01-api/endpoints/AUTH]] |
 | 4 | Presentation Layer Auth (Login/Registro/Recuperación) | P0 | Sesión 3 |
 | 5 | MFA + Gestión de Sesiones + Biometría | P0 | Sesión 4 |
 | 6 | Hardening de Seguridad | P0 | Sesión 5 |
@@ -66,7 +66,7 @@ App que compila en Android e iOS, muestra una pantalla con el estado del health 
 ## Sesión 2: Domain Layer Auth
 
 ### Documentos requeridos
-[[APP_ARCHITECTURE]] §6-7, `API_CONTRACT.md` del backend §1
+[[APP_ARCHITECTURE]] §6-7, [[01-api/endpoints/AUTH]]
 
 ### Tareas
 - [ ] `UserEntity`, `SessionEntity` en `features/auth/domain/entities/`
@@ -89,7 +89,7 @@ Capa de dominio de Auth completa, testeada sin Flutter binding.
 [[APP_API_INTEGRATION]], [[APP_SECURITY]] §2
 
 ### Tareas
-- [ ] DTOs (`freezed`) de login, registro, refresh, me — alineados 1:1 con `API_CONTRACT.md` §1
+- [ ] DTOs (`freezed`) de login, registro, refresh, me — alineados 1:1 con [[01-api/endpoints/AUTH]]
 - [ ] `AuthInterceptor`: inyección de `Authorization`, manejo de `User-Agent` (ver [[APP_API_INTEGRATION]] §2 — **crítico**), silent refresh con mutex (§4)
 - [ ] `SecureTokenStorage` (`flutter_secure_storage`)
 - [ ] `AuthRepositoryImpl` implementando la interfaz de Sesión 2
@@ -128,7 +128,7 @@ Flujo completo de autenticación (sin MFA todavía) navegable de punta a punta.
 ## Sesión 5: MFA + Gestión de Sesiones + Biometría
 
 ### Documentos requeridos
-`JWT_IMPLEMENTATION.md` del backend §7, [[APP_SECURITY]] §3
+[[01-api/API_JWT_IMPLEMENTATION]] §7, [[APP_SECURITY]] §3
 
 ### Tareas
 - [ ] `MfaVerificationScreen` (TOTP + código de respaldo)
@@ -140,7 +140,7 @@ Flujo completo de autenticación (sin MFA todavía) navegable de punta a punta.
 Flujo de login con MFA completo; usuario puede gestionar sus dispositivos y biometría.
 
 ### Checklist de cierre
-- [ ] Probado con al menos 2 apps TOTP distintas (igual exigencia que el backend, `JWT_IMPLEMENTATION.md` §9)
+- [ ] Probado con al menos 2 apps TOTP distintas (igual exigencia que el backend, [[01-api/API_JWT_IMPLEMENTATION]] §9)
 - [ ] Degradación correcta en dispositivo sin hardware biométrico
 
 ---
@@ -225,12 +225,12 @@ Build candidato a producción (P0: Auth + Perfil + infraestructura) listo para r
 
 ## Sesiones 10+: Módulos de Negocio
 
-Cada módulo nuevo (Reservas, Visitas, Pagos, Chat, PQRS — ver [[APP_FEATURE_SCOPE]] §3) se planea como una sesión nueva **solo cuando el backend correspondiente esté "Diseñado" en `API_CONTRACT.md`**, siguiendo esta plantilla:
+Cada módulo nuevo (Reservas, Visitas, Pagos, Chat, PQRS — ver [[APP_FEATURE_SCOPE]] §3) se planea como una sesión nueva **solo cuando el backend correspondiente esté "Diseñado" en [[01-api/API_CONTRACT]]**, siguiendo esta plantilla:
 
 ```
 ## Sesión N: <Módulo>
 ### Documentos requeridos
-API_CONTRACT.md del backend §<sección del módulo>, [[APP_FEATURE_SCOPE]], [[APP_DATA_STRATEGY]]
+[[01-api/API_CONTRACT]] §<sección del módulo>, [[APP_FEATURE_SCOPE]], [[APP_DATA_STRATEGY]]
 ### Tareas
 - [ ] Domain + Data + Presentation del módulo (mismo patrón de Sesiones 2-4)
 - [ ] Clasificar el módulo en la tabla de DATA_STRATEGY §1 si no estaba ya

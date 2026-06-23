@@ -41,7 +41,7 @@ updated: 2026-06-18
 | Testing | `flutter_test`, `mocktail`, `integration_test`, `patrol`, `golden_toolkit` | Ver [[APP_TESTING]] |
 
 > [!tip] Regla de versiones
-> Igual que en el API ([[APP_ARCHITECTURE]] del backend §1): siempre la última versión estable de cada paquete al momento de iniciar/retomar el proyecto. Si una versión nueva de Flutter o de un paquete introduce un breaking change, documentarlo en [[APP_DEVELOPMENT_GUIDE]] antes de actualizar, no después.
+> Igual que en el API ([[01-api/API_ARCHITECTURE]] §1): siempre la última versión estable de cada paquete al momento de iniciar/retomar el proyecto. Si una versión nueva de Flutter o de un paquete introduce un breaking change, documentarlo en [[APP_DEVELOPMENT_GUIDE]] antes de actualizar, no después.
 
 > [!warning] Decisión pendiente de confirmar con negocio
 > La pasarela de pagos (ver [[APP_FEATURE_SCOPE]] §4) no se fija aquí porque es una decisión de negocio, no solo técnica. Candidatas razonables para Colombia/LatAm: **Wompi** (Bancolombia) o **PayU**. Ambas ofrecen SDK/checkout que evita que la app toque datos de tarjeta directamente (ver [[APP_SECURITY]] §6, cumplimiento PCI-DSS SAQ A).
@@ -50,7 +50,7 @@ updated: 2026-06-18
 
 ## 2. Arquitectura: Clean Architecture *Feature-First*
 
-> A diferencia del backend (bounded contexts DDD estrictos, [[APP_ARCHITECTURE]] del API §2), el cliente móvil usa **feature-first**: cada pantalla/funcionalidad es una carpeta autocontenida con sus tres capas. Es la adaptación pragmática estándar de Clean Architecture en Flutter — el dominio de una app cliente es mucho más delgado que el de un backend (no hay reglas de negocio complejas, en su mayoría se delega al API).
+> A diferencia del backend (bounded contexts DDD estrictos, [[01-api/API_ARCHITECTURE]] §2), el cliente móvil usa **feature-first**: cada pantalla/funcionalidad es una carpeta autocontenida con sus tres capas. Es la adaptación pragmática estándar de Clean Architecture en Flutter — el dominio de una app cliente es mucho más delgado que el de un backend (no hay reglas de negocio complejas, en su mayoría se delega al API).
 
 ```
 lib/
@@ -218,7 +218,7 @@ final result = switch (failure) {
 
 ## 7. Mapeo DTO → Entity → UI
 
-Igual que el backend usa Mappers para ir de Eloquent a Entidad de Dominio ([[APP_ARCHITECTURE]] del API §6), el cliente usa el mismo patrón en `data/mappers/`:
+Igual que el backend usa Mappers para ir de Eloquent a Entidad de Dominio ([[01-api/API_ARCHITECTURE]] §6), el cliente usa el mismo patrón en `data/mappers/`:
 
 ```dart
 extension UserDtoMapper on UserResponseDto {
@@ -226,7 +226,7 @@ extension UserDtoMapper on UserResponseDto {
     id: UserId(id),
     name: name,
     email: Email(email),
-    role: UserRole.fromString(role), // 'admin' | 'user' — ver API_CONTRACT §1
+    role: UserRole.fromString(role), // 'admin' | 'user' — ver [[01-api/endpoints/AUTH]]
     avatarUrl: avatarUrl,
   );
 }
@@ -297,7 +297,7 @@ linter:
 | ADR-M006 | Pasarela de pagos (Wompi vs PayU) — pendiente de negocio | Alta |
 
 > [!tip] Nota
-> Mismo criterio que el backend ([[APP_ARCHITECTURE]] del API §14): cada ADR se crea cuando la decisión ya está aplicada en código, no como ejercicio teórico previo.
+> Mismo criterio que el backend ([[01-api/API_ARCHITECTURE]] §14): cada ADR se crea cuando la decisión ya está aplicada en código, no como ejercicio teórico previo.
 
 ---
 

@@ -11,8 +11,8 @@ permission:
 Coordinador de cambios cross-project del sistema Urbania.
 
 Al ser invocado, lee primero:
-- `documentacion/00-shared/CHANGES_LOG.md`
-- `documentacion/00-shared/SYSTEM_CONTRACT.md`
+- `00-shared/CHANGES_LOG.md`
+- `00-shared/SYSTEM_CONTRACT.md`
 
 ## Tu función
 
@@ -32,7 +32,7 @@ En caso de duda, tratarlo como cross-project.
 
 ## Flujo
 
-### 1. Abrir entrada en documentacion/00-shared/CHANGES_LOG.md
+### 1. Abrir entrada en 00-shared/CHANGES_LOG.md
 
 ```markdown
 ## CAMBIO-NNN — <título corto>
@@ -45,7 +45,7 @@ En caso de duda, tratarlo como cross-project.
 - Notas: descripción del cambio
 ```
 
-### 2. Actualizar documentacion/00-shared/SYSTEM_CONTRACT.md §1
+### 2. Actualizar 00-shared/SYSTEM_CONTRACT.md §1
 
 Modificar la fila de la interfaz afectada.
 

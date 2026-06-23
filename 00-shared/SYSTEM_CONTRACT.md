@@ -10,11 +10,8 @@ updated: 2026-06-18
 # 📜 SYSTEM_CONTRACT
 ## El Contrato entre API, Web y App
 
-> [!info] Consultar
-> Cada vez que una tarea toca algo que más de un proyecto necesita entender igual: forma de los datos, códigos de error, nombres de dominio, identidad visual compartida.
-
 > [!warning] Regla central
-> Este documento **nunca** es la fuente de verdad de un dato — es un índice que apunta a la fuente real. Si algo aquí no coincide con el documento del proyecto correspondiente, gana el documento del proyecto y este índice se corrige.
+> Este documento es un índice, no una fuente de verdad. Si hay discrepancia con el documento del proyecto, gana el documento del proyecto y este índice se corrige.
 
 ---
 
@@ -22,9 +19,9 @@ updated: 2026-06-18
 
 | Interfaz | Fuente de verdad real | Quién la define | Quién la consume |
 |---|---|---|---|
-| Contrato REST (endpoints, formatos de error, paginación, versionado `/api/v1`) | `01-api/API_CONTRACT.md` | Equipo backend | Web, App |
+| Contrato REST (endpoints, formatos de error, paginación, versionado `/api/v1`) | `01-api/API_CONTRACT.md` (diccionario) + `01-api/endpoints/<FEATURE>.md` (detalle) | Equipo backend | Web, App |
 | Contrato de tiempo real (canales/eventos de Laravel Reverb — chat) | **Propuesto, aún no implementado** — hoy descrito como diseño anticipado en `03-app/APP_DATA_STRATEGY.md` §6 | Equipo backend (pendiente de formalizar) | Web, App |
-| Códigos de error y su significado de negocio | `01-api/API_CONTRACT.md` (tabla de errores) | Equipo backend | Web, App — **nunca** redefinen un código con otro significado |
+| Códigos de error y su significado de negocio | `01-api/API_CONTRACT.md` §"Códigos de Error Completos" (tabla maestra) | Equipo backend | Web, App — **nunca** redefinen un código con otro significado |
 | Requisitos de seguridad del lado cliente (storage de tokens, biometría, rotación) | `01-api/API_JWT_IMPLEMENTATION.md` §6 (definición del backend) implementado en `03-app/APP_SECURITY.md` (App) y pendiente en Web | Equipo backend define el requisito, cada cliente lo implementa a su manera | Web, App |
 | Vocabulario de dominio (residente, zona común, PQRS, unidad, etc.) | [[GLOSSARY]] | Compartido — cualquier proyecto puede proponer un término nuevo, se valida antes de adoptarlo | API, Web, App |
 | Identidad visual / design tokens | **Pendiente de decisión** — hoy cada proyecto define la suya (`03-app/APP_DESIGN_SYSTEM.md` para App); no hay tokens compartidos todavía | A decidir | Web, App (si se decide compartir marca) |
@@ -38,15 +35,7 @@ updated: 2026-06-18
 
 ---
 
-## 3. Historial de Versiones de este Contrato
-
-| Versión | Fecha | Cambio |
-|---|---|---|
-| 1.0 | 2026-06-18 | Versión inicial — captura el estado conocido al momento de unificar el vault. Web aún no incorporada en detalle (pendiente de recibir su documentación). |
-
----
-
-## 4. Documentos Relacionados
+## 3. Documentos Relacionados
 
 | Documento | Propósito |
 |---|---|

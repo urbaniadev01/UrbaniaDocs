@@ -1,6 +1,3 @@
 {
-  "enabledCssSnippets": [
-    "mermaid-scrollable"
-  ],
-  "accentColor": "#ac1515"
+  "baseFontSize": 16
 }

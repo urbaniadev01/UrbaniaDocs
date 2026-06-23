@@ -176,7 +176,7 @@ Infrastructure -> Domain
 - **Presentation** depende de **Application** (DTOs de request/response)
 - **Application** depende de **Domain** (use cases orquestan entidades)
 - **Infrastructure** depende de **Domain** (implementa interfaces de repositorio)
-- **Domain** NO depende de nada externo (ni Laravel, ni paquetes de terceros)
+- **Domain** NO depende de framework ni infraestructura (ni Laravel, ni Eloquent, ni paquetes de infraestructura). **Permitido**: librerias de utilidad pura sin acoplamiento a framework (ej: `ramsey/uuid`, `egulias/email-validator`, `DateTimeImmutable`)
 - **NUNCA** una capa superior importa de una inferior
 - **NUNCA** un bounded context importa de otro bounded context
 - **NUNCA** `Shared/` importa de ningun bounded context
@@ -184,10 +184,11 @@ Infrastructure -> Domain
 
 ### Excepciones permitidas a la regla de dependencia
 
-| Componente | Ubicación | Justificación                                                                                                                                                                                                    |
-|-----------|-----------|---------------|
-| **Mappers** | `Infrastructure/Mappers/` | Puente de conversión Eloquent ↔ Domain. Importan entidades de Domain para crear instancias y acceden a Eloquent models para persistencia. Son la frontera anti-corruption layer entre infraestructura y dominio. |
-| **Excepciones de Infraestructura** | `Infrastructure/Exceptions/` | Pueden extender `DomainException` para unificar el manejo de errores HTTP. Ver [[API_JWT_IMPLEMENTATION]] §8.1 para lista de eventos de seguridad.                                          |
+| Componente                         | Ubicación                    | Justificación                                                                                                                                                                                                    |
+| ---------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Mappers**                        | `Infrastructure/Mappers/`    | Puente de conversión Eloquent ↔ Domain. Importan entidades de Domain para crear instancias y acceden a Eloquent models para persistencia. Son la frontera anti-corruption layer entre infraestructura y dominio. |
+| **Excepciones de Infraestructura** | `Infrastructure/Exceptions/` | Pueden extender `DomainException` para unificar el manejo de errores HTTP. Ver [[API_JWT_IMPLEMENTATION]] §8.1 para lista de eventos de seguridad.                                                               |
+| **Librerias de utilidad pura**     | `Domain/**`                  | Librerias sin acoplamiento a framework son aceptables en Domain: `ramsey/uuid` (UUID v7), `egulias/email-validator` (validacion RFC). Equivalente a usar `DateTimeImmutable` nativo de PHP. |
 
 ---
 
@@ -718,10 +719,11 @@ QUEUE_CONNECTION=redis
 JWT_SECRET=
 JWT_ALGO=RS256
 JWT_TTL=15
+JWT_REFRESH_TTL=10080
+# JWT_REFRESH_TTL en minutos: 10080 = 7 días (web). Móvil usa 43200 (30 días). Ver [[API_JWT_IMPLEMENTATION]] §3.3
 JWT_PRIVATE_KEY_PATH=storage/jwt/private.pem
 JWT_PUBLIC_KEY_PATH=storage/jwt/public.pem
 JWT_PASSPHRASE=
-# JWT_REFRESH_TTL: ver JWT_IMPLEMENTATION.md Sección 3.3 (diferenciado web/móvil)
 
 # MFA (configuración completa en JWT_IMPLEMENTATION.md)
 MFA_ISSUER=Urbania

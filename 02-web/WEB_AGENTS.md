@@ -3,7 +3,7 @@ title: WEB_AGENTS
 type: guia-navegacion
 tags: [urbania-web, agente, navegacion, fuente-unica]
 status: vigente
-ultima_revision: 2026-06-17
+ultima_revision: 2026-06-19
 ---
 
 # 📚 URBANIA WEB - AGENTS_GUIDE
@@ -13,12 +13,31 @@ ultima_revision: 2026-06-17
 > Lee este documento **siempre** al inicio de cada tarea. Es tu mapa de navegación. Extrae las
 > reglas de oro. Luego consulta la fase específica según el tipo de tarea.
 
+---
+
+## §0. ¿Tu tarea viene de un cambio cross-project?
+
+Antes de continuar, responde esta pregunta:
+
+```
+¿Existe una entrada activa en [[00-shared/CHANGES_LOG]] que afecte a Web?
+
+  → Sí: leer esa entrada antes de continuar.
+         Verificar que esté referenciada en [[WEB_SESSION_MANIFEST]] §Bloqueos.
+         Si no está, agregarla ahora — el cambio no puede cerrarse hasta que
+         esté enlazado en el manifest del proyecto.
+
+  → No / no sé: continuar desde el mapa de documentación.
+```
+
+Si llegas aquí en modo cross-project, la entrada ya debería existir en `CHANGES_LOG`. Enlázala en `WEB_SESSION_MANIFEST` antes de escribir una sola línea de código.
+
 > [!important] Alcance de la documentación
 > Esta documentación contiene **todas** las especificaciones técnicas del cliente web Urbania.
 > Si encuentras una inconsistencia, error o incoherencia, repórtalo de inmediato en
 > `WEB_SESSION_MANIFEST.md` § Bloqueos. No consultes documentos externos durante la
-> implementación — la única excepción es `API_CONTRACT.md` del repositorio del API, para
-> verificar contratos de endpoints.
+> implementación — la única excepción es [[01-api/API_CONTRACT]] — directamente en este vault —
+> para verificar contratos de endpoints.
 
 > [!warning] Si necesitas cambiar algo en la configuración o arquitectura, detente y consúltalo primero.
 
@@ -45,6 +64,8 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 ├── WEB_COMPONENTS.md            ← Sistema de componentes (catálogo, patrones)
 ├── WEB_VISUAL_STANDARDS.md      ← Design system: colores, tipografía, espaciado, a11y (FUENTE ÚNICA)
 ├── WEB_FEATURES_INDEX.md        ← Catálogo de módulos y estado
+├── features/                    ← Specs técnicos por feature (pantallas, componentes, edge cases)
+│   └── _TEMPLATE.md             ← Plantilla para nuevos specs de feature
 ├── WEB_IMPLEMENTATION_PLAN.md   ← Plan de sesiones (FUENTE ÚNICA)
 ├── WEB_SESSION_MANIFEST.md      ← Estado actual entre sesiones
 ├── WEB_TESTING.md               ← Especificaciones de pruebas
@@ -53,8 +74,9 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 
 > [!note] Relación con el API
 > Este cliente consume la `Urbania API REST`. El contrato de integración está en
-> [[WEB_API_CLIENT]]. Ante cualquier duda sobre endpoints, request/response o errores, la
-> fuente de verdad es `API_CONTRACT.md` del repositorio del API.
+> [[WEB_API_CLIENT]]. Ante cualquier duda sobre endpoints, la fuente de verdad es
+> [[01-api/API_CONTRACT]] (diccionario) y `01-api/endpoints/<FEATURE>.md` (detalle) —
+> accesible directamente en este vault. NUNCA se duplica request/response en documentos de Web.
 
 > [!note] Tokens de color y tipografía
 > [[WEB_COMPONENTS]] hace referencia a tokens. Los tokens están **definidos** en
@@ -67,6 +89,20 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 
 ---
 
+## Inicio de Sesión (siempre, antes de cualquier tarea)
+
+> [!warning] Nunca saltarse este ritual, aunque la sesión parezca una continuación directa.
+
+1. Leer [[WEB_SESSION_MANIFEST]] → estado real del proyecto
+2. Leer [[WEB_IMPLEMENTATION_PLAN]] → sesión activa y tarea siguiente
+3. Ejecutar `pnpm type-check` y `pnpm test` para confirmar el estado reportado
+4. Reportar cualquier discrepancia en `WEB_SESSION_MANIFEST §Bloqueos` antes de continuar
+5. Verificar §0 (¿hay cambio cross-project activo que afecte a Web?)
+
+→ Solo después de estos 5 pasos, ir al flujo de tarea correspondiente.
+
+---
+
 ## Flujo de Trabajo por Tipo de Tarea
 
 ### 1. Implementar módulo nuevo (feature)
@@ -75,15 +111,24 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 1. [[WEB_IMPLEMENTATION_PLAN]] → Identificar sesión actual
 2. [[WEB_SESSION_MANIFEST]] → Verificar estado del proyecto
 3. `WEB_AGENTS.md` → Navegación (actual)
-4. [[WEB_ARCHITECTURE]] → Estructura de carpetas (§4), convenciones (§5)
-5. [[WEB_API_CLIENT]] → Endpoints del módulo
-6. [[WEB_COMPONENTS]] → Componentes disponibles reutilizables
-7. [[WEB_VISUAL_STANDARDS]] → Tokens, patrones visuales
-8. [[WEB_FEATURES_INDEX]] → Actualizar estado al terminar
+4. [[00-shared/FEATURES_INDEX]] → Verificar que el feature existe y su estado
+5. `02-web/features/<NOMBRE>.md` → Spec técnico del feature (si existe) o crearlo usando [[02-web/features/_TEMPLATE]]
+6. [[WEB_ARCHITECTURE]] → Estructura de carpetas (§4), convenciones (§5)
+7. `01-api/endpoints/<FEATURE>.md` → Endpoints del módulo (detalle: request/response/errores/diseño)
+8. [[WEB_API_CLIENT]] → Patrón de consumo (servicio + hook, query keys, staleTime)
+9. [[WEB_COMPONENTS]] → Componentes disponibles reutilizables
+10. [[WEB_VISUAL_STANDARDS]] → Tokens, patrones visuales
+11. [[WEB_FEATURES_INDEX]] → Actualizar estado al terminar
+
+> [!warning] Bloqueante
+> No iniciar la implementación si los endpoints del feature no están en estado "Diseñado" o "Implementado"
+> en [[01-api/API_CONTRACT]]. Ver [[00-shared/FEATURES_INDEX]] para el estado del feature.
 
 **Checklist:**
 - [ ] Verificar que el módulo no existe en [[WEB_FEATURES_INDEX]]
-- [ ] Identificar endpoints necesarios en [[WEB_API_CLIENT]] (verificar contra `API_CONTRACT.md`)
+- [ ] Verificar que los endpoints están documentados en `01-api/endpoints/<FEATURE>.md`
+- [ ] Crear o actualizar spec técnico en `02-web/features/<NOMBRE>.md` (usar [[02-web/features/_TEMPLATE]])
+- [ ] Identificar endpoints necesarios en [[WEB_API_CLIENT]] (verificar contra `01-api/endpoints/<FEATURE>.md`)
 - [ ] Crear la carpeta de feature `src/features/<modulo>/{api,hooks,components,pages,types}` según [[WEB_ARCHITECTURE]] §4.1
 - [ ] Definir tipos TypeScript del módulo en `src/features/<modulo>/types/`
 - [ ] Crear query/mutation hooks con TanStack Query
@@ -146,7 +191,7 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 2. [[WEB_AUTH_IMPLEMENTATION]] → Manejo de tokens y errores de auth
 
 **Checklist:**
-- [ ] Verificar el endpoint contra `API_CONTRACT.md` antes de implementar
+- [ ] Verificar el endpoint contra [[01-api/API_CONTRACT]] antes de implementar
 - [ ] Definir tipo de respuesta TypeScript usando `ApiResponse<T>`
 - [ ] Crear función en `src/features/<modulo>/api/<modulo>.service.ts`
 - [ ] Crear hook TanStack Query (`useQuery` o `useMutation`) en `src/features/<modulo>/hooks/`
@@ -242,6 +287,12 @@ Si `pnpm ci` falla al cerrar una sesión:
 - [ ] Rutas protegidas verifican autenticación y rol `admin`
 - [ ] [[WEB_SESSION_MANIFEST]] actualizado
 - [ ] [[WEB_FEATURES_INDEX]] actualizado
+
+---
+
+## Documentación de Librerías
+
+Cuando necesites documentación actualizada de React, Vite, TanStack Query, React Router, Tailwind v4, Zod, shadcn/ui u otro paquete, usa las herramientas de **context7**.
 
 ---
 

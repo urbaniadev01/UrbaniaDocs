@@ -157,7 +157,7 @@ function freezeTime(callable $callback): void
 **Propósito**: Verificar que la arquitectura Clean/DDD no se viola.
 
 **Reglas a testear** (ver [[API_ARCHITECTURE]] Sección 3):
-- Domain no depende de nada externo (Illuminate, Laravel, otras capas)
+- Domain no depende de framework ni infraestructura (Illuminate, Laravel, Eloquent, otras capas). Librerias de utilidad pura (`ramsey/uuid`, `egulias/email-validator`) son permitidas — ver [[API_ARCHITECTURE]] §4
 - Domain no depende de otros bounded contexts
 - Application solo depende de Domain y Shared
 - Infrastructure depende de Domain e implementa interfaces
@@ -169,10 +169,11 @@ function freezeTime(callable $callback): void
 
 **Ejemplo mínimo**:
 ```php
-arch('Domain no depende de nada externo')
+arch('Domain no depende de framework ni infraestructura')
     ->expect('Urbania\Auth\Domain')
     ->not->toDependOn('Illuminate')
     ->not->toDependOn('Urbania\Auth\Infrastructure');
+// Nota: ramsey/uuid y egulias/email-validator son utilidad pura — no se excluyen
 
 arch('Todos los DTOs son readonly')
     ->expect('Urbania\Auth\Application\DTOs')
@@ -192,7 +193,7 @@ arch('Todos los DTOs son readonly')
 - Mock **todos** los repositorios (interfaces de Domain).
 - No usar `RefreshDatabase`.
 - Probar casos edge, excepciones, y lógica de negocio.
-- Cobertura mínima: 95% de Domain (Entities, VO, Exceptions). Ver [[API_TESTING]] §6.1.
+- Cobertura mínima: 95% de Domain (Entities, VO, Exceptions). Ver [[API_TESTING]] §5.1.
 
 **Ejemplo mínimo** (User entity + Password VO):
 ```php
@@ -434,7 +435,7 @@ it('validates TOTP code within window and rejects outside', function () {
 
 ---
 
-## 4. Factories y Fixtures
+## 5. Factories y Fixtures
 
 > [!note] Principio
 > Las factories deben reflejar exactamente el esquema de [[API_DATABASE]].
@@ -462,6 +463,7 @@ class UserFactory extends Factory
     {
         return [
             'id' => Uuid::uuid7()->toString(),
+            'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'password_hash' => Hash::make('SecurePass123!'),
             'email_verified_at' => now(),
@@ -474,6 +476,7 @@ class UserFactory extends Factory
             'last_login_ip' => null,
             'password_changed_at' => now(),
             'must_change_password' => false,
+            'role' => 'user',
             'status' => 'active',
             'created_at' => now(),
             'updated_at' => now(),

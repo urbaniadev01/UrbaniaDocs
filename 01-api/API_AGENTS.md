@@ -3,7 +3,7 @@ type: meta
 status: active
 priority: P0
 tags: [navigation, rules, agent-instructions]
-updated: 2026-06-17
+updated: 2026-06-19
 ---
 
 # 📚 URBANIA API - AGENTS.md
@@ -11,6 +11,25 @@ updated: 2026-06-17
 
 > [!todo] Instruccion para el agente
 > Lee este documento SIEMPRE al inicio de cada tarea. Es tu mapa de navegacion. Extrae las reglas de oro. Luego consulta la fase especifica segun el tipo de tarea.
+
+---
+
+## §0. ¿Tu tarea viene de un cambio cross-project?
+
+Antes de continuar, responde esta pregunta:
+
+```
+¿Existe una entrada activa en [[00-shared/CHANGES_LOG]] que afecte a la API?
+
+  → Sí: leer esa entrada antes de continuar.
+         Verificar que esté referenciada en [[API_SESSION_MANIFEST]] (sección Notas o Deuda).
+         Si no está, agregarla ahora — el cambio no puede cerrarse hasta que
+         esté enlazado en el manifest del proyecto.
+
+  → No / no sé: continuar desde el mapa de documentacion.
+```
+
+Si llegas aquí en modo cross-project, la entrada ya debería existir en `CHANGES_LOG`. Enlázala en `API_SESSION_MANIFEST` antes de escribir una sola línea de código.
 
 > [!warning]
 > Esta documentacion contiene TODAS las especificaciones tecnicas del proyecto Urbania-api. Si encuentras una inconsistencia, error o incoherencia en la documentacion debes informarlo para la correccion inmediata. No consultes documentos externos durante la implementacion.
@@ -40,7 +59,11 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 ├── AGENTS.md <- Mapa de navegacion (SIEMPRE primero)
 ├── ARCHITECTURE.md <- Stack, estructura DDD, principios, ADRs
 ├── DATABASE.md <- Esquema completo de BD (FUENTE UNICA)
-├── API_CONTRACT.md <- Endpoints, request/response, errores (FUENTE UNICA de endpoints)
+├── API_CONTRACT.md <- Diccionario de endpoints + convenciones globales (FUENTE UNICA)
+├── endpoints/ <- Detalle de endpoints por feature (request/response/errores/diseño/flujo)
+│   ├── _TEMPLATE.md <- Plantilla para nuevos documentos de endpoint
+│   ├── AUTH.md <- Endpoints de autenticacion
+│   └── HEALTH.md <- Endpoint de health check
 ├── SETUP_GUIDE.md <- Inicializacion paso a paso
 ├── JWT_IMPLEMENTATION.md <- Seguridad JWT (FUENTE UNICA)
 ├── TESTING.md <- Especificaciones tecnicas de pruebas
@@ -49,13 +72,25 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 └── DEVELOPMENT_GUIDE.md <- Troubleshooting, decisiones tecnicas
 ```
 
-> [!info] Nota sobre el vault de Obsidian
-> Ademas de estos 10 documentos, el vault incluye `OBSIDIAN_VAULT.md`, `_Home.md`, `_templates/` y `docs/` (sesiones, decisiones, bloqueos, deuda tecnica, ADRs). Son infraestructura del vault para el uso humano y no forman parte de la lectura obligatoria del agente — la unica excepcion es que el agente SI debe crear/actualizar las notas atomicas de `docs/log/` y `docs/adr/` segun [[API_SESSION_MANIFEST]] y [[API_ARCHITECTURE]] §14.
+> [!note]
+> El agente debe crear/actualizar notas atómicas en `docs/log/` y `docs/adr/` según [[API_SESSION_MANIFEST]] y [[API_ARCHITECTURE]] §14. Plantillas en `_templates/`.
+> [[API_CONTRACT]] es el **diccionario** (índice maestro, convenciones globales, códigos de error, rate limiting).
+> El **detalle** de cada endpoint (request, response, errores, diseño, flujo) vive en `endpoints/<FEATURE>.md`.
+> Al agregar un endpoint: crear/actualizar documento en `endpoints/` + agregar fila en el índice de [[API_CONTRACT]]. Ver [[API_CONTRACT]] §"Cómo Agregar un Endpoint Nuevo".
 
-> [!note] Nota
-> No existen archivos de "spec" por modulo. Toda la informacion de un
-> endpoint (request/response, errores, reglas) vive directamente en [[API_CONTRACT]].
-> Esto evita duplicar informacion entre un spec de modulo y el contrato de API.
+---
+
+## Inicio de Sesión (siempre, antes de cualquier tarea)
+
+> [!warning] Nunca saltarse este ritual, aunque la sesión parezca una continuación directa.
+
+1. Leer [[API_SESSION_MANIFEST]] → estado real del proyecto
+2. Leer [[API_IMPLEMENTATION_PLAN]] → sesión activa y tarea siguiente
+3. Ejecutar `composer test` y `phpstan analyse` para confirmar el estado reportado
+4. Reportar cualquier discrepancia antes de continuar
+5. Verificar §0 (¿hay cambio cross-project activo que afecte a la API?)
+
+→ Solo después de estos 5 pasos, ir al flujo de tarea correspondiente.
 
 ---
 
@@ -69,13 +104,16 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 3. [[API_AGENTS]] → Navegacion (actual)
 4. [[API_ARCHITECTURE]] → Secciones 2, 3, 4, 9
 5. [[API_DATABASE]] → Esquema completo
-6. [[API_CONTRACT]] → Definir endpoints del nuevo modulo
-7. [[API_SETUP_GUIDE]] → Si requiere nuevas dependencias
+6. [[API_CONTRACT]] → Diccionario de endpoints + convenciones globales
+7. `endpoints/<FEATURE>.md` → Documentar detalle del endpoint (usar [[endpoints/_TEMPLATE]])
+8. [[API_SETUP_GUIDE]] → Si requiere nuevas dependencias
 
 **Checklist:**
 - [ ] Definir prioridad (P0/P1/P2) y dependencias en [[API_IMPLEMENTATION_PLAN]]
 - [ ] Definir tablas en [[API_DATABASE]] (si aplica)
-- [ ] Definir endpoints en [[API_CONTRACT]] (request/response/errores)
+- [ ] Crear documento en `endpoints/<FEATURE>.md` con request/response/errores/diseño/flujo
+- [ ] Agregar fila en el índice de [[API_CONTRACT]] (estado: "Diseñado")
+- [ ] Agregar códigos de error nuevos en [[API_CONTRACT]] §"Códigos de Error Completos"
 - [ ] Verificar reglas de dependencia ([[API_ARCHITECTURE]] Seccion 4)
 - [ ] Crear estructura DDD en `src/[Feature]/`
 - [ ] Implementar Domain Layer (entidades, VO, excepciones)
@@ -84,7 +122,7 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 - [ ] Implementar Presentation Layer (routes, ServiceProvider)
 - [ ] Crear tests (segun [[API_TESTING]])
 - [ ] Ejecutar `phpstan analyse` y `pint`
-- [ ] Marcar el/los endpoints como "Implementado" en [[API_CONTRACT]]
+- [ ] Marcar el/los endpoints como "Implementado" en el índice de [[API_CONTRACT]]
 
 ---
 
@@ -96,13 +134,14 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 3. [[API_AGENTS]] → Navegacion
 4. [[API_ARCHITECTURE]] → Secciones 2, 4, 6
 5. [[API_DATABASE]] → Si cambia BD
-6. [[API_CONTRACT]] → Si cambia contrato
+6. [[API_CONTRACT]] → Si cambia contrato (índice)
+7. `endpoints/<FEATURE>.md` → Si cambia detalle del endpoint
 
 **Checklist:**
-- [ ] Leer el contrato actual del endpoint en [[API_CONTRACT]]
+- [ ] Leer el contrato actual del endpoint en `endpoints/<FEATURE>.md`
 - [ ] Identificar impacto en otros modulos
 - [ ] Si cambia BD: actualizar [[API_DATABASE]] y crear migracion reversible
-- [ ] Si cambia API: actualizar [[API_CONTRACT]]
+- [ ] Si cambia API: actualizar `endpoints/<FEATURE>.md` y el índice en [[API_CONTRACT]]
 - [ ] Actualizar tests existentes
 - [ ] Ejecutar suite completa (`composer test`)
 - [ ] Ejecutar `phpstan analyse` y `pint`
@@ -116,15 +155,17 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 2. [[API_SESSION_MANIFEST]] → Verificar estado
 3. [[API_AGENTS]] → Navegacion
 4. [[API_ARCHITECTURE]] → Secciones 2, 6, 7
-5. [[API_CONTRACT]] → Definir request/response
-6. [[API_DATABASE]] → Si requiere nueva tabla/columna
-7. [[API_JWT_IMPLEMENTATION]] → Rate limiting, headers
+5. [[API_CONTRACT]] → Diccionario (índice + convenciones + códigos de error)
+6. `endpoints/<FEATURE>.md` → Documentar detalle del endpoint (usar [[endpoints/_TEMPLATE]])
+7. [[API_DATABASE]] → Si requiere nueva tabla/columna
+8. [[API_JWT_IMPLEMENTATION]] → Rate limiting, headers
 
 **Checklist:**
-- [ ] Definir metodo HTTP, URL en [[API_CONTRACT]]
-- [ ] Definir request body, headers, parametros de ruta
-- [ ] Definir response exitoso (200/201/204)
-- [ ] Definir responses de error posibles
+- [ ] Crear/actualizar documento en `endpoints/<FEATURE>.md` con request/response/errores
+- [ ] Completar sección **Diseño** (precondiciones, reglas, side effects, casos borde)
+- [ ] Agregar sección **Flujo** (Mermaid) si el endpoint es complejo
+- [ ] Agregar fila en el índice de [[API_CONTRACT]] (estado: "Diseñado")
+- [ ] Agregar códigos de error nuevos en [[API_CONTRACT]] §"Códigos de Error Completos"
 - [ ] Verificar rate limiting en [[API_JWT_IMPLEMENTATION]] §4.1
 - [ ] Crear Request DTO en `Application/DTOs/`
 - [ ] Crear Response DTO en `Application/DTOs/`
@@ -219,13 +260,13 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 
 | # | Regla | Consecuencia |
 |---|-------|-------------|
-| 1 | **Domain NO depende de nada externo** | Clases en `src/*/Domain/` no importan Laravel, Eloquent, ni paquetes externos |
+| 1 | **Domain NO depende de framework ni infraestructura** | Clases en `src/*/Domain/` no importan Laravel, Eloquent, ni paquetes de infraestructura. **Permitido**: librerias de utilidad pura sin acoplamiento a framework (ej: `ramsey/uuid`, `egulias/email-validator`, `DateTimeImmutable`). **Prohibido**: `Illuminate\*`, `Predis\*`, HTTP clients, ORMs |
 | 2 | **Un bounded context NO importa de otro** | Comunicacion solo via `Shared/` o eventos de dominio |
 | 3 | **NUNCA usar Eloquent relationships entre bounded contexts** | Usar IDs y mappers |
 | 4 | **NUNCA acceder a `$request->user()` desde Domain** | Domain es agnostica a HTTP |
 | 5 | **Toda migracion DEBE implementar `down()`** | Reversibilidad obligatoria |
 | 6 | **NUNCA lanzar excepciones crudas** | Siempre usar excepciones de dominio tipadas |
-| 7 | **Formato de error UNICO** | `{ error: { code, message, trace_id } }` |
+| 7 | **Formato de error UNICO** | `{ error: { code, message, trace_id } }` para errores de dominio/negocio. **Excepcion**: `GET /health` en estado unhealthy responde `{ data: { status: "unhealthy", ... } }` con HTTP 503 — ver [[endpoints/HEALTH]] §11.1 |
 | 8 | **RS256 obligatorio** | Nunca HS256 en produccion |
 | 9 | **UUID v7 para PKs** | Nunca auto-increment |
 | 10 | **Tests antes de commit** | Unit + Integration + Feature |
@@ -262,10 +303,16 @@ Si continuas una sesion anterior:
 - [ ] No hay dependencias circulares
 - [ ] Domain no importa Infrastructure
 - [ ] Todos los DTOs son `final readonly class`
-- [ ] Todos los endpoints retornan formato de error unico
+- [ ] Todos los endpoints de dominio/negocio retornan formato de error unico (`{ error: { code, message, trace_id } }`). Excepcion: `GET /health` unhealthy usa `{ data: { status: "unhealthy", ... } }` (ver [[endpoints/HEALTH]] §11.1)
 - [ ] Rate limiting configurado
 - [ ] Eventos de seguridad loggeados
 - [ ] [[API_SESSION_MANIFEST]] actualizado
+
+---
+
+## Documentacion de Librerias
+
+Cuando necesites documentacion actualizada de Laravel, PHP, PHPStan, Pint u otro paquete, usa las herramientas de **context7**.
 
 ---
 

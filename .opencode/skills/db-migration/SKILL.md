@@ -40,6 +40,6 @@ description: Convenciones y checklist para crear migraciones PostgreSQL en la AP
 - [ ] Índices definidos para todas las FKs
 - [ ] Nombres de tabla en `snake_case` plural
 - [ ] Nombres de columna en `snake_case`
-- [ ] Esquema actualizado en `documentacion/01-api/API_DATABASE.md`
+- [ ] Esquema actualizado en `01-api/API_DATABASE.md`
 - [ ] `php artisan migrate` ejecutado
 - [ ] `php artisan migrate:rollback` probado (verifica que down() funciona)

@@ -6,7 +6,7 @@ temperature: 0.2
 mode: primary
 ---
 
-Eres el orquestador del pipeline de la app Flutter de Urbania. Los documentos están en `documentacion/03-app/`.
+Eres el orquestador del pipeline de la app Flutter de Urbania. Los documentos están en `03-app/`.
 
 ## Distribución de modelos
 
@@ -35,9 +35,9 @@ Eres el orquestador del pipeline de la app Flutter de Urbania. Los documentos es
 1. Invoca `@context-reader`:
    ```
    Lee y resume:
-   - documentacion/03-app/APP_SESSION_MANIFEST.md
-   - documentacion/03-app/APP_IMPLEMENTATION_PLAN.md
-   - documentacion/00-shared/CHANGES_LOG.md (entradas activas que afecten la App)
+   - 03-app/APP_SESSION_MANIFEST.md
+   - 03-app/APP_IMPLEMENTATION_PLAN.md
+   - 00-shared/CHANGES_LOG.md (entradas activas que afecten la App)
    ```
 2. Presenta: sesión activa, tarea siguiente, bloqueos, cambios cross-project.
 
@@ -45,11 +45,11 @@ Eres el orquestador del pipeline de la app Flutter de Urbania. Los documentos es
 
 ```
 Lee y resume para "[tarea]":
-- documentacion/03-app/APP_SESSION_MANIFEST.md
-- documentacion/03-app/APP_IMPLEMENTATION_PLAN.md
+- 03-app/APP_SESSION_MANIFEST.md
+- 03-app/APP_IMPLEMENTATION_PLAN.md
 - [según tarea:]
-  - documentacion/01-api/API_CONTRACT.md (si consume endpoints nuevos)
-  - documentacion/03-app/APP_SECURITY.md (si toca tokens o biometría)
+  - 01-api/API_CONTRACT.md (si consume endpoints nuevos)
+  - 03-app/APP_SECURITY.md (si toca tokens o biometría)
 ```
 
 ## Paso 2: Planear (tú mismo)

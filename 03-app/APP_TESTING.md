@@ -55,7 +55,7 @@ integration_test/
 ```
 
 > [!note] Fixtures alineados al contrato
-> Los JSON de `test/fixtures/` deben mantenerse sincronizados con los ejemplos de `API_CONTRACT.md` del backend. Si el backend cambia un contrato, el primer síntoma debería ser un test de mapeo DTO fallando contra el fixture desactualizado — no un bug descubierto en producción.
+> Los JSON de `test/fixtures/` deben mantenerse sincronizados con los ejemplos de [[01-api/API_CONTRACT]]. Si el backend cambia un contrato, el primer síntoma debería ser un test de mapeo DTO fallando contra el fixture desactualizado — no un bug descubierto en producción.
 
 ---
 
@@ -96,7 +96,7 @@ Flujos mínimos obligatorios antes de cualquier release a producción:
 
 ## 4. Mock del API: Servidor de Pruebas
 
-- Para tests de integración que no deben depender del backend real corriendo: usar un mock server (`json_server`, o un stub propio con `dio_adapter`/`http_mock_adapter`) que replica exactamente las respuestas de `API_CONTRACT.md`.
+- Para tests de integración que no deben depender del backend real corriendo: usar un mock server (`json_server`, o un stub propio con `dio_adapter`/`http_mock_adapter`) que replica exactamente las respuestas de [[01-api/API_CONTRACT]].
 - Esto desacopla el ciclo de desarrollo de la app del estado del backend — el equipo móvil puede avanzar en paralelo siguiendo el contrato documentado, sin esperar a que cada endpoint esté "Implementado" en el backend.
 
 ---

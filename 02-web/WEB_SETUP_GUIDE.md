@@ -21,7 +21,7 @@ ultima_revision: 2026-06-17
 - Node.js ≥ 20.19 o ≥ 22.12 (requerido por Vite 7 — Node 18 llegó a EOL en abril 2025)
 - pnpm ≥ 9.x (`corepack enable` o `npm i -g pnpm`)
 - Urbania API REST corriendo en `http://localhost:8080`
-- Acceso a `API_CONTRACT.md` del repositorio del API
+- Acceso a [[01-api/API_CONTRACT]] (en este vault)
 
 ```bash
 node -v   # ≥ v20.19 o ≥ v22.12

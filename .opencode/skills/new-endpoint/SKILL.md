@@ -7,17 +7,20 @@ description: Guía el flujo DDD completo para crear un endpoint nuevo en la API 
 
 Al crear cualquier endpoint nuevo. Sigue los 8 pasos en orden — no saltes ninguno.
 
-## Paso 1 — Documentar en API_CONTRACT
+## Paso 1 — Documentar el endpoint
 
 Antes de escribir una sola línea de código:
-- Abrir `documentacion/01-api/API_CONTRACT.md`
-- Agregar la especificación del endpoint: método HTTP, URL, request body, headers, response exitoso, posibles errores
-- Estado inicial: "Especificado"
+- Crear o actualizar `01-api/endpoints/<FEATURE>.md` (usar `endpoints/_TEMPLATE.md`)
+- Completar: método HTTP, URL, request body, headers, response exitoso, posibles errores
+- Completar sección **Diseño**: precondiciones, reglas de negocio, side effects, casos borde
+- Agregar sección **Flujo** (Mermaid) solo si el endpoint es complejo
+- Agregar fila en el índice de `01-api/API_CONTRACT.md` con estado "Diseñado"
+- Agregar códigos de error nuevos en `API_CONTRACT.md` §"Códigos de Error Completos"
 
 ## Paso 2 — Definir esquema en API_DATABASE (si aplica)
 
 Si el endpoint requiere tabla nueva o columna nueva:
-- Actualizar `documentacion/01-api/API_DATABASE.md`
+- Actualizar `01-api/API_DATABASE.md`
 - Crear migración con `up()` y `down()` reversible
 - Usar UUID v7 para PKs, convenciones PostgreSQL
 
@@ -68,7 +71,7 @@ Ejecutar: `composer test` y `composer stan`.
 
 ## Paso 8 — Cierre
 
-- Marcar endpoint como "Implementado" en `documentacion/01-api/API_CONTRACT.md`
+- Marcar endpoint como "Implementado" en el índice de `01-api/API_CONTRACT.md`
 - Si afecta a Web o App, verificar si es cambio cross-project con skill `cross-project-change`
 
 ## Reglas no negociables

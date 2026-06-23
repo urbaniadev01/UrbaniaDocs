@@ -9,17 +9,6 @@ ultima_revision: 2026-06-17
 # 🧭 URBANIA WEB — Índice de Documentación
 ## Mapa de Contenidos (MOC) del Cliente Web Administrativo
 
-> [!important] Punto de entrada
-> Esta es la nota raíz de la documentación técnica del cliente web Urbania (panel de
-> administración de propiedades horizontales). Si eres un agente de desarrollo, empieza
-> siempre en [[WEB_AGENTS]] — esta nota es solo el mapa de navegación para humanos
-> usando Obsidian.
-
-> [!warning] Cambio de stack importante
-> Esta documentación fue revisada el 2026-06-17 para corregir una inconsistencia crítica:
-> la versión inicial estaba escrita para **Next.js**, pero el stack autoritativo del
-> proyecto es **Vite + React + TypeScript** (SPA, sin SSR). Todos los documentos fueron
-> actualizados. Ver [[WEB_DOCS_CHANGELOG]] para el detalle completo de cambios.
 
 ---
 
@@ -69,12 +58,6 @@ ultima_revision: 2026-06-17
 |-----------|-----------|--------------|
 | [[WEB_TESTING]] | Especificaciones de pruebas (Vitest, RTL, Playwright, MSW) | — |
 
-## 📝 Historial
-
-| Documento | Propósito |
-|-----------|-----------|
-| [[WEB_DOCS_CHANGELOG]] | Registro de inconsistencias encontradas y cambios aplicados a esta documentación |
-
 ---
 
 ## 🗺️ Mapa Visual
@@ -102,9 +85,7 @@ WEB_INDEX (estás aquí)
 │   ├── WEB_IMPLEMENTATION_PLAN ──── plan de sesiones (FUENTE ÚNICA)
 │   └── WEB_SESSION_MANIFEST ─────── estado entre sesiones
 │
-├── WEB_TESTING ──────────────────── especificaciones de pruebas
-│
-└── WEB_DOCS_CHANGELOG ───────────── historial de cambios a la documentación
+└── WEB_TESTING ──────────────────── especificaciones de pruebas
 ```
 
 ---

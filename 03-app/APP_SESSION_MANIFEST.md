@@ -55,7 +55,7 @@ _(Aún no hay sesiones cerradas — esta sección se completa progresivamente.)_
 
 | Bloqueo | Depende de | Afecta a |
 |---|---|---|
-| Contratos de Reservas/Visitas/Pagos/Chat no existen aún en `API_CONTRACT.md` del backend | Equipo de backend | Sesiones 10+ de [[APP_IMPLEMENTATION_PLAN]] (no bloquea Sesiones 1-9) |
+| Contratos de Reservas/Visitas/Pagos/Chat no existen aún en [[01-api/API_CONTRACT]] | Equipo de backend | Sesiones 10+ de [[APP_IMPLEMENTATION_PLAN]] (no bloquea Sesiones 1-9) |
 | Pasarela de pagos sin decidir | Negocio | Sesión de Pagos (10+), [[APP_SECURITY]] §6 |
 
 ---

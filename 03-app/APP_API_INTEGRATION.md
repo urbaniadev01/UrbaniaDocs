@@ -5,14 +5,14 @@ priority: P0
 module: mobile
 scope: cross-project
 tags: [api, integration, networking, mobile, cross-project]
-updated: 2026-06-18
+updated: 2026-06-19
 ---
 
 # 🔌 API_INTEGRATION
 ## Contrato de Integración entre la App Móvil y Urbania API
 
 > [!info] Fuente única de endpoints
-> Este documento **no redefine** los endpoints — la fuente única sigue siendo `API_CONTRACT.md` del backend. Aquí se documenta cómo el **cliente** los consume: configuración de Dio, headers, manejo de errores, flujos de UI, y gotchas de integración específicos de un cliente móvil.
+> Este documento **no redefine** los endpoints — la fuente única sigue siendo [[01-api/API_CONTRACT]]. Aquí se documenta cómo el **cliente** los consume: configuración de Dio, headers, manejo de errores, flujos de UI, y gotchas de integración específicos de un cliente móvil.
 
 ---
 
@@ -79,13 +79,14 @@ Todo error del API llega en el formato único `{ error: { code, message, trace_i
 | `error.code` | HTTP | Acción de la app |
 |---|---|---|
 | `INVALID_CREDENTIALS` | 401 | Mostrar error inline en el formulario de login |
+| `ACCOUNT_LOCKED` | 401 | Mostrar error inline: "Cuenta bloqueada temporalmente por demasiados intentos fallidos. Intenta más tarde." + deshabilitar el botón de login |
 | `MFA_REQUIRED` | 401 | Navegar a pantalla de verificación MFA, conservando email/password en memoria temporal (nunca persistidos) |
 | `MFA_INVALID_CODE` | 401 | Error inline en pantalla MFA, mantener intento |
 | `MFA_BACKUP_USED` | 401 | Forzar a usar otro código de respaldo o reenviar TOTP |
 | `TOKEN_EXPIRED` | 401 | Disparar `POST /auth/refresh` automáticamente (silent refresh) y reintentar la request original — ver §4 |
 | `TOKEN_INVALID` | 401 | Cerrar sesión local, navegar a login (no es recuperable con refresh) |
 | `DEVICE_NOT_RECOGNIZED` | 403 | Forzar logout completo + mensaje "verifica tu identidad nuevamente" |
-| `FORCE_PASSWORD_CHANGE` | 403 | Navegar a pantalla de cambio de contraseña obligatorio, bloquear el resto de la app |
+| `FORCE_PASSWORD_CHANGE` | 403 | Extraer `error.data.limited_token` del cuerpo de la respuesta 403 → guardarlo en memoria temporal (no en secure storage) → navegar a `ChangePasswordScreen` pasándolo como parámetro de ruta → usarlo como Bearer token en `POST /auth/change-password`. Ver [[01-api/endpoints/AUTH]] §1.1 para el shape de `data.limited_token` |
 | `PASSWORD_REUSED` | 400 | Error inline en formulario de cambio de contraseña |
 | `EMAIL_ALREADY_EXISTS` | 409 | Error inline en formulario de registro |
 | `RATE_LIMIT_EXCEEDED` | 429 | Banner "demasiados intentos, espera unos minutos" + deshabilitar botón con cooldown visual |
@@ -110,15 +111,32 @@ sequenceDiagram
     UI->>Interceptor: request con Bearer access_token
     Interceptor->>API: forward request
     API-->>Interceptor: 401 TOKEN_EXPIRED
-    Interceptor->>API: POST /auth/refresh (refresh_token de secure storage)
+    Interceptor->>API: POST /auth/refresh { refresh_token } en el body
     alt Refresh exitoso
         API-->>Interceptor: 200 { access_token, refresh_token }
-        Interceptor->>Interceptor: persistir nuevos tokens (ver SECURITY §2)
+        Interceptor->>Interceptor: persistir AMBOS tokens nuevos en secure storage (ver SECURITY §2)
         Interceptor->>API: reintentar request original con nuevo access_token
         API-->>UI: 200 (respuesta original)
     else Refresh falla (401/403)
         Interceptor->>UI: limpiar sesión local, redirigir a /auth/login
     end
+```
+
+> [!important] Mecanismo de transporte del refresh token
+> El refresh token se envía **en el body** del request (`{ "refresh_token": "..." }`), no como cookie. El API acepta el token en el body para todos los clientes (ver [[01-api/endpoints/AUTH]] §1.4 — "refresh_token en body"). La respuesta también devuelve el nuevo `refresh_token` en el body (no en una cookie). El `AuthInterceptor` debe:
+> 1. Leer el `refresh_token` de `SecureTokenStorage`
+> 2. Enviarlo como campo `refresh_token` en el body del POST
+> 3. Guardar AMBOS tokens de la respuesta (access_token + refresh_token) en secure storage antes de reintentar la request fallida
+
+```dart
+// Fragmento del AuthInterceptor
+final refreshToken = await _tokenStorage.getRefreshToken();
+final response = await _dio.post('/auth/refresh', data: {
+  'refresh_token': refreshToken,
+});
+final newAccessToken = response.data['data']['access_token'] as String;
+final newRefreshToken = response.data['data']['refresh_token'] as String;
+await _tokenStorage.saveTokens(access: newAccessToken, refresh: newRefreshToken);
 ```
 
 - El `AuthInterceptor` encola requests concurrentes mientras el refresh está en vuelo (evitar múltiples `POST /auth/refresh` simultáneos — el backend rota el refresh token en cada uso, así que una segunda llamada en paralelo con el token viejo dispararía la detección de reutilización y **revocaría toda la sesión**, ver [[01-api/API_JWT_IMPLEMENTATION|JWT_IMPLEMENTATION]] §4.2).
@@ -128,11 +146,11 @@ sequenceDiagram
 
 ## 5. Flujo de Login con MFA
 
-Sigue exactamente la tabla "Flujos Comunes" de `API_CONTRACT.md` §"Login con MFA". En la app:
+Sigue exactamente la tabla "Flujos Comunes" de [[01-api/API_CONTRACT]] §"Login con MFA". En la app:
 
 1. `LoginScreen` envía `POST /auth/login`.
 2. Si responde `401 MFA_REQUIRED`: navegar a `MfaVerificationScreen` sin tokens — el email/password ya fueron validados por el backend, no se reenvían.
-3. `MfaVerificationScreen` envía `POST /auth/mfa/verify { code, type: "login" }`.
+3. `MfaVerificationScreen` envía `POST /auth/mfa/verify { code }`.   ← solo el código, sin campo `type` (ver [[01-api/endpoints/AUTH]] §1.16)
 4. Éxito → recibe `access_token` + `refresh_token` + `user` → persistir en secure storage ([[APP_SECURITY]] §2) → navegar a Home.
 5. Si el usuario no tiene acceso a su app TOTP: opción "usar código de respaldo" → `POST /auth/mfa/verify-backup`.
 
@@ -168,7 +186,7 @@ Sigue exactamente la tabla "Flujos Comunes" de `API_CONTRACT.md` §"Login con MF
 
 ## 9. Checklist al Integrar un Endpoint Nuevo
 
-- [ ] Confirmar contrato exacto en `API_CONTRACT.md` del backend (request/response/errores)
+- [ ] Confirmar contrato exacto en [[01-api/API_CONTRACT]] (request/response/errores)
 - [ ] Crear DTOs (`freezed` + `json_serializable`) en `data/dtos/`
 - [ ] Crear/actualizar método de `Repository` (interfaz en `domain/`, implementación en `data/`)
 - [ ] Mapear todos los `error.code` posibles de ese endpoint en la tabla de §3 (si son nuevos)

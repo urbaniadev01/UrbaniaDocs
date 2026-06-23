@@ -262,11 +262,7 @@ public function render($request, Throwable $exception)
 
 ## 3. Decisiones Tecnicas Ad-hoc
 
-> [!tip] Formato
-> Fecha | Decision | Contexto | Consecuencias | Documentos afectados
-
-> [!note] Nota
-> Cada decisión es ahora una nota individual en `docs/log/decisiones/` (plantilla `_templates/nueva-decision.md`), no una entrada agregada a este archivo. La lista completa se consulta en [[_Home]].
+Las decisiones se registran como notas individuales en `docs/log/decisiones/` usando la plantilla `_templates/nueva-decision.md`. Formato: Fecha | Decisión | Contexto | Consecuencias | Documentos afectados.
 
 ```dataview
 TABLE status AS "Estado", date AS "Fecha"

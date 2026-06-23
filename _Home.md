@@ -53,8 +53,3 @@ LIMIT 40
 
 > Ver el detalle completo en [[00-shared/CHANGES_LOG]]. Resumen rápido: cuántas entradas hay con al menos un proyecto en estado distinto de "Sincronizado".
 
----
-
-## Si Acabas de Migrar a este Vault Unificado
-
-Si todavía existe `_MIGRATION_GUIDE.md` en la raíz, significa que la migración de los documentos existentes de API y App (y la incorporación de Web) **no se ha completado**. Revísalo antes de asumir que las carpetas `01-api/`, `02-web/`, `03-app/` ya tienen su contenido real ubicado y renombrado correctamente.

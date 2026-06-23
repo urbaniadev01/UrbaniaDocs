@@ -1,1 +1,9 @@
-{}
+{
+  "useMarkdownLinks": false,
+  "newLinkFormat": "shortest",
+  "promptDelete": true,
+  "trashOption": "local",
+  "showUnsupportedFiles": false,
+  "defaultViewMode": "source",
+  "livePreview": true
+}

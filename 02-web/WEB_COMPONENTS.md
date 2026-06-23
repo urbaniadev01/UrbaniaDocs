@@ -799,7 +799,7 @@ const paymentBulkActions: BulkAction<Payment>[] = [
 > Cada acción bulk dispara mutaciones individuales reutilizando los hooks ya existentes del
 > módulo (`useUpdatePaymentStatus`, etc.), por lo que la invalidación de cache (`onSuccess` →
 > `invalidateQueries`) ya está cubierta por esos hooks sin lógica adicional. No crear un
-> endpoint ni hook "bulk" en el API a menos que `API_CONTRACT.md` ya lo defina explícitamente.
+> endpoint ni hook "bulk" en el API a menos que [[01-api/API_CONTRACT]] ya lo defina explícitamente.
 
 ### 10.4 Columnas con acciones de fila
 

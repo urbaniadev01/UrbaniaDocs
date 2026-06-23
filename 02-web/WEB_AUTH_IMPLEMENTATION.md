@@ -4,7 +4,7 @@ type: especificacion-tecnica
 tags: [urbania-web, auth, seguridad, fuente-unica]
 status: vigente
 fuente_unica: true
-ultima_revision: 2026-06-17
+ultima_revision: 2026-06-19
 ---
 
 # 🔐 WEB_AUTH_IMPLEMENTATION
@@ -16,7 +16,7 @@ ultima_revision: 2026-06-17
 
 > [!note] Relación con el API
 > Este documento describe el comportamiento del **cliente**. Los detalles del servidor (claims,
-> TTL, rotación) están en `JWT_IMPLEMENTATION.md` del repositorio del API.
+> TTL, rotación) están en [[01-api/API_JWT_IMPLEMENTATION]] — accesible directamente en este vault.
 
 > [!warning] Corrección de stack (2026-06-17)
 > La versión anterior de este documento usaba `next/navigation`, `app/(dashboard)/layout.tsx` y
@@ -247,11 +247,10 @@ apiClient.interceptors.response.use(
 ```ts
 // auth.service.ts
 export async function login(email: string, password: string) {
-  // client_type: 'web' — el API puede tener lógica diferente para web vs mobile
+  // El API distingue web/móvil por User-Agent (no por campo en el body) — ver [[01-api/API_JWT_IMPLEMENTATION]] §3.3
   const { data } = await apiClient.post<ApiResponse<LoginResponseData>>('/auth/login', {
     email,
     password,
-    client_type: 'web',
   });
   return data.data;
 }
@@ -287,8 +286,20 @@ export function useLogin() {
     onError: (error: ApiError) => {
       if (error.code === 'MFA_REQUIRED') {
         navigate('/login/mfa', { state: { from: returnTo } });
+        return;
       }
-      // Otros errores (INVALID_CREDENTIALS, RATE_LIMIT_EXCEEDED) se muestran en el form
+
+      if (error.code === 'FORCE_PASSWORD_CHANGE') {
+        // El API retorna 403 con limited_token en error.data (ver [[01-api/endpoints/AUTH]] §1.1)
+        // El limited_token solo es válido para POST /auth/change-password
+        const limitedToken = error.data?.limited_token as string | undefined;
+        navigate('/change-password', {
+          state: { limitedToken, from: returnTo },
+          replace: true,
+        });
+        return;
+      }
+      // Otros errores (INVALID_CREDENTIALS, ACCOUNT_LOCKED, RATE_LIMIT_EXCEEDED) se muestran en el form
     },
   });
 }
@@ -301,20 +312,60 @@ export function useLogin() {
 Cuando el API responde `401 MFA_REQUIRED` en el login:
 
 ```
+Flujo TOTP:
 1. useLogin detecta error.code === 'MFA_REQUIRED'
 2. Redirige a /login/mfa (preservando el returnTo en location.state)
 3. El usuario ingresa el código TOTP (6 dígitos)
-4. Se llama POST /auth/mfa/verify con { code, type: 'login' }
-5. Si válido → API responde con access_token + refresh_token cookie
+4. Se llama POST /auth/mfa/verify con { code }   ← solo el código, sin campo 'type'
+5. Si válido → API responde con access_token + refresh_token cookie + user
 6. Guardar access_token en Zustand → verificar role → navigate(returnTo)
+
+Flujo código de respaldo (alternativa al TOTP):
+1-2. Igual que TOTP
+3. Usuario pulsa "Usar código de respaldo" → campo cambia a 8 dígitos
+4. Se llama POST /auth/mfa/verify-backup con { code }   ← ver §6.1
+5-6. Igual que TOTP — misma respuesta con access_token + user
 ```
 
 **Pantalla MFA** (`src/features/auth/pages/MfaPage.tsx`, ruta `/login/mfa`):
 - Mostrar campo de 6 dígitos con `autoFocus`
-- Soporte para códigos de respaldo (enlace "Usar código de respaldo")
+- Enlace "Usar código de respaldo" que alterna a un campo de 8 dígitos y llama a `useMfaVerifyBackup()` en lugar de `useMfaVerify()`
 - Mensaje de error claro para `MFA_INVALID_CODE`
-- Auto-submit cuando se completan los 6 dígitos
+- Mensaje específico para `MFA_BACKUP_USED`: "Código de respaldo ya utilizado. Prueba otro o regenera tus códigos."
+- Auto-submit cuando se completan los 6 (TOTP) o 8 (respaldo) dígitos
 - Botón para regresar al login (en caso de querer usar otra cuenta)
+
+### 6.1 Hook `useMfaVerifyBackup`
+
+**Ubicación:** `src/features/auth/hooks/use-mfa-verify-backup.ts`
+
+```ts
+export function useMfaVerifyBackup() {
+  const { setAccessToken, setUser, clearSession } = useAuthStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = (location.state as { from?: string } | null)?.from ?? '/dashboard';
+
+  return useMutation({
+    mutationFn: (code: string) =>
+      apiClient
+        .post<ApiResponse<LoginResponseData>>('/auth/mfa/verify-backup', { code })
+        .then((r) => r.data.data),
+    onSuccess: (data) => {
+      setAccessToken(data.access_token);
+      setUser(data.user);
+      if (data.user.role !== 'admin') {
+        clearSession();
+        throw new Error('Acceso no autorizado. Solo administradores.');
+      }
+      navigate(returnTo, { replace: true });
+    },
+  });
+}
+```
+
+> [!note] Respuesta idéntica a `useMfaVerify`
+> `POST /auth/mfa/verify-backup` retorna los mismos tokens que `POST /auth/mfa/verify`. Ver [[01-api/endpoints/AUTH]] §1.17.
 
 ---
 
@@ -521,7 +572,7 @@ export function evaluateSessionRisk(session: Session, currentSession: Session): 
 
 > [!note] Dependencia del API
 > Este cálculo es heurístico y se hace en el cliente con lo que el endpoint `GET /auth/sessions`
-> devuelva. Si `API_CONTRACT.md` no expone un campo de ubicación/geolocalización por sesión, la
+> devuelva. Si [[01-api/API_CONTRACT]] no expone un campo de ubicación/geolocalización por sesión, la
 > segunda heurística no aplica — verificar el contrato antes de implementar y documentar la
 > limitación en `WEB_SESSION_MANIFEST.md` § Deuda Técnica si el campo no existe todavía.
 
@@ -536,13 +587,14 @@ del color `warning`).
 | Código de error API | Acción del cliente |
 |--------------------|-------------------|
 | `INVALID_CREDENTIALS` | Mostrar error en formulario de login |
+| `ACCOUNT_LOCKED` | Mostrar error: "Cuenta bloqueada temporalmente por demasiados intentos fallidos. Intenta más tarde." |
 | `MFA_REQUIRED` | Redirigir a `/login/mfa` |
 | `MFA_INVALID_CODE` | Mostrar error en formulario MFA |
-| `MFA_BACKUP_USED` | Mostrar advertencia: "Código de respaldo usado. Regenera tus códigos." |
+| `MFA_BACKUP_USED` | Mostrar advertencia: "Código de respaldo ya utilizado. Prueba otro o regenera tus códigos." |
 | `TOKEN_EXPIRED` | Silent refresh automático (interceptor Axios) |
 | `TOKEN_INVALID` | `clearSession()` + `window.location.replace('/login')` |
 | `DEVICE_NOT_RECOGNIZED` | Mostrar modal de advertencia de seguridad + logout obligatorio |
-| `FORCE_PASSWORD_CHANGE` | Redirigir a `/settings/security` inmediatamente |
+| `FORCE_PASSWORD_CHANGE` | Redirigir a `/change-password` con `limited_token` extraído de `error.data.limited_token` (el usuario aún no está autenticado — ver §5 `useLogin.onError` y [[01-api/endpoints/AUTH]] §1.1) |
 | `PASSWORD_REUSED` | Mostrar error específico: "No puedes reutilizar contraseñas anteriores" |
 | `RATE_LIMIT_EXCEEDED` | Mostrar: "Demasiados intentos. Espera {Retry-After}s antes de continuar" — en endpoints fuera del interceptor de backoff (p. ej. login, donde reintentar automáticamente no es deseable) |
 | `UNAUTHORIZED` | `clearSession()` + redirect a `/login` |
@@ -654,7 +706,7 @@ mantenga esta configuración.
 > flujo de SSO cross-domain), este análisis deja de ser válido y **debe** agregarse un token CSRF
 > de doble-submit (`X-CSRF-Token` header + cookie no-httpOnly legible por JS, comparados en el
 > servidor) para `/auth/refresh` y cualquier otro endpoint que dependa de cookies. Documentar el
-> cambio aquí y en `API_CONTRACT.md` antes de implementarlo.
+> cambio aquí y en [[01-api/API_CONTRACT]] antes de implementarlo.
 
 ### 11.5 Tiempo de Inactividad
 
