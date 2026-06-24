@@ -45,11 +45,31 @@ Sesión 8: Registro de Ingresos + Chat + Polish + CI/CD
 
 ---
 
+## Sesión 0: Pre-Setup ✅ (Completada 2026-06-23)
+
+**Objetivo**: Inicializar el proyecto con todas las dependencias, tooling y configuración base.
+**Estado**: ✅ Completado. `pnpm run ci` en verde.
+
+### Tareas completadas
+- [x] Crear proyecto Vite + React + TypeScript y estructura de carpetas
+- [x] Instalar todas las dependencias (10 capas: routing, HTTP, estado, formularios, tablas, estilos, testing, calidad, etc.)
+- [x] Inicializar shadcn/ui (preset Nova, base radix)
+- [x] Configurar CSS variables y `@theme inline` de Tailwind v4 con tokens de [[WEB_VISUAL_STANDARDS]]
+- [x] Configurar path aliases `@/` en `tsconfig.json` y `vite.config.ts`
+- [x] Configurar Vitest, Playwright, ESLint (flat config), Prettier
+- [x] Crear MSW server y handlers base (auth happy path)
+- [x] Instalar navegadores de Playwright (chromium)
+- [x] Instalar fuentes (Inter + JetBrains Mono)
+- [x] Crear providers placeholder (QueryProvider, ThemeProvider) y guards placeholder
+- [x] Verificar `pnpm run ci` en verde
+
+---
+
 ## Sesión 1: Setup + Autenticación
 
 **Objetivo**: El admin puede iniciar sesión, pasar por MFA si aplica, y ver el dashboard placeholder.
 **Prioridad**: P0 — Bloqueante.
-**Dependencias**: API corriendo con módulo Auth completo.
+**Dependencias**: API corriendo con módulo Auth completo. Sesión 0 completada.
 
 ### Documentos requeridos
 - [[WEB_SETUP_GUIDE]] (Completo)
@@ -59,9 +79,9 @@ Sesión 8: Registro de Ingresos + Chat + Polish + CI/CD
 - [[WEB_TESTING]] (§2, §3, §5)
 
 ### Tareas
-- [ ] Crear proyecto Vite + React + TypeScript y estructura de carpetas ([[WEB_SETUP_GUIDE]] §2-§6)
-- [ ] Instalar `next-themes` para modo oscuro ([[WEB_VISUAL_STANDARDS]] §14 — framework-agnóstico)
-- [ ] Configurar CSS variables y `@theme inline` de Tailwind v4 ([[WEB_VISUAL_STANDARDS]] §2)
+- [x] Crear proyecto Vite + React + TypeScript y estructura de carpetas ([[WEB_SETUP_GUIDE]] §2-§6) — Sesión 0
+- [x] Instalar `next-themes` para modo oscuro ([[WEB_VISUAL_STANDARDS]] §14 — framework-agnóstico) — Sesión 0
+- [x] Configurar CSS variables y `@theme inline` de Tailwind v4 ([[WEB_VISUAL_STANDARDS]] §2) — Sesión 0
 - [ ] Extender Badge con variantes custom ([[WEB_VISUAL_STANDARDS]] §2.4)
 - [ ] Configurar Zustand `src/stores/auth.store.ts`
 - [ ] Implementar `silentRefresh()` en `src/features/auth/api/auth.service.ts`
