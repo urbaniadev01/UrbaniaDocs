@@ -20,11 +20,27 @@ Un solo vault de Obsidian que contiene la documentación técnica de los 3 proye
 
 ```
 00-shared/   ← el contrato y los procesos que cruzan proyectos (leer si tu cambio no es 100% local)
-01-api/      ← Urbania API (Laravel)
-02-web/      ← Urbania Web
-03-app/      ← Urbania App (Flutter)
+01-api/      ← Documentación del API (solo docs, NO código)
+02-web/      ← Documentación del Web (solo docs, NO código)
+03-app/      ← Documentación del App (solo docs, NO código)
 ```
 
+### 1.1 Rutas raíz de los proyectos (código fuente)
+
+> [!danger] IMPORTANTE — Separación docs vs código
+> Las carpetas `01-api/`, `02-web/`, `03-app/` contienen **SOLO documentación** (markdown, specs, planes).
+> El **código fuente** de cada proyecto vive en carpetas separadas en la raíz del vault:
+
+| Proyecto | Carpeta de documentación | Carpeta de código fuente (raíz del proyecto) |
+|----------|--------------------------|---------------------------------------------|
+| Urbania API (Laravel) | `01-api/` | `API/` |
+| Urbania Web (Vite + React) | `02-web/` | `WEB/` |
+| Urbania App (Flutter) | `03-app/` | `APP/` |
+
+**Reglas:**
+- **NUNCA crear código fuente dentro de `01-api/`, `02-web/` o `03-app/`** — esas carpetas son exclusivas para documentación.
+- **Todo comando de build/test/dev se ejecuta desde la raíz del proyecto** (`API/`, `WEB/`, `APP/`), no desde la carpeta de documentación.
+- **Los documentos de referencia** (specs, planes, manifests) viven en `01-api/`, `02-web/`, `03-app/` y referencian el código en `API/`, `WEB/`, `APP/` mediante rutas relativas.
 
 ---
 

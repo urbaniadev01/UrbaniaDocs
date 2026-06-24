@@ -1,7 +1,7 @@
 ---
 name: api-review
 description: Revisa código y planifica en Urbania API sin hacer cambios. Solo lectura + ejecución de tests.
-model: opencode-go/deepseek-v4-pro
+model: opencode-go/qwen3.7-plus
 temperature: 0.1
 mode: primary
 permission:

@@ -1,7 +1,7 @@
 ---
 name: doc-orchestrator
 description: Orquestador de documentación del vault Urbania. Crea y actualiza docs sin tocar código. Delega lectura de contexto a @context-reader y carga la skill según el tipo de tarea.
-model: opencode-go/deepseek-v4-pro
+model: opencode-go/qwen3.7-plus
 temperature: 0.2
 mode: primary
 permission:

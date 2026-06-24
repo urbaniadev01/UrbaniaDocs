@@ -99,64 +99,64 @@ Sesión 1 completada. Infraestructura de autenticación completa: Zustand store 
 
 | Ruta | Descripción | Sesión |
 |------|-------------|--------|
-| `02-web/urbania-web/package.json` | Dependencias, scripts y metadatos del proyecto | 0 |
-| `02-web/urbania-web/pnpm-lock.yaml` | Lockfile de dependencias | 0 |
-| `02-web/urbania-web/tsconfig.json` | Configuración TypeScript con alias `@/` | 0 |
-| `02-web/urbania-web/tsconfig.node.json` | TypeScript para `vite.config.ts` | 0 |
-| `02-web/urbania-web/vite.config.ts` | Configuración Vite + React + Tailwind v4 + alias | 0 |
-| `02-web/urbania-web/vitest.config.ts` | Configuración de Vitest con jsdom, MSW y cobertura | 0 |
-| `02-web/urbania-web/playwright.config.ts` | Configuración de Playwright | 0 |
-| `02-web/urbania-web/eslint.config.js` | ESLint 9 flat config con TS, React, a11y, Query | 0 |
-| `02-web/urbania-web/.prettierrc` | Configuración de Prettier | 0 |
-| `02-web/urbania-web/.gitignore` | Archivos ignorados por Git | 0 |
-| `02-web/urbania-web/index.html` | Entry point HTML de la SPA | 0 |
-| `02-web/urbania-web/public/favicon.svg` | Favicon del proyecto | 0 |
-| `02-web/urbania-web/components.json` | Configuración de shadcn/ui (preset Nova, base radix) | 0 |
-| `02-web/urbania-web/.env.development` | Variables de entorno de desarrollo | 0 |
-| `02-web/urbania-web/.env.production` | Variables de entorno de producción | 0 |
-| `02-web/urbania-web/.env.test` | Variables de entorno de tests + credenciales | 0 |
-| `02-web/urbania-web/.env.example` | Ejemplo de variables de entorno | 0 |
-| `02-web/urbania-web/src/main.tsx` | Entry point de React con providers | 0 |
-| `02-web/urbania-web/src/index.css` | Tailwind v4 + `@theme inline` con tokens | 0 |
-| `02-web/urbania-web/src/vite-env.d.ts` | Tipos de Vite y variables de entorno | 0 |
-| `02-web/urbania-web/src/lib/utils.ts` | Utilidades `cn`, `formatCurrency`, `parseApiError`, `isNetworkError` | 0, 1 |
-| `02-web/urbania-web/src/app/providers/QueryProvider.tsx` | Provider de TanStack Query (configurado) | 0, 1 |
-| `02-web/urbania-web/src/app/providers/ThemeProvider.tsx` | Provider de next-themes (dark mode) | 0 |
-| `02-web/urbania-web/src/components/ui/button.tsx` | Componente Button de shadcn/ui | 0 |
-| `02-web/urbania-web/tests/setup.ts` | Setup global de Vitest + MSW + jest-dom | 0 |
-| `02-web/urbania-web/tests/mocks/server.ts` | Servidor MSW | 0 |
-| `02-web/urbania-web/tests/unit/lib/utils.test.ts` | Tests unitarios para `cn` (2 tests) | 0 |
-| `02-web/urbania-web/src/types/api.types.ts` | Tipos base API (ApiResponse, ApiError, PaginatedResponse) | 1 |
-| `02-web/urbania-web/src/types/sonner.d.ts` | ⚠️ TEMPORAL: Type declarations para sonner (eliminar tras pnpm install) | 1 |
-| `02-web/urbania-web/src/features/auth/types/auth.types.ts` | Tipos de auth (AuthUser, LoginResponseData, etc.) | 1 |
-| `02-web/urbania-web/src/lib/constants.ts` | Query keys para TanStack Query | 1 |
-| `02-web/urbania-web/src/lib/validators.ts` | Schemas Zod (login, MFA) | 1 |
-| `02-web/urbania-web/src/lib/sonner-mock.ts` | ⚠️ TEMPORAL: Mock de sonner (eliminar tras pnpm install) | 1 |
-| `02-web/urbania-web/src/stores/auth.store.ts` | Zustand store (tokens en memoria, user, session) | 1 |
-| `02-web/urbania-web/src/services/api-client.ts` | Axios client con interceptores (Bearer, silent refresh, 429 backoff) | 1 |
-| `02-web/urbania-web/src/features/auth/api/auth.service.ts` | Servicio auth (login, silentRefresh, logout, getMe) | 1 |
-| `02-web/urbania-web/src/features/auth/hooks/use-login.ts` | Hook login con manejo MFA_REQUIRED, FORCE_PASSWORD_CHANGE | 1 |
-| `02-web/urbania-web/src/features/auth/hooks/use-logout.ts` | Hook logout con limpieza de cache | 1 |
-| `02-web/urbania-web/src/features/auth/hooks/use-mfa-verify.ts` | Hook verificación MFA TOTP | 1 |
-| `02-web/urbania-web/src/features/auth/hooks/use-mfa-verify-backup.ts` | Hook verificación MFA backup codes | 1 |
-| `02-web/urbania-web/src/features/auth/components/LoginForm.tsx` | Formulario login con RHF + Zod | 1 |
-| `02-web/urbania-web/src/features/auth/components/MfaVerifyForm.tsx` | Formulario MFA (TOTP + backup) | 1 |
-| `02-web/urbania-web/src/features/auth/pages/LoginPage.tsx` | Página /login | 1 |
-| `02-web/urbania-web/src/features/auth/pages/MfaPage.tsx` | Página /login/mfa | 1 |
-| `02-web/urbania-web/src/features/dashboard/pages/DashboardPage.tsx` | Placeholder dashboard (Sesión 3) | 1 |
-| `02-web/urbania-web/src/components/shared/FullPageLoader.tsx` | Loader de pantalla completa | 1 |
-| `02-web/urbania-web/src/components/shared/StatusBadge.tsx` | Badge con variantes (success, warning, info, etc.) | 1 |
-| `02-web/urbania-web/src/components/layout/DashboardShell.tsx` | Layout shell (sidebar + header + content) | 1 |
-| `02-web/urbania-web/src/components/layout/DashboardLayout.tsx` | Layout protegido con bootstrap (silentRefresh + getMe) | 1 |
-| `02-web/urbania-web/src/components/ui/input.tsx` | Componente Input de shadcn/ui | 1 |
-| `02-web/urbania-web/src/components/ui/label.tsx` | Componente Label de shadcn/ui | 1 |
-| `02-web/urbania-web/src/app/router.tsx` | Router con code splitting (lazy + Suspense) | 1 |
-| `02-web/urbania-web/src/app/App.tsx` | Componente raíz con RouterProvider | 1 |
-| `02-web/urbania-web/src/app/providers/ToastProvider.tsx` | Provider de notificaciones (sonner) | 1 |
-| `02-web/urbania-web/tests/components/helpers/TestProviders.tsx` | Wrapper de providers para tests | 1 |
-| `02-web/urbania-web/tests/components/auth/LoginForm.test.tsx` | Tests de LoginForm (3 tests) | 1 |
-| `02-web/urbania-web/tests/unit/stores/auth.store.test.ts` | Tests de auth store (2 tests) | 1 |
-| `02-web/urbania-web/tests/unit/lib/validators.test.ts` | Tests de validators Zod (6 tests) | 1 |
+| `WEB/package.json` | Dependencias, scripts y metadatos del proyecto | 0 |
+| `WEB/pnpm-lock.yaml` | Lockfile de dependencias | 0 |
+| `WEB/tsconfig.json` | Configuración TypeScript con alias `@/` | 0 |
+| `WEB/tsconfig.node.json` | TypeScript para `vite.config.ts` | 0 |
+| `WEB/vite.config.ts` | Configuración Vite + React + Tailwind v4 + alias | 0 |
+| `WEB/vitest.config.ts` | Configuración de Vitest con jsdom, MSW y cobertura | 0 |
+| `WEB/playwright.config.ts` | Configuración de Playwright | 0 |
+| `WEB/eslint.config.js` | ESLint 9 flat config con TS, React, a11y, Query | 0 |
+| `WEB/.prettierrc` | Configuración de Prettier | 0 |
+| `WEB/.gitignore` | Archivos ignorados por Git | 0 |
+| `WEB/index.html` | Entry point HTML de la SPA | 0 |
+| `WEB/public/favicon.svg` | Favicon del proyecto | 0 |
+| `WEB/components.json` | Configuración de shadcn/ui (preset Nova, base radix) | 0 |
+| `WEB/.env.development` | Variables de entorno de desarrollo | 0 |
+| `WEB/.env.production` | Variables de entorno de producción | 0 |
+| `WEB/.env.test` | Variables de entorno de tests + credenciales | 0 |
+| `WEB/.env.example` | Ejemplo de variables de entorno | 0 |
+| `WEB/src/main.tsx` | Entry point de React con providers | 0 |
+| `WEB/src/index.css` | Tailwind v4 + `@theme inline` con tokens | 0 |
+| `WEB/src/vite-env.d.ts` | Tipos de Vite y variables de entorno | 0 |
+| `WEB/src/lib/utils.ts` | Utilidades `cn`, `formatCurrency`, `parseApiError`, `isNetworkError` | 0, 1 |
+| `WEB/src/app/providers/QueryProvider.tsx` | Provider de TanStack Query (configurado) | 0, 1 |
+| `WEB/src/app/providers/ThemeProvider.tsx` | Provider de next-themes (dark mode) | 0 |
+| `WEB/src/components/ui/button.tsx` | Componente Button de shadcn/ui | 0 |
+| `WEB/tests/setup.ts` | Setup global de Vitest + MSW + jest-dom | 0 |
+| `WEB/tests/mocks/server.ts` | Servidor MSW | 0 |
+| `WEB/tests/unit/lib/utils.test.ts` | Tests unitarios para `cn` (2 tests) | 0 |
+| `WEB/src/types/api.types.ts` | Tipos base API (ApiResponse, ApiError, PaginatedResponse) | 1 |
+| `WEB/src/types/sonner.d.ts` | ⚠️ TEMPORAL: Type declarations para sonner (eliminar tras pnpm install) | 1 |
+| `WEB/src/features/auth/types/auth.types.ts` | Tipos de auth (AuthUser, LoginResponseData, etc.) | 1 |
+| `WEB/src/lib/constants.ts` | Query keys para TanStack Query | 1 |
+| `WEB/src/lib/validators.ts` | Schemas Zod (login, MFA) | 1 |
+| `WEB/src/lib/sonner-mock.ts` | ⚠️ TEMPORAL: Mock de sonner (eliminar tras pnpm install) | 1 |
+| `WEB/src/stores/auth.store.ts` | Zustand store (tokens en memoria, user, session) | 1 |
+| `WEB/src/services/api-client.ts` | Axios client con interceptores (Bearer, silent refresh, 429 backoff) | 1 |
+| `WEB/src/features/auth/api/auth.service.ts` | Servicio auth (login, silentRefresh, logout, getMe) | 1 |
+| `WEB/src/features/auth/hooks/use-login.ts` | Hook login con manejo MFA_REQUIRED, FORCE_PASSWORD_CHANGE | 1 |
+| `WEB/src/features/auth/hooks/use-logout.ts` | Hook logout con limpieza de cache | 1 |
+| `WEB/src/features/auth/hooks/use-mfa-verify.ts` | Hook verificación MFA TOTP | 1 |
+| `WEB/src/features/auth/hooks/use-mfa-verify-backup.ts` | Hook verificación MFA backup codes | 1 |
+| `WEB/src/features/auth/components/LoginForm.tsx` | Formulario login con RHF + Zod | 1 |
+| `WEB/src/features/auth/components/MfaVerifyForm.tsx` | Formulario MFA (TOTP + backup) | 1 |
+| `WEB/src/features/auth/pages/LoginPage.tsx` | Página /login | 1 |
+| `WEB/src/features/auth/pages/MfaPage.tsx` | Página /login/mfa | 1 |
+| `WEB/src/features/dashboard/pages/DashboardPage.tsx` | Placeholder dashboard (Sesión 3) | 1 |
+| `WEB/src/components/shared/FullPageLoader.tsx` | Loader de pantalla completa | 1 |
+| `WEB/src/components/shared/StatusBadge.tsx` | Badge con variantes (success, warning, info, etc.) | 1 |
+| `WEB/src/components/layout/DashboardShell.tsx` | Layout shell (sidebar + header + content) | 1 |
+| `WEB/src/components/layout/DashboardLayout.tsx` | Layout protegido con bootstrap (silentRefresh + getMe) | 1 |
+| `WEB/src/components/ui/input.tsx` | Componente Input de shadcn/ui | 1 |
+| `WEB/src/components/ui/label.tsx` | Componente Label de shadcn/ui | 1 |
+| `WEB/src/app/router.tsx` | Router con code splitting (lazy + Suspense) | 1 |
+| `WEB/src/app/App.tsx` | Componente raíz con RouterProvider | 1 |
+| `WEB/src/app/providers/ToastProvider.tsx` | Provider de notificaciones (sonner) | 1 |
+| `WEB/tests/components/helpers/TestProviders.tsx` | Wrapper de providers para tests | 1 |
+| `WEB/tests/components/auth/LoginForm.test.tsx` | Tests de LoginForm (3 tests) | 1 |
+| `WEB/tests/unit/stores/auth.store.test.ts` | Tests de auth store (2 tests) | 1 |
+| `WEB/tests/unit/lib/validators.test.ts` | Tests de validators Zod (6 tests) | 1 |
 
 ---
 
@@ -165,20 +165,20 @@ Sesión 1 completada. Infraestructura de autenticación completa: Zustand store 
 | Ruta | Cambio | Sesión |
 |------|--------|--------|
 | `02-web/WEB_SESSION_MANIFEST.md` | Actualización completa: Sesión 0 completada, métricas reales, bloqueos resueltos | 0 |
-| `02-web/urbania-web/src/index.css` | Integración de tokens WEB_VISUAL_STANDARDS + shadcn Nova (sidebar, chart, radius) | 0 |
-| `02-web/urbania-web/tsconfig.json` | Eliminada referencia a tsconfig.node.json que causaba error TS6306; agregado `tests` al include | 0, 1 |
-| `02-web/urbania-web/vitest.config.ts` | Eliminado triple-slash reference, ajustados thresholds de coverage | 0 |
-| `02-web/urbania-web/eslint.config.js` | Agregado `allowExportNames: ['buttonVariants']` y `triple-slash-reference: off` | 0 |
-| `02-web/urbania-web/tests/unit/lib/utils.test.ts` | Corregidas expresiones constantes detectadas por ESLint | 0 |
-| `02-web/urbania-web/package.json` | Agregada dependencia `sonner: ^1.7.0` | 1 |
-| `02-web/urbania-web/vite.config.ts` | Agregado alias temporal `sonner` → mock local | 1 |
-| `02-web/urbania-web/src/main.tsx` | Actualizado con providers (Query, Theme, Toast) | 1 |
-| `02-web/urbania-web/src/app/App.tsx` | Reemplazado placeholder con RouterProvider | 1 |
-| `02-web/urbania-web/src/app/guards/ProtectedRoute.tsx` | Implementado con verificación de auth + redirect | 1 |
-| `02-web/urbania-web/src/app/guards/AdminOnlyRoute.tsx` | Implementado con verificación de rol admin | 1 |
-| `02-web/urbania-web/src/app/providers/QueryProvider.tsx` | Configurado con staleTime, retry, refetchOnWindowFocus | 1 |
-| `02-web/urbania-web/src/lib/utils.ts` | Agregadas funciones `formatCurrency`, `parseApiError`, `isNetworkError` | 1 |
-| `02-web/urbania-web/tests/mocks/handlers/auth.handlers.ts` | Reemplazado con handlers completos (login, refresh, me, logout, MFA) | 1 |
+| `WEB/src/index.css` | Integración de tokens WEB_VISUAL_STANDARDS + shadcn Nova (sidebar, chart, radius) | 0 |
+| `WEB/tsconfig.json` | Eliminada referencia a tsconfig.node.json que causaba error TS6306; agregado `tests` al include | 0, 1 |
+| `WEB/vitest.config.ts` | Eliminado triple-slash reference, ajustados thresholds de coverage | 0 |
+| `WEB/eslint.config.js` | Agregado `allowExportNames: ['buttonVariants']` y `triple-slash-reference: off` | 0 |
+| `WEB/tests/unit/lib/utils.test.ts` | Corregidas expresiones constantes detectadas por ESLint | 0 |
+| `WEB/package.json` | Agregada dependencia `sonner: ^1.7.0` | 1 |
+| `WEB/vite.config.ts` | Agregado alias temporal `sonner` → mock local | 1 |
+| `WEB/src/main.tsx` | Actualizado con providers (Query, Theme, Toast) | 1 |
+| `WEB/src/app/App.tsx` | Reemplazado placeholder con RouterProvider | 1 |
+| `WEB/src/app/guards/ProtectedRoute.tsx` | Implementado con verificación de auth + redirect | 1 |
+| `WEB/src/app/guards/AdminOnlyRoute.tsx` | Implementado con verificación de rol admin | 1 |
+| `WEB/src/app/providers/QueryProvider.tsx` | Configurado con staleTime, retry, refetchOnWindowFocus | 1 |
+| `WEB/src/lib/utils.ts` | Agregadas funciones `formatCurrency`, `parseApiError`, `isNetworkError` | 1 |
+| `WEB/tests/mocks/handlers/auth.handlers.ts` | Reemplazado con handlers completos (login, refresh, me, logout, MFA) | 1 |
 
 ---
 

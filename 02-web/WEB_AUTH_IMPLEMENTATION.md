@@ -4,7 +4,7 @@ type: especificacion-tecnica
 tags: [urbania-web, auth, seguridad, fuente-unica]
 status: vigente
 fuente_unica: true
-ultima_revision: 2026-06-19
+ultima_revision: 2026-06-24
 ---
 
 # 🔐 WEB_AUTH_IMPLEMENTATION
@@ -24,6 +24,13 @@ ultima_revision: 2026-06-19
 > React Router**, sin servidor Node propio. Todo el documento ya está actualizado. Ver
 > [[WEB_ARCHITECTURE]] §1 para la nota completa.
 
+> [!warning] Corrección crítica de estrategia de tokens (2026-06-24)
+> La versión anterior de este documento asumía que el `refresh_token` viajaba en una **cookie
+> httpOnly** y que `/auth/refresh` se invocaba con body vacío + `withCredentials: true`. Esto es
+> incorrecto: la API retorna el `refresh_token` en el **body** tanto en login como en refresh, y
+> espera recibirlo en el **body** de `POST /auth/refresh` — ver [[01-api/endpoints/AUTH]] §1.1 y
+> §1.4. Todo el documento ya está actualizado para reflejar el contrato real.
+
 ---
 
 ## 1. Estrategia de Doble Token en el Cliente
@@ -31,18 +38,25 @@ ultima_revision: 2026-06-19
 | Token | Cómo llega al cliente | Dónde se guarda | Quién lo gestiona |
 |-------|----------------------|-----------------|-------------------|
 | **Access Token** (JWT, 15 min) | Body de la respuesta de login/refresh | Memoria: Zustand `auth.store.accessToken` | `useAuthStore` — se pierde al recargar |
-| **Refresh Token** (opaco, 7 días) | Cookie `httpOnly; Secure; SameSite=Strict` | El browser — inaccesible para JS | Automático — viaja en cada request a `/auth/refresh` |
+| **Refresh Token** (30 días) | Body de la respuesta de login/refresh (`refresh_token`) | Memoria: Zustand `auth.store.refreshToken` | `useAuthStore` — se pierde al recargar |
+
+> [!note] Por qué en memoria y no en cookie httpOnly
+> La API devuelve el `refresh_token` en el body (ver [[01-api/endpoints/AUTH]] §1.1 y §1.4) —
+> el servidor no establece ninguna cookie. La alternativa segura disponible en el cliente es
+> guardarlo en memoria (Zustand). Consecuencia intencional: al recargar la página, ambos tokens
+> se pierden y el usuario debe volver a hacer login. Esto es aceptable para un panel
+> administrativo donde la seguridad prima sobre la conveniencia.
 
 > [!danger] Nunca hacer esto
 > ```ts
-> localStorage.setItem('access_token', token)   // ❌ Vulnerable a XSS
-> sessionStorage.setItem('access_token', token) // ❌ Vulnerable a XSS
-> document.cookie = `access_token=${token}`     // ❌ Accesible por JS = XSS vulnerable
+> localStorage.setItem('refresh_token', token)   // ❌ Vulnerable a XSS
+> sessionStorage.setItem('refresh_token', token) // ❌ Vulnerable a XSS
+> document.cookie = `refresh_token=${token}`     // ❌ Accesible por JS = XSS vulnerable
 > ```
 
 > [!tip] Siempre hacer esto
 > ```ts
-> useAuthStore.getState().setAccessToken(token) // ✅ En memoria — seguro frente a XSS
+> useAuthStore.getState().setTokens(accessToken, refreshToken) // ✅ En memoria — seguro frente a XSS
 > ```
 
 ---
@@ -57,32 +71,35 @@ import type { AuthUser } from '@/features/auth/types/auth.types';
 
 interface AuthState {
   accessToken: string | null;
+  refreshToken: string | null;
   user: AuthUser | null;
   isAuthenticated: boolean;
-  setAccessToken: (token: string) => void;
+  setTokens: (accessToken: string, refreshToken: string) => void;
   setUser: (user: AuthUser) => void;
   clearSession: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
+  refreshToken: null,
   user: null,
   isAuthenticated: false,
 
-  setAccessToken: (token) =>
-    set({ accessToken: token, isAuthenticated: true }),
+  setTokens: (accessToken, refreshToken) =>
+    set({ accessToken, refreshToken, isAuthenticated: true }),
 
   setUser: (user) => set({ user }),
 
   clearSession: () =>
-    set({ accessToken: null, user: null, isAuthenticated: false }),
+    set({ accessToken: null, refreshToken: null, user: null, isAuthenticated: false }),
 }));
 ```
 
 > [!note] Nota sobre recarga de página
-> Al recargar, `accessToken` es `null`. El componente de layout protegido llama a
-> `silentRefresh()` antes de renderizar. Si falla (cookie expirada), redirige a `/login`. No
-> existe persistencia de Zustand a `localStorage` para este store — es intencional (§1).
+> Al recargar, ambos tokens son `null`. El componente de layout protegido llama a
+> `silentRefresh()`, que detecta que no hay `refreshToken` en el store y falla inmediatamente →
+> redirige a `/login`. No existe persistencia de Zustand a `localStorage` para este store — es
+> intencional (§1). El usuario debe volver a autenticarse tras cada recarga.
 
 ---
 
@@ -100,18 +117,28 @@ import axios from 'axios';
 import { useAuthStore } from '@/stores/auth.store';
 
 /**
- * Renueva el access token usando la cookie httpOnly del refresh token.
+ * Renueva el access token enviando el refresh token en el body.
+ * La API rota el refresh token en cada uso — ambos tokens se actualizan en el store.
  * Devuelve el nuevo access token o lanza un error si el refresh falló.
  */
 export async function silentRefresh(): Promise<string> {
+  const { refreshToken } = useAuthStore.getState();
+
+  // Si no hay refresh token en memoria (p.ej. tras recargar la página), falla de inmediato
+  // para que el layout protegido redirija al login sin un request innecesario al API.
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
+  }
+
   const { data } = await axios.post(
     `${import.meta.env.VITE_API_URL}/auth/refresh`,
-    {},
-    { withCredentials: true },
+    { refresh_token: refreshToken },
   );
-  const newToken: string = data.data.access_token;
-  useAuthStore.getState().setAccessToken(newToken);
-  return newToken;
+
+  const newAccessToken: string = data.data.access_token;
+  const newRefreshToken: string = data.data.refresh_token; // La API rota el refresh token
+  useAuthStore.getState().setTokens(newAccessToken, newRefreshToken);
+  return newAccessToken;
 }
 ```
 
@@ -129,7 +156,7 @@ import type { ApiErrorResponse } from '@/types/api.types';
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true, // Envía la cookie httpOnly del refresh token automáticamente
+  withCredentials: true, // Necesario para CORS con credenciales (sin efecto sobre el refresh token, que viaja en body)
   headers: { 'Content-Type': 'application/json' },
   timeout: 15000, // 15 segundos — evitar requests colgados
 });
@@ -265,7 +292,7 @@ import { login } from '../api/auth.service';
 import type { ApiError } from '@/types/api.types';
 
 export function useLogin() {
-  const { setAccessToken, setUser, clearSession } = useAuthStore();
+  const { setTokens, setUser, clearSession } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   // Preservar la URL a la que el usuario intentaba acceder antes de ser redirigido a /login
@@ -274,7 +301,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: ({ email, password }: LoginInput) => login(email, password),
     onSuccess: (data) => {
-      setAccessToken(data.access_token);
+      setTokens(data.access_token, data.refresh_token);
       setUser(data.user);
       // Verificar el rol ANTES de redirigir — nunca asumir que el login exitoso implica acceso
       if (data.user.role !== 'admin') {
@@ -317,14 +344,14 @@ Flujo TOTP:
 2. Redirige a /login/mfa (preservando el returnTo en location.state)
 3. El usuario ingresa el código TOTP (6 dígitos)
 4. Se llama POST /auth/mfa/verify con { code }   ← solo el código, sin campo 'type'
-5. Si válido → API responde con access_token + refresh_token cookie + user
-6. Guardar access_token en Zustand → verificar role → navigate(returnTo)
+5. Si válido → API responde con access_token + refresh_token en body + user
+6. Llamar setTokens(access_token, refresh_token) en Zustand → verificar role → navigate(returnTo)
 
 Flujo código de respaldo (alternativa al TOTP):
 1-2. Igual que TOTP
 3. Usuario pulsa "Usar código de respaldo" → campo cambia a 8 dígitos
 4. Se llama POST /auth/mfa/verify-backup con { code }   ← ver §6.1
-5-6. Igual que TOTP — misma respuesta con access_token + user
+5-6. Igual que TOTP — misma respuesta con access_token + refresh_token en body + user
 ```
 
 **Pantalla MFA** (`src/features/auth/pages/MfaPage.tsx`, ruta `/login/mfa`):
@@ -341,7 +368,7 @@ Flujo código de respaldo (alternativa al TOTP):
 
 ```ts
 export function useMfaVerifyBackup() {
-  const { setAccessToken, setUser, clearSession } = useAuthStore();
+  const { setTokens, setUser, clearSession } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   const returnTo = (location.state as { from?: string } | null)?.from ?? '/dashboard';
@@ -352,7 +379,7 @@ export function useMfaVerifyBackup() {
         .post<ApiResponse<LoginResponseData>>('/auth/mfa/verify-backup', { code })
         .then((r) => r.data.data),
     onSuccess: (data) => {
-      setAccessToken(data.access_token);
+      setTokens(data.access_token, data.refresh_token);
       setUser(data.user);
       if (data.user.role !== 'admin') {
         clearSession();
@@ -395,8 +422,8 @@ export function DashboardLayout() {
   useEffect(() => {
     async function bootstrap() {
       try {
-        // 1. Renovar el token con la cookie httpOnly
-        await silentRefresh(); // Actualiza el store internamente
+        // 1. Renovar el token (falla inmediatamente si no hay refreshToken en memoria → reload)
+        await silentRefresh(); // Lee refreshToken del store, actualiza ambos tokens internamente
 
         // 2. Obtener datos del usuario
         const meRes = await apiClient.get<ApiResponse<AuthUser>>('/auth/me');
@@ -412,7 +439,7 @@ export function DashboardLayout() {
         setUser(user);
         setReady(true);
       } catch {
-        // silentRefresh falló → cookie expirada o inválida
+        // silentRefresh falló → no hay refreshToken en memoria (recarga) o token expirado
         clearSession();
         navigate('/login', { replace: true });
       }
@@ -690,23 +717,12 @@ en la capa de hosting, §11.1).
 > Checklist #1 del documento de requerimientos: "Tokens para mutaciones no-GET cuando no uses
 > `SameSite=Strict` cookies".
 
-Este proyecto usa `refresh_token` con `SameSite=Strict` (ver §1) y el **access token viaja por
-header `Authorization`, no por cookie** — ninguno de los dos vectores clásicos de CSRF (cookies
-enviadas automáticamente por el navegador en requests cross-site) aplica al endpoint de negocio,
-porque el navegador no adjunta el `Authorization` header automáticamente en requests
-cross-origin iniciadas por un sitio malicioso.
+Este proyecto **no es vulnerable a CSRF** porque ningún token viaja en cookie:
 
-El único endpoint que viaja con cookie automática es `/auth/refresh` (usa la cookie
-`refresh_token`). Como esa cookie es `SameSite=Strict`, el navegador no la envía en absoluto en
-requests originadas desde otro sitio — **no se requiere token CSRF adicional** mientras se
-mantenga esta configuración.
+- El `access_token` viaja en el header `Authorization: Bearer ...`, que el navegador nunca adjunta automáticamente en requests cross-origin iniciadas por un sitio malicioso.
+- El `refresh_token` viaja en el **body** de `POST /auth/refresh` (ver §3) — un sitio malicioso tampoco puede leer ni reenviar ese valor sin acceso al DOM de este origen.
 
-> [!danger] Si esta configuración cambia
-> Si en algún momento `SameSite` pasa de `Strict` a `Lax` o `None` (por ejemplo, para soportar un
-> flujo de SSO cross-domain), este análisis deja de ser válido y **debe** agregarse un token CSRF
-> de doble-submit (`X-CSRF-Token` header + cookie no-httpOnly legible por JS, comparados en el
-> servidor) para `/auth/refresh` y cualquier otro endpoint que dependa de cookies. Documentar el
-> cambio aquí y en [[01-api/API_CONTRACT]] antes de implementarlo.
+**No se requiere token CSRF adicional.** El modelo de tokens en memoria (§1) elimina por diseño el vector de ataque que hace necesario CSRF.
 
 ### 11.5 Tiempo de Inactividad
 
@@ -773,10 +789,10 @@ export interface AuthUser {
 
 export interface LoginResponseData {
   access_token: string;
+  refresh_token: string; // Viene en el body — ver [[01-api/endpoints/AUTH]] §1.1
   token_type: 'bearer';
   expires_in: number;   // 900 (segundos = 15 min)
   user: AuthUser;
-  // refresh_token viaja en cookie httpOnly — nunca aparece en el body
 }
 
 export interface Session {

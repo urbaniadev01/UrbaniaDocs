@@ -1,7 +1,7 @@
 ---
 name: web-build
 description: Implementa y modifica código en Urbania Web (Vite + React 19 + TypeScript, SPA). Acceso completo.
-model: opencode-go/kimi-k2.7-code
+model: opencode-go/qwen3.7-plus
 temperature: 0.2
 mode: primary
 permission:
