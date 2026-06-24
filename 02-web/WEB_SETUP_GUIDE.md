@@ -3,7 +3,7 @@ title: WEB_SETUP_GUIDE
 type: guia-inicializacion
 tags: [urbania-web, setup, sesion-0]
 status: vigente
-ultima_revision: 2026-06-17
+ultima_revision: 2026-06-24
 ---
 
 # 🚀 WEB_SETUP_GUIDE
@@ -202,6 +202,15 @@ VITE_PUSHER_CLUSTER=mt1
 
 **`.env.test`** — ver [[WEB_TESTING]] §6 (incluye credenciales de cuentas de prueba, no solo la
 URL del API).
+
+> [!tip] Usuarios de prueba en la API
+> Para que estas credenciales funcionen contra la API real (no mock), ejecutar los seeders de la API:
+> ```bash
+> # Desde API/
+> php artisan migrate:fresh --seed
+> ```
+> Esto crea los usuarios `admin@urbania.com` / `Admin2026!` y `residente@urbania.com` / `Resident2026!`.
+> Ver `01-api/API_SETUP_GUIDE.md` §12.3 para todas las cuentas de prueba disponibles.
 
 > [!warning] Regla de oro
 > Solo las variables prefijadas con `VITE_` quedan expuestas al bundle del cliente

@@ -2,7 +2,7 @@
 type: operational
 status: active
 tags: [setup, docker, onboarding]
-updated: 2026-06-17
+updated: 2026-06-24
 ---
 
 # 🚀 SETUP_GUIDE
@@ -685,6 +685,35 @@ jobs:
 
 > [!note] Uso
 > Los checklists de [[API_AGENTS]] pueden ejecutarse con `composer ci` en lugar de comandos individuales.
+
+---
+
+### 12.3 Seeders de Prueba
+
+El `DatabaseSeeder` crea los siguientes usuarios de prueba para desarrollo y testing:
+
+| Email | Contraseña | Rol | MFA | Propósito |
+|-------|-----------|-----|-----|-----------|
+| `admin@urbania.com` | `Admin2026!` | admin | ❌ | Login admin básico |
+| `residente@urbania.com` | `Resident2026!` | user | ❌ | Login residente básico |
+| `admin-mfa@urbania.com` | `Admin2026!` | admin | ✅ | Flujo completo con MFA |
+| `bloqueado@urbania.com` | `Bloqueado2026!` | user | ❌ | Test de cuenta bloqueada |
+
+> [!important] Coincidencia con Web
+> Las credenciales de `admin@urbania.com` y `residente@urbania.com` están definidas también en `WEB/.env.test` y `WEB/.env.example` para pruebas de integración Web → API. Ver `02-web/WEB_TESTING.md` §6.
+
+**Comandos:**
+
+```bash
+# Migrar + seedear (desde la raíz API/)
+php artisan migrate:fresh --seed
+
+# Solo seedear (si ya migraste)
+php artisan db:seed
+```
+
+> [!warning] Dependencia de Docker
+> Estos comandos requieren que el contenedor de la BD PostgreSQL esté corriendo. Ver [[API_ARCHITECTURE]] §9 (Docker).
 
 ---
 
