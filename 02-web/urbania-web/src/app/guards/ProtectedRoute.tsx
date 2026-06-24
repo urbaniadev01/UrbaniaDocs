@@ -1,5 +1,13 @@
-import { type ReactNode } from 'react'
+import { Navigate, Outlet, useLocation } from 'react-router'
+import { useAuthStore } from '@/stores/auth.store'
 
-export function ProtectedRoute({ children }: { children: ReactNode }) {
-  return children
+export function ProtectedRoute() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+  const location = useLocation()
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />
+  }
+
+  return <Outlet />
 }

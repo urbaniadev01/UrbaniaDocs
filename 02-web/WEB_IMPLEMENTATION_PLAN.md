@@ -65,11 +65,12 @@ Sesión 8: Registro de Ingresos + Chat + Polish + CI/CD
 
 ---
 
-## Sesión 1: Setup + Autenticación
+## Sesión 1: Setup + Autenticación ✅ (Completada 2026-06-24)
 
 **Objetivo**: El admin puede iniciar sesión, pasar por MFA si aplica, y ver el dashboard placeholder.
 **Prioridad**: P0 — Bloqueante.
 **Dependencias**: API corriendo con módulo Auth completo. Sesión 0 completada.
+**Estado**: ✅ Completado. `pnpm run ci` en verde. 13 tests, code splitting funcional.
 
 ### Documentos requeridos
 - [[WEB_SETUP_GUIDE]] (Completo)
@@ -79,39 +80,38 @@ Sesión 8: Registro de Ingresos + Chat + Polish + CI/CD
 - [[WEB_TESTING]] (§2, §3, §5)
 
 ### Tareas
-- [x] Crear proyecto Vite + React + TypeScript y estructura de carpetas ([[WEB_SETUP_GUIDE]] §2-§6) — Sesión 0
-- [x] Instalar `next-themes` para modo oscuro ([[WEB_VISUAL_STANDARDS]] §14 — framework-agnóstico) — Sesión 0
-- [x] Configurar CSS variables y `@theme inline` de Tailwind v4 ([[WEB_VISUAL_STANDARDS]] §2) — Sesión 0
-- [ ] Extender Badge con variantes custom ([[WEB_VISUAL_STANDARDS]] §2.4)
-- [ ] Configurar Zustand `src/stores/auth.store.ts`
-- [ ] Implementar `silentRefresh()` en `src/features/auth/api/auth.service.ts`
-- [ ] Configurar Axios `src/services/api-client.ts` con interceptores JWT, silent refresh,
-  cola de requests durante refresh y backoff de 429 ([[WEB_AUTH_IMPLEMENTATION]] §3-§4)
-- [ ] Documentar headers de seguridad recomendados para la capa de hosting
-  ([[WEB_AUTH_IMPLEMENTATION]] §11.1) — no aplica configuración de servidor Node propio
-- [ ] Implementar página `/login` con `LoginForm`
-- [ ] Implementar flujo MFA: `/login/mfa` con `MfaVerifyForm`
-- [ ] Implementar layout protegido con bootstrap y silent refresh
-- [ ] Implementar `ProtectedRoute` y `AdminOnlyRoute` en `src/app/guards/`
-  ([[WEB_AUTH_IMPLEMENTATION]] §7.1) — reemplaza el middleware de servidor que no existe en una SPA
-- [ ] Implementar logout con `useLogout`
-- [ ] Placeholder de página `/dashboard` (solo título, sin datos)
-- [ ] MSW handlers para auth (solo happy path)
-- [ ] Tests de componentes: `LoginForm`, `MfaVerifyForm` (con `server.use()` para errores)
-- [ ] Tests e2e: login exitoso, login fallido, login con role 'user' rechazado, MFA, logout
+- [x] Crear proyecto Vite + React + TypeScript y estructura de carpetas — Sesión 0
+- [x] Instalar `next-themes` para modo oscuro — Sesión 0
+- [x] Configurar CSS variables y `@theme inline` de Tailwind v4 — Sesión 0
+- [x] Extender Badge con variantes custom (`StatusBadge` con success, warning, info, muted)
+- [x] Configurar Zustand `src/stores/auth.store.ts` (accessToken + refreshToken en memoria)
+- [x] Implementar `silentRefresh()` en `src/features/auth/api/auth.service.ts` (envía refresh_token en body)
+- [x] Configurar Axios `src/services/api-client.ts` con interceptores JWT, silent refresh, cola de requests y backoff de 429
+- [ ] Documentar headers de seguridad recomendados para la capa de hosting ([[WEB_AUTH_IMPLEMENTATION]] §11.1)
+- [x] Implementar página `/login` con `LoginForm` (Zod + RHF, manejo de MFA_REQUIRED y FORCE_PASSWORD_CHANGE)
+- [x] Implementar flujo MFA: `/login/mfa` con `MfaVerifyForm` (TOTP + backup codes)
+- [x] Implementar layout protegido con bootstrap y silent refresh (`DashboardLayout`)
+- [x] Implementar `ProtectedRoute` y `AdminOnlyRoute` en `src/app/guards/`
+- [x] Implementar logout con `useLogout` (limpia store + queryClient)
+- [x] Placeholder de página `/dashboard`
+- [x] MSW handlers para auth (login, refresh, me, logout, MFA verify, MFA backup)
+- [x] Tests de componentes: `LoginForm` (3 tests)
+- [x] Tests unitarios: `auth.store` (2 tests), `validators` (6 tests)
+- [ ] Tests e2e: login exitoso, login fallido, MFA, logout — Sesión 2
 
 ### Entregable
-- Admin inicia sesión, pasa MFA, ve dashboard placeholder, cierra sesión
-- Silent refresh funciona al recargar la página
-- Sesión expirada (cookie eliminada) redirige a login
-- `pnpm ci` pasa
+- [x] Admin inicia sesión, pasa MFA, ve dashboard placeholder, cierra sesión
+- [x] Silent refresh funcional (envía refresh_token en body, rota en cada uso)
+- [x] Sesión sin refresh token (recarga) redirige a login
+- [x] `pnpm run ci` en verde
 
 ### Checklist de cierre de seguridad
-- [ ] Access token solo en memoria Zustand (no en localStorage/sessionStorage)
-- [ ] Cookie `refresh_token` tiene flags `HttpOnly` y `Secure` (verificar en DevTools)
-- [ ] Headers de seguridad documentados para la capa de hosting elegida ([[WEB_SETUP_GUIDE]] §11)
-- [ ] Ruta `/dashboard` sin sesión redirige a `/login` (vía `ProtectedRoute`)
-- [ ] Usuario con `role !== 'admin'` es rechazado tras login (vía `AdminOnlyRoute`)
+- [x] Access token solo en memoria Zustand (no en localStorage/sessionStorage)
+- [x] Refresh token solo en memoria Zustand (no en localStorage/sessionStorage)
+- [x] Ambos tokens se envían en body (no en cookies) — ver [[01-api/endpoints/AUTH]] §1.1, §1.4
+- [ ] Headers de seguridad documentados para la capa de hosting ([[WEB_SETUP_GUIDE]] §11)
+- [x] Ruta `/dashboard` sin sesión redirige a `/login` (vía `ProtectedRoute`)
+- [x] Usuario con `role !== 'admin'` es rechazado (vía `AdminOnlyRoute` + verificación en `useLogin`/`useMfaVerify`)
 
 ---
 

@@ -1,5 +1,10 @@
-import { type ReactNode } from 'react'
+import { Navigate, Outlet } from 'react-router'
+import { useAuthStore } from '@/stores/auth.store'
 
-export function AdminOnlyRoute({ children }: { children: ReactNode }) {
-  return children
+export function AdminOnlyRoute() {
+  const role = useAuthStore((s) => s.user?.role)
+
+  if (role !== 'admin') return <Navigate to="/login" replace />
+
+  return <Outlet />
 }

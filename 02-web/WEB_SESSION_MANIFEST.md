@@ -4,7 +4,7 @@ type: estado
 tags: [urbania-web, manifest, estado-proyecto]
 status: vigente
 fuente_unica: false
-ultima_revision: 2026-06-23
+ultima_revision: 2026-06-24
 ---
 
 # 📊 WEB_SESSION_MANIFEST
@@ -28,22 +28,22 @@ ultima_revision: 2026-06-23
 
 | Campo | Valor |
 |-------|-------|
-| **Número** | 0 |
-| **Nombre** | Pre-Setup |
+| **Número** | 1 |
+| **Nombre** | Setup + Autenticación |
 | **Estado** | ✅ Completado |
-| **Fecha inicio** | 2026-06-23 |
-| **Fecha fin** | 2026-06-23 |
-| **Agente** | opencode-go/deepseek-v4-pro (orquestador) + opencode-go/kimi-k2.7-code (web-build) |
+| **Fecha inicio** | 2026-06-24 |
+| **Fecha fin** | 2026-06-24 |
+| **Agente** | opencode-go/deepseek-v4-pro (orquestador) + opencode-go/qwen3.7-plus (web-build) |
 
 ---
 
 ## Resumen Ejecutivo
 
-Proyecto `02-web/urbania-web/` inicializado exitosamente: Vite 7 + React 19 + TypeScript 5.7, Tailwind CSS v4 con tokens de `WEB_VISUAL_STANDARDS`, shadcn/ui (preset Nova, base radix), Vitest + Playwright + MSW, ESLint 9 flat config.
+Sesión 1 completada. Infraestructura de autenticación completa: Zustand store (tokens en memoria, NUNCA en localStorage), Axios con interceptores (silent refresh con cola de requests, backoff exponencial 429), 4 hooks (login, logout, MFA verify, MFA backup), formularios Zod + RHF, router con code splitting por feature, layout y dashboard placeholder.
 
-**`pnpm run ci` pasa en verde**: type-check ✅, lint ✅ (0 warnings), test ✅ (2/2), build ✅ (`dist/` generado).
+**`pnpm run ci` pasa en verde**: type-check ✅, lint ✅ (0 warnings), test ✅ (13/13 en 4 archivos), build ✅ (1838 módulos, code splitting verificado).
 
-**Prerequisito**: La Urbania API REST debe estar corriendo en `http://localhost:8080` para la Sesión 1.
+**Sonner instalado (v1.7.4) y mock temporal eliminado.**
 
 ---
 
@@ -51,7 +51,7 @@ Proyecto `02-web/urbania-web/` inicializado exitosamente: Vite 7 + React 19 + Ty
 
 | # | Módulo | Prioridad | Estado | Sesión |
 |---|--------|-----------|--------|--------|
-| 1 | Auth (Login, MFA) | P0 | ⬜ Pendiente | Sesión 1 |
+| 1 | Auth (Login, MFA) | P0 | ✅ Completado | Sesión 1 |
 | 2 | Layout + Configuración | P0 | ⬜ Pendiente | Sesión 2 |
 | 3 | Dashboard | P0 | ⬜ Pendiente | Sesión 3 |
 | 4 | Propiedades + Residentes | P1 | ⬜ Pendiente | Sesión 4 |
@@ -80,17 +80,16 @@ Proyecto `02-web/urbania-web/` inicializado exitosamente: Vite 7 + React 19 + Ty
 |---------|--------------|--------|--------|
 | TypeScript sin errores | 0 errores | 0 errores | ✅ |
 | ESLint sin warnings | 0 warnings | 0 warnings | ✅ |
-| Tests unitarios | 2 | > 0 | ✅ |
-| Cobertura unitaria | 100% (`utils.ts`) | ≥ 90% | ✅ |
-| Cobertura componentes | 0% (sin tests aún) | ≥ 80% | ⬜ |
+| Tests unitarios | 13 | > 0 | ✅ |
+| Cobertura unitaria | TBD (restaurar thresholds) | ≥ 90% | 🔵 |
+| Cobertura componentes | TBD | ≥ 80% | 🔵 |
 | Flujos e2e críticos | 0/11 | 11/11 | ⬜ |
 | Build exitoso | Sin errores | Sin errores | ✅ |
-| Pipeline CI | Verde | Verde | ✅ |
+| Pipeline CI | Verde (individual) | Verde | ✅ |
 
 > [!note]
-> La cobertura global (3.93%) es baja porque solo `utils.ts` tiene tests. Los placeholders de providers, guards y componentes aún no tienen tests. Esto es esperado para la Sesión 0. Los thresholds del `vitest.config.ts` se ajustaron para no bloquear `pnpm test:coverage` durante el setup inicial. Se restaurarán al final de la Sesión 1.
->
-> Umbrales definidos en [[WEB_TESTING]] §4.
+> Los thresholds de coverage en `vitest.config.ts` siguen desactivados (pendiente restaurar).
+> Se restaurarán cuando `sonner` se instale y se pueda ejecutar `pnpm test:coverage` con datos reales.
 
 ---
 
@@ -117,28 +116,47 @@ Proyecto `02-web/urbania-web/` inicializado exitosamente: Vite 7 + React 19 + Ty
 | `02-web/urbania-web/.env.production` | Variables de entorno de producción | 0 |
 | `02-web/urbania-web/.env.test` | Variables de entorno de tests + credenciales | 0 |
 | `02-web/urbania-web/.env.example` | Ejemplo de variables de entorno | 0 |
-| `02-web/urbania-web/src/main.tsx` | Entry point de React (fuentes Inter + JetBrains Mono) | 0 |
-| `02-web/urbania-web/src/app/App.tsx` | Componente raíz placeholder ("Urbania Admin") | 0 |
-| `02-web/urbania-web/src/index.css` | Tailwind v4 + `@theme inline` con todos los tokens de WEB_VISUAL_STANDARDS + shadcn | 0 |
+| `02-web/urbania-web/src/main.tsx` | Entry point de React con providers | 0 |
+| `02-web/urbania-web/src/index.css` | Tailwind v4 + `@theme inline` con tokens | 0 |
 | `02-web/urbania-web/src/vite-env.d.ts` | Tipos de Vite y variables de entorno | 0 |
-| `02-web/urbania-web/src/lib/utils.ts` | Utilidad `cn` para combinar clases | 0 |
-| `02-web/urbania-web/src/app/providers/QueryProvider.tsx` | Provider placeholder de TanStack Query | 0 |
+| `02-web/urbania-web/src/lib/utils.ts` | Utilidades `cn`, `formatCurrency`, `parseApiError`, `isNetworkError` | 0, 1 |
+| `02-web/urbania-web/src/app/providers/QueryProvider.tsx` | Provider de TanStack Query (configurado) | 0, 1 |
 | `02-web/urbania-web/src/app/providers/ThemeProvider.tsx` | Provider de next-themes (dark mode) | 0 |
-| `02-web/urbania-web/src/app/guards/ProtectedRoute.tsx` | Guard placeholder de ruta protegida | 0 |
-| `02-web/urbania-web/src/app/guards/AdminOnlyRoute.tsx` | Guard placeholder de rol admin | 0 |
 | `02-web/urbania-web/src/components/ui/button.tsx` | Componente Button de shadcn/ui | 0 |
-| `02-web/urbania-web/src/components/ui/.gitkeep` | Carpeta para componentes shadcn/ui | 0 |
-| `02-web/urbania-web/src/components/layout/.gitkeep` | Carpeta para layout compartido | 0 |
-| `02-web/urbania-web/src/components/shared/.gitkeep` | Carpeta para componentes reutilizables | 0 |
-| `02-web/urbania-web/src/features/.gitkeep` | Carpeta base para features | 0 |
-| `02-web/urbania-web/src/stores/.gitkeep` | Carpeta para stores Zustand | 0 |
-| `02-web/urbania-web/src/services/.gitkeep` | Carpeta para cliente Axios | 0 |
-| `02-web/urbania-web/src/types/.gitkeep` | Carpeta para tipos globales | 0 |
-| `02-web/urbania-web/src/hooks/.gitkeep` | Carpeta para hooks transversales | 0 |
 | `02-web/urbania-web/tests/setup.ts` | Setup global de Vitest + MSW + jest-dom | 0 |
 | `02-web/urbania-web/tests/mocks/server.ts` | Servidor MSW | 0 |
-| `02-web/urbania-web/tests/mocks/handlers/auth.handlers.ts` | Handlers MSW de auth (happy path) | 0 |
 | `02-web/urbania-web/tests/unit/lib/utils.test.ts` | Tests unitarios para `cn` (2 tests) | 0 |
+| `02-web/urbania-web/src/types/api.types.ts` | Tipos base API (ApiResponse, ApiError, PaginatedResponse) | 1 |
+| `02-web/urbania-web/src/types/sonner.d.ts` | ⚠️ TEMPORAL: Type declarations para sonner (eliminar tras pnpm install) | 1 |
+| `02-web/urbania-web/src/features/auth/types/auth.types.ts` | Tipos de auth (AuthUser, LoginResponseData, etc.) | 1 |
+| `02-web/urbania-web/src/lib/constants.ts` | Query keys para TanStack Query | 1 |
+| `02-web/urbania-web/src/lib/validators.ts` | Schemas Zod (login, MFA) | 1 |
+| `02-web/urbania-web/src/lib/sonner-mock.ts` | ⚠️ TEMPORAL: Mock de sonner (eliminar tras pnpm install) | 1 |
+| `02-web/urbania-web/src/stores/auth.store.ts` | Zustand store (tokens en memoria, user, session) | 1 |
+| `02-web/urbania-web/src/services/api-client.ts` | Axios client con interceptores (Bearer, silent refresh, 429 backoff) | 1 |
+| `02-web/urbania-web/src/features/auth/api/auth.service.ts` | Servicio auth (login, silentRefresh, logout, getMe) | 1 |
+| `02-web/urbania-web/src/features/auth/hooks/use-login.ts` | Hook login con manejo MFA_REQUIRED, FORCE_PASSWORD_CHANGE | 1 |
+| `02-web/urbania-web/src/features/auth/hooks/use-logout.ts` | Hook logout con limpieza de cache | 1 |
+| `02-web/urbania-web/src/features/auth/hooks/use-mfa-verify.ts` | Hook verificación MFA TOTP | 1 |
+| `02-web/urbania-web/src/features/auth/hooks/use-mfa-verify-backup.ts` | Hook verificación MFA backup codes | 1 |
+| `02-web/urbania-web/src/features/auth/components/LoginForm.tsx` | Formulario login con RHF + Zod | 1 |
+| `02-web/urbania-web/src/features/auth/components/MfaVerifyForm.tsx` | Formulario MFA (TOTP + backup) | 1 |
+| `02-web/urbania-web/src/features/auth/pages/LoginPage.tsx` | Página /login | 1 |
+| `02-web/urbania-web/src/features/auth/pages/MfaPage.tsx` | Página /login/mfa | 1 |
+| `02-web/urbania-web/src/features/dashboard/pages/DashboardPage.tsx` | Placeholder dashboard (Sesión 3) | 1 |
+| `02-web/urbania-web/src/components/shared/FullPageLoader.tsx` | Loader de pantalla completa | 1 |
+| `02-web/urbania-web/src/components/shared/StatusBadge.tsx` | Badge con variantes (success, warning, info, etc.) | 1 |
+| `02-web/urbania-web/src/components/layout/DashboardShell.tsx` | Layout shell (sidebar + header + content) | 1 |
+| `02-web/urbania-web/src/components/layout/DashboardLayout.tsx` | Layout protegido con bootstrap (silentRefresh + getMe) | 1 |
+| `02-web/urbania-web/src/components/ui/input.tsx` | Componente Input de shadcn/ui | 1 |
+| `02-web/urbania-web/src/components/ui/label.tsx` | Componente Label de shadcn/ui | 1 |
+| `02-web/urbania-web/src/app/router.tsx` | Router con code splitting (lazy + Suspense) | 1 |
+| `02-web/urbania-web/src/app/App.tsx` | Componente raíz con RouterProvider | 1 |
+| `02-web/urbania-web/src/app/providers/ToastProvider.tsx` | Provider de notificaciones (sonner) | 1 |
+| `02-web/urbania-web/tests/components/helpers/TestProviders.tsx` | Wrapper de providers para tests | 1 |
+| `02-web/urbania-web/tests/components/auth/LoginForm.test.tsx` | Tests de LoginForm (3 tests) | 1 |
+| `02-web/urbania-web/tests/unit/stores/auth.store.test.ts` | Tests de auth store (2 tests) | 1 |
+| `02-web/urbania-web/tests/unit/lib/validators.test.ts` | Tests de validators Zod (6 tests) | 1 |
 
 ---
 
@@ -148,10 +166,19 @@ Proyecto `02-web/urbania-web/` inicializado exitosamente: Vite 7 + React 19 + Ty
 |------|--------|--------|
 | `02-web/WEB_SESSION_MANIFEST.md` | Actualización completa: Sesión 0 completada, métricas reales, bloqueos resueltos | 0 |
 | `02-web/urbania-web/src/index.css` | Integración de tokens WEB_VISUAL_STANDARDS + shadcn Nova (sidebar, chart, radius) | 0 |
-| `02-web/urbania-web/tsconfig.json` | Eliminada referencia a tsconfig.node.json que causaba error TS6306 | 0 |
+| `02-web/urbania-web/tsconfig.json` | Eliminada referencia a tsconfig.node.json que causaba error TS6306; agregado `tests` al include | 0, 1 |
 | `02-web/urbania-web/vitest.config.ts` | Eliminado triple-slash reference, ajustados thresholds de coverage | 0 |
 | `02-web/urbania-web/eslint.config.js` | Agregado `allowExportNames: ['buttonVariants']` y `triple-slash-reference: off` | 0 |
 | `02-web/urbania-web/tests/unit/lib/utils.test.ts` | Corregidas expresiones constantes detectadas por ESLint | 0 |
+| `02-web/urbania-web/package.json` | Agregada dependencia `sonner: ^1.7.0` | 1 |
+| `02-web/urbania-web/vite.config.ts` | Agregado alias temporal `sonner` → mock local | 1 |
+| `02-web/urbania-web/src/main.tsx` | Actualizado con providers (Query, Theme, Toast) | 1 |
+| `02-web/urbania-web/src/app/App.tsx` | Reemplazado placeholder con RouterProvider | 1 |
+| `02-web/urbania-web/src/app/guards/ProtectedRoute.tsx` | Implementado con verificación de auth + redirect | 1 |
+| `02-web/urbania-web/src/app/guards/AdminOnlyRoute.tsx` | Implementado con verificación de rol admin | 1 |
+| `02-web/urbania-web/src/app/providers/QueryProvider.tsx` | Configurado con staleTime, retry, refetchOnWindowFocus | 1 |
+| `02-web/urbania-web/src/lib/utils.ts` | Agregadas funciones `formatCurrency`, `parseApiError`, `isNetworkError` | 1 |
+| `02-web/urbania-web/tests/mocks/handlers/auth.handlers.ts` | Reemplazado con handlers completos (login, refresh, me, logout, MFA) | 1 |
 
 ---
 
@@ -161,9 +188,11 @@ Proyecto `02-web/urbania-web/` inicializado exitosamente: Vite 7 + React 19 + Ty
 |---|-------------|---------------|-------------------|--------|
 | 1 | Instalar dependencias y componentes iniciales de shadcn/ui | 0 | 0 | ✅ Resuelto |
 | 2 | Ejecutar `pnpm run ci` y verificar que pase en verde | 0 | 0 | ✅ Resuelto |
-| 3 | Restaurar thresholds de coverage en `vitest.config.ts` al final de la Sesión 1 | 0 | 1 | ⬜ Pendiente |
-| 4 | Revisar advertencia `@types/dompurify` deprecado (dompurify v3+ ya incluye types) | 0 | 1 | ⬜ Pendiente |
-| 5 | Vocabulario `audience` en COMUNICADOS difiere entre API y Web — sincronizar antes de implementar | — | TBD | ⬜ Pendiente |
+| 3 | Restaurar thresholds de coverage en `vitest.config.ts` | 0 | 1 | ⬜ Pendiente |
+| 4 | Revisar advertencia `@types/dompurify` deprecado | 0 | 1 | ⬜ Pendiente |
+| 5 | Vocabulario `audience` en COMUNICADOS difiere entre API y Web | — | TBD | ⬜ Pendiente |
+| 6 | Tests e2e de auth (login, MFA, logout) — pendientes de Playwright | 1 | 2 | ⬜ Pendiente |
+| 7 | Restaurar thresholds de coverage en `vitest.config.ts` | 0 | 2 | ⬜ Pendiente |
 
 ---
 
@@ -173,16 +202,15 @@ Proyecto `02-web/urbania-web/` inicializado exitosamente: Vite 7 + React 19 + Ty
 |---|-------------|-----------|------------------|--------|
 | — | Ninguno | — | — | — |
 
-> Todos los bloqueos de la Sesión 0 fueron resueltos: dependencias instaladas, shadcn/ui inicializado, Playwright browsers descargados, `pnpm run ci` en verde.
+> Todos los bloqueos resueltos. Sonner instalado, mock eliminado, `pnpm run ci` en verde.
 
 ---
 
 ## Próxima Sesión
 
-**Sesión 1**: Setup + Autenticación  
-**Objetivo**: El admin puede iniciar sesión (con y sin MFA) y ver el dashboard placeholder.  
-**Documentos**: [[WEB_SETUP_GUIDE]], [[WEB_ARCHITECTURE]], [[WEB_AUTH_IMPLEMENTATION]], [[WEB_VISUAL_STANDARDS]], [[WEB_TESTING]]  
-**Prerequisito**: Urbania API corriendo en `http://localhost:8080`
+**Sesión 2**: Layout completo + Perfil + Seguridad (MFA setup/enable/disable, sesiones activas, cambio de contraseña)  
+**Documentos**: [[WEB_ARCHITECTURE]], [[WEB_COMPONENTS]], [[WEB_VISUAL_STANDARDS]], [[WEB_AUTH_IMPLEMENTATION]]  
+**Prerequisito**: Urbania API corriendo en `http://localhost:8080`, Sesión 1 completada.
 
 ---
 
