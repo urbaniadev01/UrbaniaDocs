@@ -33,7 +33,7 @@ ultima_revision: 2026-06-24
 | **Estado** | ✅ Completado |
 | **Fecha inicio** | 2026-06-24 |
 | **Fecha fin** | 2026-06-24 |
-| **Agente** | opencode-go/deepseek-v4-pro (orquestador) + opencode-go/qwen3.7-plus (web-build) |
+| **Agente** | opencode-go/deepseek-v4-pro (orquestador) + opencode-go/deepseek-v4-flash (web-build) |
 
 ---
 

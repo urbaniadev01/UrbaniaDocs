@@ -86,7 +86,7 @@ D:\Programacion\URBANIA\
 │       ├── agents\
 │       │   ├── api-orchestrator.md   ← Primario (deepseek-v4-pro)
 │       │   ├── api-build.md          ← Primario/subagente (kimi-k2.7-code)
-│       │   └── api-review.md         ← Primario read-only (qwen3.7-plus)
+│       │   └── api-review.md         ← Primario read-only (deepseek-v4-flash)
 │       └── skills\
 │           ├── new-endpoint\SKILL.md
 │           ├── db-migration\SKILL.md
@@ -97,7 +97,7 @@ D:\Programacion\URBANIA\
 │   └── .opencode\
 │       ├── agents\
 │       │   ├── web-orchestrator.md   ← Primario (deepseek-v4-pro)
-│       │   └── web-build.md          ← Primario/subagente (qwen3.7-plus)
+│       │   └── web-build.md          ← Primario/subagente (deepseek-v4-flash)
 │       └── skills\
 │           └── close-session\SKILL.md
 │
@@ -286,9 +286,9 @@ graph TB
         direction LR
         AO["api-orchestrator\ndeepseek-v4-pro"]
         AB["api-build\nkimi-k2.7-code"]
-        AR["api-review\nqwen3.7-plus"]
+        AR["api-review\ndeepseek-v4-flash"]
         WO["web-orchestrator\ndeepseek-v4-pro"]
-        WB["web-build\nqwen3.7-plus"]
+        WB["web-build\ndeepseek-v4-flash"]
         APO["app-orchestrator\ndeepseek-v4-pro"]
         APB["app-build\nkimi-k2.7-code"]
     end
@@ -373,8 +373,8 @@ La clave del sistema es que **no todos los pasos necesitan el mismo modelo**. El
 | Verificar reglas | `deepseek-v4-flash` | $0.14 / $0.28 | Match contra lista fija |
 | Planear y orquestar | `deepseek-v4-pro` | $1.74 / $3.48 | Razonamiento sobre arquitectura |
 | Escribir código (API, App) | `kimi-k2.7-code` | $0.95 / $4.00 | Especializado en coding |
-| Escribir código (Web) | `qwen3.7-plus` | incluido Go | Alternativa eficiente para React/TS SPA |
-| Revisar sin modificar | `qwen3.7-plus` | incluido Go | Análisis con 9.600 req/5h de margen |
+| Escribir código (Web) | `deepseek-v4-flash` | incluido Go | Alternativa eficiente para React/TS SPA |
+| Revisar sin modificar | `deepseek-v4-flash` | incluido Go | Análisis con 9.600 req/5h de margen |
 
 > [!info] ¿Por qué Flash para lectura?
 > Flash cuesta ~120x menos que los modelos de razonamiento. En una sesión típica, el `context-reader` se invoca 2-3 veces y el `rule-verifier` 1-2 veces. Usar Flash en esos pasos reduce el costo de la sesión en ~40-60% sin pérdida de calidad donde importa.

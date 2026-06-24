@@ -2,5 +2,17 @@
   "$schema": "https://opencode.ai/config.json",
   "instructions": [
     "documentacion/AGENTS.md"
-  ]
+  ],
+  "mcp": {
+    "urbania-db": {
+      "type": "local",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-Command",
+        "$p = (Select-String -Path 'API/.env' -Pattern '^DB_PASSWORD=(.+)').Matches[0].Groups[1].Value; npx -y @executeautomation/database-server --postgresql --host localhost --port 5433 --database urbania --user urbania --password $p"
+      ],
+      "enabled": true
+    }
+  }
 }
