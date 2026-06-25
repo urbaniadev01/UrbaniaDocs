@@ -4,7 +4,7 @@ type: testing
 tags: [urbania-web, testing, vitest, playwright, msw]
 status: vigente
 fuente_unica: false
-ultima_revision: 2026-06-17
+ultima_revision: 2026-06-25
 ---
 
 # 🧪 WEB_TESTING
@@ -228,91 +228,75 @@ export function TestProviders({
 - Usar Playwright
 - Ejecutar contra `http://localhost:5173` (puerto por defecto del servidor de desarrollo de
   Vite) con la Urbania API en `localhost:8080`
-- Los tests E2E manipulan sesiones mediante cookies de Playwright, nunca mediante `window.*`
-- Para forzar expiración de sesión, borrar la cookie directamente con Playwright
+- **La sesión de auth vive 100% en memoria** (Zustand store sin persistencia en cookies/localStorage).
+  Recargar la página pierde el estado → el guard de ruta falla el silentRefresh → redirect a `/login`.
+  Para simular expiración de sesión en tests: `page.goto()` fuerza recarga completa.
+- Si en el futuro se migra la sesión a cookies, usar `context.clearCookies()` de Playwright
+  en lugar de manipular `window.*`
 - Cobertura: **100% de los flujos críticos listados**
 
 ```ts
-// tests/e2e/auth.spec.ts
+// tests/e2e/auth.spec.ts — versión real implementada (2026-06-25)
+// Selectores verificados contra el código real (no hay data-testid en auth).
+// La sesión es 100% en memoria (Zustand) — no usa cookies.
+// Flujos pendientes (logout, role=user, MFA) marcados con test.skip documentado.
 import { test, expect } from '@playwright/test';
+import { TEST_CREDENTIALS } from './fixtures';
+
+const { admin } = TEST_CREDENTIALS;
 
 test.describe('Autenticación', () => {
-  test('login exitoso redirige al dashboard', async ({ page }) => {
+  test('1. Login válido → redirige al dashboard', async ({ page }) => {
     await page.goto('/login');
-    await page.getByLabel('Email').fill('admin@urbania.com');
-    await page.getByLabel('Contraseña').fill('Admin2026!');
-    await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+    await page.locator('#email').fill(admin.email);
+    await page.locator('#password').fill(admin.password);
+    await page.locator('button[type="submit"]').click();
 
-    await expect(page).toHaveURL('/dashboard');
-    await expect(page.getByText('Dashboard')).toBeVisible();
+    await expect(page).toHaveURL('/dashboard', { timeout: 10_000 });
+    await expect(page.locator('h1')).toContainText('Dashboard');
   });
 
-  test('acceder a ruta protegida sin sesión redirige a login', async ({ page }) => {
-    // Asegurarse de que no hay cookies de sesión activas
+  test('2. Login inválido → muestra mensaje de error en el formulario', async ({ page }) => {
+    await page.goto('/login');
+    await page.locator('#email').fill('noexiste@urbania.com');
+    await page.locator('#password').fill('WrongPass123!');
+    await page.locator('button[type="submit"]').click();
+
+    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 10_000 });
+    await expect(page).toHaveURL('/login');
+  });
+
+  test('3. Ruta protegida sin sesión → redirige a /login', async ({ page }) => {
     await page.context().clearCookies();
-    await page.goto('/payments');
-    await expect(page).toHaveURL('/login');
-  });
-
-  test('sesión expirada durante navegación redirige a login', async ({ page, context }) => {
-    // 1. Hacer login real
-    await page.goto('/login');
-    await page.getByLabel('Email').fill('admin@urbania.com');
-    await page.getByLabel('Contraseña').fill('Admin2026!');
-    await page.getByRole('button', { name: 'Iniciar sesión' }).click();
-    await expect(page).toHaveURL('/dashboard');
-
-    // 2. Eliminar la cookie de refresh token para simular expiración
-    await context.clearCookies({ name: 'refresh_token' });
-
-    // 3. Navegar a una ruta protegida
-    await page.goto('/payments');
-    await expect(page).toHaveURL('/login');
-  });
-
-  test('flujo MFA completo', async ({ page }) => {
-    // Cuenta con MFA habilitado y secreto conocido en el entorno de staging
-    await page.goto('/login');
-    await page.getByLabel('Email').fill('admin-mfa@urbania.com');
-    await page.getByLabel('Contraseña').fill('Admin2026!');
-    await page.getByRole('button', { name: 'Iniciar sesión' }).click();
-
-    await expect(page).toHaveURL('/login/mfa');
-    await expect(page.getByText('Verificación en dos pasos')).toBeVisible();
-
-    // En staging, usar un secreto TOTP conocido para generar el código correcto
-    const totp = generateTestTotp(process.env.TEST_MFA_SECRET!);
-    await page.getByLabel('Código de verificación').fill(totp);
-
-    await expect(page).toHaveURL('/dashboard');
-  });
-
-  test('logout limpia la sesión correctamente', async ({ page }) => {
-    // Login previo
-    await page.goto('/login');
-    await page.getByLabel('Email').fill('admin@urbania.com');
-    await page.getByLabel('Contraseña').fill('Admin2026!');
-    await page.getByRole('button', { name: 'Iniciar sesión' }).click();
-    await expect(page).toHaveURL('/dashboard');
-
-    // Logout
-    await page.getByRole('button', { name: 'Cerrar sesión' }).click();
-    await expect(page).toHaveURL('/login');
-
-    // Verificar que no puede volver al dashboard sin re-autenticarse
     await page.goto('/dashboard');
-    await expect(page).toHaveURL('/login');
+    await expect(page).toHaveURL('/login', { timeout: 10_000 });
   });
 
-  test('usuario con role user es rechazado en el dashboard web', async ({ page }) => {
-    // Cuenta de tipo 'user' (residente), no 'admin'
+  test('4. Sesión expirada (recarga de página) → redirige a /login', async ({ page }) => {
+    // Login exitoso
     await page.goto('/login');
-    await page.getByLabel('Email').fill('residente@urbania.com');
-    await page.getByLabel('Contraseña').fill('Resident2026!');
-    await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+    await page.locator('#email').fill(admin.email);
+    await page.locator('#password').fill(admin.password);
+    await page.locator('button[type="submit"]').click();
+    await expect(page).toHaveURL('/dashboard', { timeout: 10_000 });
 
-    // Debe redirigir a login con mensaje de error de acceso
-    await expect(page).toHaveURL('/login');
+    // Recargar página pierde el estado en memoria (Zustand) →
+    // DashboardLayout intenta silentRefresh → falla → redirect a /login
+    await page.goto('/payments');
+    await expect(page).toHaveURL('/login', { timeout: 10_000 });
+  });
+
+  // ─── PENDIENTES ──────────────────────────────────────────────────────
+  test.skip('5. Logout', async () => {
+    // TODO: No hay botón de logout en el UI todavía (useLogout existe pero no conectado).
+  });
+
+  test.skip('6. Role=user rechazado', async () => {
+    // TODO: Requiere cuenta de residente en la API de desarrollo.
+  });
+
+  test.skip('7. Flujo MFA completo', async () => {
+    // TODO: Requiere cuenta con MFA activo y secreto TOTP conocido.
   });
 });
 ```
@@ -457,12 +441,12 @@ export const paymentsHandlers = [
 
 ### Flujos E2E críticos (obligatorios)
 
-- [ ] Login con credenciales válidas
-- [ ] Login con MFA (TOTP)
-- [ ] Login fallido (credenciales inválidas — mensaje de error en form)
-- [ ] Login de usuario con role 'user' — debe ser rechazado
-- [ ] Sesión expirada (cookie eliminada) → redirect a login
-- [ ] Logout manual → redirect a login + no puede volver al dashboard
+- [x] Login con credenciales válidas
+- [ ] Login con MFA (TOTP) — pendiente: requiere seed data en API
+- [x] Login fallido (credenciales inválidas — mensaje de error en form)
+- [ ] Login de usuario con role 'user' — debe ser rechazado — pendiente: requiere cuenta residente en API
+- [x] Sesión expirada → redirect a login (por recarga de página; sesión en memoria Zustand)
+- [ ] Logout manual → redirect a login + no puede volver al dashboard — pendiente: no hay botón de logout en UI todavía
 - [ ] Crear pago de administración
 - [ ] Cambiar estado de pago (pendiente → pagado)
 - [ ] Cambiar estado de PQR
@@ -523,18 +507,20 @@ TEST_RESIDENT_PASSWORD=Resident2026!
 ```
 
 ```ts
-// tests/e2e/fixtures.ts — importar variables de entorno en tests e2e
-import 'dotenv/config';
+// tests/e2e/fixtures.ts — credenciales centralizadas para tests E2E
+// Las variables de entorno se heredan del proceso (Playwright las expone en process.env).
+// Si se necesita cargar desde .env.test, instalar dotenv (`pnpm add -D dotenv`)
+// y descomentar la línea `import 'dotenv/config'` al inicio del archivo.
 
 export const TEST_CREDENTIALS = {
   admin: {
-    email: process.env.TEST_ADMIN_EMAIL ?? 'admin@urbania.com',
-    password: process.env.TEST_ADMIN_PASSWORD ?? 'Admin2026!',
+    email: process.env.TEST_ADMIN_EMAIL || 'admin@urbania.com',
+    password: process.env.TEST_ADMIN_PASSWORD || 'Admin2026!',
   },
   resident: {
-    email: process.env.TEST_RESIDENT_EMAIL!,
-    password: process.env.TEST_RESIDENT_PASSWORD!,
+    email: process.env.TEST_RESIDENT_EMAIL || 'residente@urbania.com',
+    password: process.env.TEST_RESIDENT_PASSWORD || 'Resident2026!',
   },
-  mfaSecret: process.env.TEST_MFA_SECRET!,
-};
+  mfaSecret: process.env.TEST_MFA_SECRET || '',
+} as const;
 ```

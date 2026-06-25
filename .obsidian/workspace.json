@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "4a61c93a86a3ae18",
+        "id": "988f5019664643cf",
         "type": "tabs",
         "children": [
           {
-            "id": "949b5256a4d7879a",
+            "id": "685d8db4bd3f0a0e",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "00-shared/FEATURES_Y_PANTALLAS.md",
-                "mode": "preview",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "FEATURES_Y_PANTALLAS"
+              "title": "Nueva pestaña"
             }
           }
         ]
@@ -156,13 +152,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "00-shared/FEATURES_Y_PANTALLAS.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema de FEATURES_Y_PANTALLAS"
+              "title": "Esquema"
             }
           },
           {
@@ -192,14 +187,12 @@
       "templates:Insertar plantilla": false,
       "command-palette:Abrir paleta de comandos": false,
       "bases:Crear nueva base": false,
-      "templater-obsidian:Templater": false,
-      "obsidian-kanban:Create new board": false,
-      "obsidian-excalidraw-plugin:Nuevo Bosquejo": false,
-      "obsidian-git:Open Git source control": false
+      "templater-obsidian:Templater": false
     }
   },
-  "active": "949b5256a4d7879a",
+  "active": "685d8db4bd3f0a0e",
   "lastOpenFiles": [
+    "00-shared/FEATURES_Y_PANTALLAS.md",
     "03-app/features/auth/AUTH_UI_resetear-contrasena.md",
     "03-app/features/auth/AUTH_UI_recuperar-contrasena.md",
     "03-app/features/auth/AUTH_UI_verificacion-mfa.md",
@@ -214,7 +207,6 @@
     "00-shared/FEATURES_INDEX.md",
     "01-api/endpoints/ASAMBLEAS.md",
     "01-api/endpoints/AUTH.md",
-    "00-shared/FEATURES_Y_PANTALLAS.md",
     "01-api/endpoints/_match.txt",
     "01-api/endpoints/CONFIGURACION.md",
     "01-api/endpoints/INFORMES.md",

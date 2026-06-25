@@ -1,7 +1,10 @@
-# Proyectos con repos independientes
+# Proyectos con repos independientes (NO versionar en documentation)
 /API/
 /Web/
 /App/
+
+# Obsidian local workspace state
+.obsidian/workspace.json
 
 # Configuracion local
 .env
