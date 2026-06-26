@@ -4,7 +4,7 @@ status: active
 priority: P0
 module: global
 tags: [agents, navigation, global]
-updated: 2026-06-18
+updated: 2026-06-25
 ---
 
 # 🤖 AGENTS — Vault Global Urbania
@@ -41,6 +41,24 @@ Un solo vault de Obsidian que contiene la documentación técnica de los 3 proye
 - **NUNCA crear código fuente dentro de `01-api/`, `02-web/` o `03-app/`** — esas carpetas son exclusivas para documentación.
 - **Todo comando de build/test/dev se ejecuta desde la raíz del proyecto** (`API/`, `WEB/`, `APP/`), no desde la carpeta de documentación.
 - **Los documentos de referencia** (specs, planes, manifests) viven en `01-api/`, `02-web/`, `03-app/` y referencian el código en `API/`, `WEB/`, `APP/` mediante rutas relativas.
+
+### 1.2 Repositorios Git — 4 repos independientes
+
+> [!danger] NO confundir el monorepo de documentation con los repos de código
+> El sistema Urbania se compone de **4 repositorios Git separados**:
+
+| Repositorio | Carpeta local | Contenido |
+|---|---|---|
+| **Documentation** (este repo) | `D:\Programacion\URBANIA\` | Vault de Obsidian: `00-shared/`, `01-api/`, `02-web/`, `03-app/` |
+| **API** (Laravel) | `API/` | Código fuente del backend |
+| **Web** (Vite + React) | `WEB/` | Código fuente del frontend web |
+| **App** (Flutter) | `APP/` | Código fuente de la app móvil |
+
+**Reglas:**
+- Las carpetas `API/`, `WEB/`, `APP/` dentro del vault son **clones de trabajo** de sus respectivos repos. Están aquí por comodidad del agente para leer código fuente durante sesiones de documentación, pero **NO pertenecen al repo de documentation**.
+- El `.gitignore` raíz del repo de documentation excluye estas carpetas (`/API/`, `/Web/`, `/App/`) — ningún commit de documentation debe contener archivos de código fuente.
+- **Para commitear código fuente** (tests, features, configs, etc.), hacerlo **dentro del repo correspondiente** (`cd API`, `cd WEB`, `cd APP`), nunca desde la raíz del vault.
+- Si una carpeta de código fuente no tiene `.git/`, inicializarla con `git init` y configurar su remote antes de commitear.
 
 ---
 
