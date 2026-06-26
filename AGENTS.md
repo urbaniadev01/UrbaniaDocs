@@ -4,13 +4,15 @@ status: active
 priority: P0
 module: global
 tags: [agents, navigation, global]
-updated: 2026-06-25
+updated: 2026-06-26
 ---
 
 # 🤖 AGENTS — Vault Global Urbania
 
 > [!danger] Leer primero
 > Este es el punto de entrada de **todo** el vault (API + Web + App). Antes de tocar cualquier documento o código, leer este archivo completo.
+>
+> 💡 **¿Usas OpenCode?** El agente `urbania` (router) es el punto de entrada en la TUI — describí tu tarea en lenguaje natural y él te redirige al orquestador correcto.
 
 ---
 

@@ -4,7 +4,7 @@ type: estado
 tags: [urbania-web, manifest, estado-proyecto]
 status: vigente
 fuente_unica: false
-ultima_revision: 2026-06-24
+ultima_revision: 2026-06-25
 ---
 
 # 📊 WEB_SESSION_MANIFEST
@@ -83,7 +83,7 @@ Sesión 1 completada. Infraestructura de autenticación completa: Zustand store 
 | Tests unitarios | 13 | > 0 | ✅ |
 | Cobertura unitaria | TBD (restaurar thresholds) | ≥ 90% | 🔵 |
 | Cobertura componentes | TBD | ≥ 80% | 🔵 |
-| Flujos e2e críticos | 0/11 | 11/11 | ⬜ |
+| Flujos e2e críticos | 3/11 | 11/11 | 🔵 |
 | Build exitoso | Sin errores | Sin errores | ✅ |
 | Pipeline CI | Verde (individual) | Verde | ✅ |
 
@@ -157,6 +157,8 @@ Sesión 1 completada. Infraestructura de autenticación completa: Zustand store 
 | `WEB/tests/components/auth/LoginForm.test.tsx` | Tests de LoginForm (3 tests) | 1 |
 | `WEB/tests/unit/stores/auth.store.test.ts` | Tests de auth store (2 tests) | 1 |
 | `WEB/tests/unit/lib/validators.test.ts` | Tests de validators Zod (6 tests) | 1 |
+| `WEB/tests/e2e/fixtures.ts` | Credenciales centralizadas para tests E2E | 1 |
+| `WEB/tests/e2e/auth.spec.ts` | Tests e2e de autenticación (4 activos + 3 skip) | 1 |
 
 ---
 
@@ -191,8 +193,8 @@ Sesión 1 completada. Infraestructura de autenticación completa: Zustand store 
 | 3 | Restaurar thresholds de coverage en `vitest.config.ts` | 0 | 1 | ⬜ Pendiente |
 | 4 | Revisar advertencia `@types/dompurify` deprecado | 0 | 1 | ⬜ Pendiente |
 | 5 | Vocabulario `audience` en COMUNICADOS difiere entre API y Web | — | TBD | ⬜ Pendiente |
-| 6 | Tests e2e de auth (login, MFA, logout) — pendientes de Playwright | 1 | 2 | ⬜ Pendiente |
-| 7 | Restaurar thresholds de coverage en `vitest.config.ts` | 0 | 2 | ⬜ Pendiente |
+| 6 | Tests e2e de auth: 4 implementados (login válido/inválido, ruta protegida, sesión expirada), 3 pendientes (logout, role=user, MFA) — requieren UI/API | 1 | 2 | 🔵 En progreso (4/7) |
+| 7 | ~~Duplicado de #3~~ (unificado) | 0 | — | ✅ Unificado con #3 |
 
 ---
 

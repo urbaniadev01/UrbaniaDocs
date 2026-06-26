@@ -4,7 +4,7 @@ status: active
 priority: P0
 module: global
 tags: [home, dashboard, global]
-updated: 2026-06-18
+updated: 2026-06-26
 ---
 
 # 🏠 Urbania — Dashboard Global
@@ -52,4 +52,17 @@ LIMIT 40
 ## Cambios Cross-Project en Curso
 
 > Ver el detalle completo en [[00-shared/CHANGES_LOG]]. Resumen rápido: cuántas entradas hay con al menos un proyecto en estado distinto de "Sincronizado".
+
+---
+
+<!-- GLOBAL_STATUS — sección legible por agentes. Actualizar al cierre de cada sesión. -->
+## 🎯 GLOBAL_STATUS — Estado del sistema
+
+| Proyecto | Sesión | Estado | Siguiente tarea |
+|----------|--------|--------|-----------------|
+| API      | 8      | ✅ Completada | Auth module terminado — 253 tests, PHPStan level 10 |
+| Web      | 1      | ✅ Completada | Setup + Auth — 13 tests, 8 módulos planificados |
+| App      | 0      | ⏸ No iniciada | Pendiente de kickoff — sesión 1 por planificar |
+
+> [!info] Este bloque se actualiza automáticamente al cerrar cada sesión de desarrollo mediante las skills `close-session`. Si ves datos desactualizados, ejecutá `@test-runner` para verificar el estado real.
 

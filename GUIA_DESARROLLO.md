@@ -7,7 +7,7 @@ tags:
   - humano
   - workflow
   - onboarding
-updated: 2026-06-19
+updated: 2026-06-26
 ---
 
 # 🧑‍💻 Guía de Desarrollo — Urbania
@@ -63,65 +63,55 @@ graph TD
 | API | `D:\Programacion\URBANIA\API\` | Laravel 13, PHP 8.5, PostgreSQL (Docker en puerto 5433) |
 | Web | `D:\Programacion\URBANIA\WEB\` | Vite 7, React 19, TypeScript strict, TanStack Query, Tailwind v4 |
 | App | `D:\Programacion\URBANIA\APP\` | Flutter, Riverpod, Clean Architecture |
-| Vault | `D:\Programacion\URBANIA\documentacion\` | Obsidian — documentación para IA y humanos |
+| Vault (raíz) | `D:\Programacion\URBANIA\` | Obsidian — documentación para IA y humanos |
 
 ---
 
 ## 2. Estructura de carpetas
 
 ```
-D:\Programacion\URBANIA\
+D:\Programacion\URBANIA\            ← Raíz: vault de Obsidian + agentes + skills
 │
-├── .opencode\                  ← Agentes compartidos (detectados por todos los proyectos)
-│   ├── agents\
-│   │   ├── context-reader.md   ← Subagente lector (deepseek-v4-flash)
-│   │   ├── rule-verifier.md    ← Subagente verificador (deepseek-v4-flash)
-│   │   └── cross-project.md    ← Subagente cross-project (deepseek-v4-pro)
-│   └── skills\
-│       └── cross-project-change\SKILL.md
+├── .opencode\                      ← Configuración de OpenCode
+│   ├── agents\                     ← TODOS los agentes (12 archivos)
+│   │   ├── urbania.md              ← Router principal (deepseek-v4-flash) — único primario visible
+│   │   ├── context-reader.md       ← Subagente lector (deepseek-v4-flash)
+│   │   ├── rule-verifier.md        ← Subagente verificador (deepseek-v4-flash)
+│   │   ├── cross-project.md        ← Subagente cross-project (deepseek-v4-pro)
+│   │   ├── api-orchestrator.md     ← Subagente orquestador API (deepseek-v4-pro)
+│   │   ├── api-build.md            ← Subagente implementador API (kimi-k2.7-code)
+│   │   ├── api-review.md           ← Subagente revisor API (deepseek-v4-flash)
+│   │   ├── web-orchestrator.md     ← Subagente orquestador Web (deepseek-v4-pro)
+│   │   ├── web-build.md            ← Subagente implementador Web (deepseek-v4-flash)
+│   │   ├── app-orchestrator.md     ← Subagente orquestador App (deepseek-v4-pro)
+│   │   ├── app-build.md            ← Subagente implementador App (kimi-k2.7-code)
+│   │   └── test-runner.md          ← Subagente QA (deepseek-v4-flash)
+│   └── skills\                     ← TODAS las skills (9 directorios)
+│       ├── adr\SKILL.md
+│       ├── api-close-session\SKILL.md
+│       ├── app-close-session\SKILL.md
+│       ├── cross-project-change\SKILL.md
+│       ├── db-migration\SKILL.md
+│       ├── new-endpoint\SKILL.md
+│       ├── new-feature-doc\SKILL.md
+│       ├── vault-audit\SKILL.md
+│       └── web-close-session\SKILL.md
 │
-├── API\                        ← Código Laravel
-│   ├── opencode.json           ← Carga docs del vault al arrancar OpenCode
-│   └── .opencode\
-│       ├── agents\
-│       │   ├── api-orchestrator.md   ← Primario (deepseek-v4-pro)
-│       │   ├── api-build.md          ← Primario/subagente (kimi-k2.7-code)
-│       │   └── api-review.md         ← Primario read-only (deepseek-v4-flash)
-│       └── skills\
-│           ├── new-endpoint\SKILL.md
-│           ├── db-migration\SKILL.md
-│           └── close-session\SKILL.md
+├── API\                            ← Código Laravel (repo independiente)
+├── WEB\                            ← Código Vite/React (repo independiente)
+├── APP\                            ← Código Flutter (repo independiente)
 │
-├── WEB\                        ← Código Vite/React
-│   ├── opencode.json
-│   └── .opencode\
-│       ├── agents\
-│       │   ├── web-orchestrator.md   ← Primario (deepseek-v4-pro)
-│       │   └── web-build.md          ← Primario/subagente (deepseek-v4-flash)
-│       └── skills\
-│           └── close-session\SKILL.md
-│
-├── APP\                        ← Código Flutter
-│   ├── opencode.json
-│   └── .opencode\
-│       ├── agents\
-│       │   ├── app-orchestrator.md   ← Primario (deepseek-v4-pro)
-│       │   └── app-build.md          ← Primario/subagente (kimi-k2.7-code)
-│       └── skills\
-│           └── close-session\SKILL.md
-│
-└── documentacion\              ← Vault de Obsidian
-    ├── AGENTS.md               ← Punto de entrada del agente (global)
-    ├── GUIA_DESARROLLO.md      ← Este documento
-    ├── _Home.md                ← Dashboard Dataview
-    ├── 00-shared\              ← Contratos y procesos cross-project
-    ├── 01-api\                 ← Documentación de la API
-    │   ├── _templates\         ← Plantillas de notas atómicas
-    │   └── docs\               ← Notas atómicas generadas
-    ├── 02-web\                 ← Documentación del Web
-    │   └── _templates\
-    └── 03-app\                 ← Documentación de la App
-        └── _templates\
+├── AGENTS.md                       ← Punto de entrada del agente (global)
+├── GUIA_DESARROLLO.md              ← Este documento
+├── _Home.md                        ← Dashboard con Dataview + GLOBAL_STATUS
+├── 00-shared\                      ← Contratos y procesos cross-project
+├── 01-api\                         ← Documentación de la API
+│   ├── _templates\                 ← Plantillas de notas atómicas
+│   └── docs\                       ← Notas atómicas generadas
+├── 02-web\                         ← Documentación del Web
+│   └── _templates\
+└── 03-app\                         ← Documentación de la App
+    └── _templates\
 ```
 
 ---
@@ -130,7 +120,7 @@ D:\Programacion\URBANIA\
 
 ### Obsidian
 
-1. Abrir `D:\Programacion\URBANIA\documentacion\` como vault en Obsidian
+1. Abrir `D:\Programacion\URBANIA\` como vault en Obsidian
 2. Activar plugins: **Configuración → Plugins de la comunidad → Activar**
 
 | Plugin | Función |
@@ -275,72 +265,99 @@ permission:
 Prompt del sistema del agente...
 ```
 
-- **Agente primario**: aparece en la barra de Tab del TUI de OpenCode. El usuario puede cambiar entre ellos.
-- **Subagente**: no aparece en la barra. Se invoca desde otro agente con el Task tool usando `@nombre`.
+- **Agente primario**: aparece en la barra de Tab del TUI de OpenCode. Hoy solo hay uno: `urbania` (router).
+- **Subagente**: no aparece en la barra. Se invoca desde otro agente con `@nombre` o directamente desde el chat escribiendo `@nombre` + la tarea.
 
 ### 6.2 Agentes disponibles
 
 ```mermaid
 graph TB
-    subgraph PRIMARIOS["Agentes primarios (Tab para cambiar)"]
-        direction LR
-        AO["api-orchestrator\ndeepseek-v4-pro"]
-        AB["api-build\nkimi-k2.7-code"]
-        AR["api-review\ndeepseek-v4-flash"]
-        WO["web-orchestrator\ndeepseek-v4-pro"]
-        WB["web-build\ndeepseek-v4-flash"]
-        APO["app-orchestrator\ndeepseek-v4-pro"]
-        APB["app-build\nkimi-k2.7-code"]
+    URB["urbania (router)\ndeepseek-v4-flash"]
+    
+    subgraph ORQUESTADORES["Orquestadores por proyecto (subagentes @mención)"]
+        AO["@api-orchestrator\ndeepseek-v4-pro"]
+        AR["@api-review\ndeepseek-v4-flash"]
+        WO["@web-orchestrator\ndeepseek-v4-pro"]
+        APO["@app-orchestrator\ndeepseek-v4-pro"]
+        DOC["@doc-orchestrator\ndeepseek-v4-flash"]
+    end
+
+    subgraph IMPLEMENTADORES["Implementación (subagentes @mención)"]
+        AB["@api-build\nkimi-k2.7-code"]
+        WB["@web-build\ndeepseek-v4-flash"]
+        APB["@app-build\nkimi-k2.7-code"]
     end
 
     subgraph SUBAGENTES["Subagentes compartidos (@mención)"]
-        direction LR
         CR["@context-reader\ndeepseek-v4-flash"]
         RV["@rule-verifier\ndeepseek-v4-flash"]
         CP["@cross-project\ndeepseek-v4-pro"]
+        TR["@test-runner\ndeepseek-v4-flash"]
     end
 
-    AO -->|"Task tool"| CR
-    AO -->|"Task tool"| RV
-    AO -->|"Task tool"| AB
-    WO -->|"Task tool"| CR
-    WO -->|"Task tool"| RV
-    WO -->|"Task tool"| WB
-    APO -->|"Task tool"| CR
-    APO -->|"Task tool"| RV
-    APO -->|"Task tool"| APB
+    URB -->|"Task tool: delega"| AO
+    URB -->|"Task tool: delega"| AR
+    URB -->|"Task tool: delega"| WO
+    URB -->|"Task tool: delega"| APO
+    URB -->|"Task tool: delega"| DOC
 
+    AO -->|invoca| CR
+    AO -->|invoca| RV
+    AO -->|invoca| AB
+    
+    WO -->|invoca| CR
+    WO -->|invoca| RV
+    WO -->|invoca| WB
+    
+    APO -->|invoca| CR
+    APO -->|invoca| RV
+    APO -->|invoca| APB
+
+    style URB fill:#4a1a4a,stroke:#af4aaf,color:#e0d0f0
     style AO fill:#1e3a5f,stroke:#4a9eff,color:#cdd6f4
+    style AR fill:#2a3a5f,stroke:#6a8eff,color:#cdd6f4
+    style DOC fill:#2a1a3a,stroke:#8a4aaf,color:#cdd6f4
     style WO fill:#1a3a2a,stroke:#4aaf60,color:#cdd6f4
     style APO fill:#3a1a2a,stroke:#af4a8a,color:#cdd6f4
-    style CR fill:#1a2a1a,stroke:#40a02b,color:#a6e3a1
-    style RV fill:#2a2a1a,stroke:#df8e1d,color:#f9e2af
-    style CP fill:#1a1a2a,stroke:#7287fd,color:#b4befe
 ```
 
-**¿Cuándo usar el orquestador vs el agente build directo?**
+**Cómo usar el sistema de agentes (router first)**
 
-| Situación | Usa |
+| Situación | Qué hacer |
 |---|---|
-| Nuevo módulo, nuevo endpoint, integración cross-layer | `api-orchestrator` |
-| Bug fix simple (1-2 archivos, causa obvia) | `api-build` directo |
-| Revisar código, analizar impacto, planificar | `api-review` |
-| Cerrar sesión | `api-build` + skill `close-session` |
-| Cambio que afecta más de un proyecto | `@cross-project` |
+| No sabés por dónde empezar | Abrí OpenCode desde la raíz → el agente `urbania` clasifica y delega |
+| Tarea de API (endpoints, migraciones, DDD) | El router `urbania` delega a `@api-orchestrator` |
+| Tarea de Web (páginas, componentes, hooks) | El router `urbania` delega a `@web-orchestrator` |
+| Tarea de App (pantallas, widgets, Flutter) | El router `urbania` delega a `@app-orchestrator` |
+| Documentación (features, ADRs, FEATURES_INDEX) | El router `urbania` delega a `@doc-orchestrator` |
+| Ya sabés exactamente el proyecto | Abrí OpenCode desde `01-api/`, `02-web/` o `03-app/` — el `opencode.json` local carga su orquestador directo |
+| Revisar código o planificar sin cambiar nada | `@api-review` (desde cualquier chat) |
+| Ejecutar tests en los 3 proyectos | `@test-runner` (desde cualquier chat) |
+| Cambio que afecta más de un proyecto | El router detecta y redirige a `@cross-project` primero |
 
 ### 6.3 El pipeline orquestador
 
 El orquestador implementa el patrón **Orchestrator-Workers**: un agente de razonamiento coordina subagentes especializados, asignando el modelo más económico a cada paso.
 
+Antes de llegar al orquestador, el flujo típico pasa primero por el **router** `urbania`:
+
+```
+Humano → urbania (router) → @api-orchestrator → pipeline completo
+```
+
 ```mermaid
 sequenceDiagram
     actor H as 👤 Humano
+    participant R as 🚦 urbania router<br/>deepseek-v4-flash
     participant O as 🎯 Orquestador<br/>deepseek-v4-pro
     participant CR as 📖 context-reader<br/>deepseek-v4-flash
     participant RV as ✅ rule-verifier<br/>deepseek-v4-flash
     participant B as 🔨 api-build<br/>kimi-k2.7-code
 
-    H->>O: Describe la tarea
+    H->>R: Tarea en lenguaje natural
+    R->>R: Clasifica: ¿API / Web / App / Docs?
+    R->>R: ¿Es cross-project?
+    R->>O: Delega al orquestador del proyecto
     O->>O: Clasifica tipo de tarea
     O->>CR: Lee SESSION_MANIFEST + PLAN + docs relevantes
     CR-->>O: CONTEXTO_INICIO ... CONTEXTO_FIN
@@ -385,15 +402,20 @@ Las skills son guías de procedimiento que el agente carga bajo demanda. Se acti
 
 ```
 usa la skill new-endpoint para implementar el endpoint de listado de unidades
-usa la skill close-session para cerrar esta sesión
+usa la skill api-close-session para cerrar esta sesión
 ```
 
 | Skill | Proyecto | Cuándo se activa |
 |---|---|---|
 | `new-endpoint` | API | Al crear cualquier endpoint nuevo (guía el flujo DDD completo) |
 | `db-migration` | API | Al crear o modificar tablas (convenciones PostgreSQL + checklist) |
-| `close-session` | Todos | Al cerrar una sesión de trabajo |
+| `api-close-session` | API | Al cerrar una sesión de trabajo en API |
+| `web-close-session` | Web | Al cerrar una sesión de trabajo en Web |
+| `app-close-session` | App | Al cerrar una sesión de trabajo en App |
 | `cross-project-change` | Todos | Al registrar un cambio que afecta más de un proyecto |
+| `adr` | Todos | Al crear un Architecture Decision Record |
+| `new-feature-doc` | Todos | Al documentar una feature nueva desde cero |
+| `vault-audit` | Todos | Al auditar la coherencia del vault completo |
 
 ---
 
@@ -563,7 +585,15 @@ El MCP necesita que Docker esté corriendo con el contenedor de PostgreSQL levan
 - Bloqueos abiertos
 - Cambios cross-project en curso
 
-No requiere edición manual.
+Además, [[_Home]] incluye una sección **GLOBAL_STATUS** en markdown plano (legible por humanos y agentes) que resume el estado de los 3 proyectos:
+
+| Proyecto | Sesión | Estado | Siguiente tarea |
+|---|---|---|---|
+| API | 8 | ✅ Completada | Auth module terminado |
+| Web | 1 | ✅ Completada | Setup + Auth |
+| App | 0 | ⏸ No iniciada | Pendiente de kickoff |
+
+> Este bloque se actualiza **automáticamente** al cerrar cada sesión mediante las skills `*-close-session`. El agente router `urbania` lo lee para conocer el estado global sin tener que abrir 3 SESSION_MANIFEST.
 
 ---
 
@@ -578,10 +608,12 @@ No requiere edición manual.
 | Nota atómica | Nota creada desde plantilla para un evento específico |
 | Cross-project | Cambio que impacta más de un proyecto y requiere coordinación |
 | Fuente única | Documento autoritativo — si otro doc dice algo distinto, este gana |
-| Orquestador | Agente primario que coordina el pipeline invocando subagentes |
-| Subagente | Agente invocado por el orquestador con `@nombre`, no visible en la barra de Tab |
+| Router | Agente `urbania` que recibe la tarea en lenguaje natural y delega al orquestador correcto |
+| Orquestador | Agente que coordina el pipeline de un proyecto invocando subagentes |
+| Subagente | Agente invocado con `@nombre`, no visible en la barra de Tab |
 | Skill | Guía de procedimiento cargada bajo demanda por el agente |
 | OpenCode Go | Suscripción $10/mes con acceso a 14 modelos open curados para coding |
+| GLOBAL_STATUS | Sección en `_Home.md` que resume el estado de los 3 proyectos — el router la lee al iniciar |
 
 ---
 
@@ -594,10 +626,17 @@ cd D:\Programacion\URBANIA
 opencode
 ```
 
-OpenCode siempre se abre desde la raíz `URBANIA/`. Desde ahí elegís el agente con `Tab` según en qué proyecto vas a trabajar: `api-orchestrator`, `web-orchestrator` o `app-orchestrator`.
+OpenCode siempre se abre desde la raíz `URBANIA/`. El agente `urbania` (router) es el único primario visible en la barra de Tab — escribí tu tarea en lenguaje natural y él delega al subagente correcto.
+
+**Flujo recomendado:**
+1. Abrí OpenCode desde la raíz → ves el agente `urbania` por defecto
+2. Describí tu tarea en lenguaje natural: *"implementar el endpoint GET /units en la API"*
+3. `urbania` clasifica y delega a `@api-orchestrator`, `@web-orchestrator`, etc.
+4. Si ya sabés exactamente el proyecto, podés abrir OpenCode desde `01-api/`, `02-web/` o `03-app/` para saltarte el router
 
 **En la TUI de OpenCode:**
-- `Tab` — cambiar entre agentes primarios (orchestrator ↔ build ↔ review)
+- `Tab` — cambiar entre agentes primarios (hoy solo `urbania`)
+- Escribí `@nombre-del-agente` + tarea para invocar un subagente directamente
 - `/models` — ver modelos disponibles
 - `/connect` — conectar proveedor (OpenCode Go)
 

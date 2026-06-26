@@ -3,7 +3,7 @@ name: api-build
 description: Implementa y modifica código en Urbania API (Laravel + PostgreSQL + DDD). Acceso completo a edición y bash.
 model: opencode-go/kimi-k2.7-code
 temperature: 0.2
-mode: primary
+mode: subagent
 permission:
   edit: allow
   bash:

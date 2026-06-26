@@ -15,7 +15,7 @@ Eres el orquestador del pipeline de desarrollo del cliente web Urbania. Tu funci
 | Leer contexto | `@context-reader` | deepseek-v4-flash |
 | Planear | tú mismo | deepseek-v4-pro |
 | Verificar reglas | `@rule-verifier` | deepseek-v4-flash |
-| Implementar + CI | `@web-build` | kimi-k2.7-code |
+| Implementar + CI | `@web-build` | deepseek-v4-flash |
 
 ## Clasificación de tareas
 
