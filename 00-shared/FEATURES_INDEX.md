@@ -50,7 +50,7 @@ El orden refleja la secuencia lógica de desarrollo (dependencias primero).
 | 20 | Cuentas por pagar | Propuesto | extended | Pendiente | Pendiente | N/A | [[00-shared/features/CUENTAS-PAGAR]] |
 | 21 | Informes financieros y de gestión | Propuesto | core | Pendiente | Pendiente | N/A | [[00-shared/features/INFORMES]] |
 | 22 | KPI Dashboard | Propuesto | extended | Pendiente | Pendiente | N/A | [[00-shared/features/DASHBOARD]] |
-| 23 | Configuración (Perfil y Seguridad) | Propuesto | core | Pendiente | Pendiente | N/A | [[00-shared/features/CONFIGURACION]] |
+| 23 | Configuración (Perfil y Seguridad) | Completado | core | Implementado vía AUTH | Pendiente | N/A | [[00-shared/features/CONFIGURACION]] |
 
 ### Leyenda
 
@@ -64,6 +64,7 @@ El orden refleja la secuencia lógica de desarrollo (dependencias primero).
 | Estado API | Significado |
 |---|---|
 | Implementado | Código y tests en `main` |
+| Implementado vía AUTH | Reusa endpoints de Auth ya implementados |
 | Pendiente | Sin documentar ni implementar |
 
 > [!note] Nivel `core` = esencial para el MVP; `extended` = valor agregado.
