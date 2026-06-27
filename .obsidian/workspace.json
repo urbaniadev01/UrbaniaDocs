@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "988f5019664643cf",
+        "id": "fa37e89b3539aeb8",
         "type": "tabs",
         "children": [
           {
-            "id": "685d8db4bd3f0a0e",
+            "id": "5781335262112e4f",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "00-shared/DB_SCHEMA_OVERVIEW.md",
+                "mode": "preview",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "Nueva pestaña"
+              "title": "DB_SCHEMA_OVERVIEW"
             }
           }
         ]
@@ -152,12 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "00-shared/DB_SCHEMA_OVERVIEW.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema"
+              "title": "Esquema de DB_SCHEMA_OVERVIEW"
             }
           },
           {
@@ -177,7 +182,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 266.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -192,9 +197,41 @@
       "templater-obsidian:Templater": false
     }
   },
-  "active": "685d8db4bd3f0a0e",
+  "active": "5781335262112e4f",
   "lastOpenFiles": [
+    "01-api/API_DATABASE.md",
+    "00-shared/DB_SCHEMA_OVERVIEW.md",
+    "00-shared/features/PROPIEDADES.md",
+    "00-shared/FEATURES_INDEX.md",
     "00-shared/FEATURES_Y_PANTALLAS.md",
+    "00-shared/features/DASHBOARD.md",
+    "00-shared/GLOSSARY.md",
+    "00-shared/FEATURE_PLANNING_TEMPLATE.md",
+    "01-api/endpoints/PQRS.md",
+    "GUIA_DESARROLLO.md",
+    "WEB/_tmp_12456_d0b1564313265e3d94602901258be0d3",
+    "_tmp_20452_2de22d055172df7cf2ecdfba4d0a08f2",
+    "WEB/test-results",
+    "WEB/_tmp_4152_12e8ee5a52e88d177ccd1ce546eb58ad",
+    "WEB/test-results/auth-Autenticación-1-Login-válido-→-redirige-al-dashboard-mobile-chrome/error-context.md",
+    "WEB/test-results/auth-Autenticación-1-Login-válido-→-redirige-al-dashboard-chromium/error-context.md",
+    "WEB/test-results/auth-Autenticación-1-Login-válido-→-redirige-al-dashboard-mobile-chrome/test-failed-1.png",
+    "WEB/test-results/auth-Autenticación-1-Login-válido-→-redirige-al-dashboard-chromium/test-failed-1.png",
+    "WEB/test-results/auth-Autenticación-1-Login-válido-→-redirige-al-dashboard-chromium",
+    "WEB/test-results/auth-Autenticación-1-Login-válido-→-redirige-al-dashboard-mobile-chrome",
+    "WEB/_tmp_17240_c254ccbdf04d9b6ea87ca9d22fee2a10",
+    "WEB/test-results/auth-Autenticación-4-Sesió-a8d47-e-página-→-redirige-a-login-mobile-chrome/error-context.md",
+    "WEB/test-results/auth-Autenticación-4-Sesió-a8d47-e-página-→-redirige-a-login-mobile-chrome/test-failed-1.png",
+    "WEB/test-results/auth-Autenticación-4-Sesió-a8d47-e-página-→-redirige-a-login-mobile-chrome",
+    "WEB/_tmp_14308_b2804e05c162fa6b3476290d63705982",
+    "WEB/test-results/auth-Autenticación-2-Login-7ea68-e-de-error-en-el-formulario-mobile-chrome/error-context.md",
+    "WEB/test-results/auth-Autenticación-2-Login-7ea68-e-de-error-en-el-formulario-mobile-chrome/test-failed-1.png",
+    "WEB/test-results/auth-Autenticación-2-Login-7ea68-e-de-error-en-el-formulario-mobile-chrome",
+    "WEB/test-results/auth-Autenticación-2-Login-7ea68-e-de-error-en-el-formulario-chromium/error-context.md",
+    "WEB/test-results/auth-Autenticación-2-Login-7ea68-e-de-error-en-el-formulario-chromium/test-failed-1.png",
+    "WEB/test-results/auth-Autenticación-4-Sesió-a8d47-e-página-→-redirige-a-login-chromium/error-context.md",
+    "WEB/test-results/auth-Autenticación-4-Sesió-a8d47-e-página-→-redirige-a-login-chromium/test-failed-1.png",
+    "01-api/docs/log/sesiones/sesion-09.md",
     "03-app/features/auth/AUTH_UI_resetear-contrasena.md",
     "03-app/features/auth/AUTH_UI_recuperar-contrasena.md",
     "03-app/features/auth/AUTH_UI_verificacion-mfa.md",
@@ -204,41 +241,9 @@
     "03-app/features/paquetes/PAQUETES_UI_detalle.md",
     "03-app/features/paquetes/PAQUETES_UI_lista.md",
     "03-app/features/paquetes/PAQUETES_SPEC.md",
-    "03-app/features/paquetes",
-    "00-shared/features/PAQUETES.md",
-    "00-shared/FEATURES_INDEX.md",
-    "01-api/endpoints/ASAMBLEAS.md",
-    "01-api/endpoints/AUTH.md",
-    "01-api/endpoints/_match.txt",
-    "01-api/endpoints/CONFIGURACION.md",
-    "01-api/endpoints/INFORMES.md",
-    "01-api/endpoints/DASHBOARD.md",
-    "01-api/endpoints/CUENTAS-PAGAR.md",
-    "01-api/endpoints/PROVEEDORES.md",
-    "01-api/endpoints/MANTENIMIENTO.md",
-    "01-api/endpoints/VOTACIONES.md",
-    "01-api/endpoints/PAQUETES.md",
-    "01-api/endpoints/ORDENES-TRABAJO.md",
-    "01-api/endpoints/PRESUPUESTO.md",
-    "01-api/endpoints/COMUNICADOS.md",
-    "01-api/endpoints/PQRS.md",
-    "01-api/endpoints/VEHICULOS.md.tmp.28332.cc398a4bf4f4",
-    "01-api/endpoints/VISITANTES.md.tmp.28332.c918ce963923",
-    "01-api/endpoints/RESERVAS.md.tmp.28332.ab8244546d90",
-    "01-api/endpoints/MORA.md.tmp.28332.a9e5ade61276",
-    "01-api/endpoints/PAGOS.md.tmp.28332.95290629eabb",
-    "01-api/endpoints/CUOTAS.md.tmp.28332.bfb9a86ec6f7",
-    "01-api/endpoints/RESIDENTES.md.tmp.28332.5bfc51541b32",
-    "01-api/endpoints/PROPIEDADES.md.tmp.28332.7c2c5bd25f78",
     "02-web/features/auth/logo.jpeg",
     "02-web/features/login/logo.jpeg",
     "API/vendor/pragmarx/google2fa-laravel/docs/middleware.jpg",
-    "API/public/docs/images/navbar.png",
-    "API/public/vendor/scribe/images/navbar.png",
-    "API/vendor/knuckleswtf/scribe/resources/images/navbar.png",
-    "API/vendor/composer/651876ae/knuckleswtf-scribe-71c8c4a/resources/images/navbar.png",
-    "API/vendor/composer/651876ae/knuckleswtf-scribe-71c8c4a/logo-scribe.png",
-    "API/vendor/symfony/error-handler/Resources/assets/images/symfony-logo.svg",
-    "API/vendor/symfony/error-handler/Resources/assets/images/icon-support.svg"
+    "API/public/docs/images/navbar.png"
   ]
 }
