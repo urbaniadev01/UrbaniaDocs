@@ -1,12 +1,18 @@
 ---
 type: referencia
-status: active
+deprecated: true
 module: shared
 tags: [features, pantallas, prompts, referencia]
-updated: 2026-06-23
+updated: 2026-06-27
 ---
 
-# Features y Pantallas — Referencia y Prompts de Documentación
+> [!warning] Documento histórico (legacy)
+> Este documento fue la guía original de prompts para generar la documentación inicial de los features.
+> **Ya no es la fuente de verdad del inventario de pantallas.**
+> El catálogo vivo de todas las pantallas ahora vive en [[FEATURES_INDEX#🖥️-catálogo-global-de-pantallas]].
+> No agregar nuevas pantallas aquí — agregarlas al catálogo en FEATURES_INDEX y en el panorama correspondiente.
+
+# Features y Pantallas — Referencia y Prompts de Documentación [LEGACY]
 
 Documento de referencia independiente. Lista todos los features del sistema organizados por fase, con sus pantallas y el prompt listo para pedirle al agente que genere la documentación completa de cada feature.
 

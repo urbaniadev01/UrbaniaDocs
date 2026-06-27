@@ -4,5 +4,40 @@
     "WEB_AGENTS.md",
     "WEB_IMPLEMENTATION_PLAN.md",
     "WEB_SESSION_MANIFEST.md"
-  ]
+  ],
+  "mcp": {
+    "urbania-db": {
+      "type": "local",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-Command",
+        "$p = (Select-String -Path '../API/.env' -Pattern '^DB_PASSWORD=(.+)').Matches[0].Groups[1].Value; npx -y @executeautomation/database-server --postgresql --host localhost --port 5433 --database urbania --user urbania --password $p"
+      ],
+      "enabled": true
+    },
+    "agentmemory": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@rohitg00/agentmemory"
+      ],
+      "env": {
+        "MEMORY_STORAGE_PATH": "../00-shared/.agent-memory",
+        "MEMORY_PROJECT": "urbania"
+      },
+      "enabled": true
+    },
+    "codebase-memory": {
+      "type": "local",
+      "command": [
+        "codebase-memory-mcp"
+      ],
+      "env": {
+        "CODEBASE_MEMORY_PROJECT": "urbania-web"
+      },
+      "enabled": true
+    }
+  }
 }

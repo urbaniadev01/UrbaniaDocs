@@ -1,0 +1,34 @@
+# Contrato de Memoria del Equipo Urbania
+# Este archivo define las reglas de uso de agentmemory para el proyecto.
+# NO es un documento del wiki — es configuración del sistema de memoria.
+
+## QUE GUARDAR EN MEMORIA
+
+- Patrones descubiertos en la práctica que no tienen documento natural en el vault
+- Soluciones a errores recurrentes que no justifican un ADR completo
+- Comportamientos inesperados de librerías o del stack en el contexto de Urbania
+- Contexto de sesión en curso (qué se estaba haciendo, dónde quedó una refactorización)
+- Convenciones de equipo emergentes aún no formalizadas en documentación
+
+## QUE NO GUARDAR EN MEMORIA (ya tiene lugar en el vault)
+
+- Estado de features o módulos → FEATURES_INDEX
+- Estado de sesiones → SESSION_MANIFEST de cada proyecto
+- Cambios cross-project → CHANGES_LOG
+- Decisiones de arquitectura formales → docs/adr/
+- Contratos de API → API_CONTRACT + endpoints/
+- Términos de dominio → GLOSSARY
+
+## REGLA DE AUTORIDAD
+
+Si la memoria dice X y cualquier SESSION_MANIFEST dice Y, gana el SESSION_MANIFEST.
+La memoria es contexto de calentamiento. El manifest es la fuente de verdad.
+
+## FORMATO DE COMMITS
+
+git commit -m "memory: <qué patrón/conocimiento se agregó>"
+
+## SINCRONIZACIÓN
+
+- Al inicio de sesión: git pull en el vault → memoria del equipo actualizada
+- Al cierre de sesión: git add + commit + push si hubo nuevas memorias

@@ -53,6 +53,17 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 
 ---
 
+## Alcance de Operaciones
+
+| Operación | Rutas permitidas |
+|-----------|-----------------|
+| **Lectura** | `02-web/`, `WEB/`, `00-shared/`, `01-api/API_CONTRACT.md`, `01-api/endpoints/` |
+| **Escritura** | `02-web/`, `WEB/` |
+| **Lectura cross-project** | `01-api/API_SESSION_MANIFEST.md`, `03-app/APP_SESSION_MANIFEST.md` solo para verificar impacto de un cambio cross-project |
+| **Prohibido** | Crear o modificar archivos en `01-api/`, `API/`, `03-app/`, `APP/` — derivar cambios cross-project a [[00-shared/CROSS_PROJECT_CHANGES]] |
+
+---
+
 ## 🗺️ Mapa de Documentación
 
 ```
@@ -93,13 +104,19 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 
 > [!warning] Nunca saltarse este ritual, aunque la sesión parezca una continuación directa.
 
-1. Leer [[WEB_SESSION_MANIFEST]] → estado real del proyecto
+**Sincronización previa (antes de abrir cualquier archivo):**
+```bash
+git pull   # en el vault de documentación → memoria del equipo actualizada
+git pull   # en WEB/ → snapshot del grafo actualizado
+```
+
+1. Leer [[WEB_SESSION_MANIFEST]] → estado real del proyecto (**fuente de verdad, no la memoria**)
 2. Leer [[WEB_IMPLEMENTATION_PLAN]] → sesión activa y tarea siguiente
 3. Ejecutar `pnpm type-check` y `pnpm test` para confirmar el estado reportado
 4. Reportar cualquier discrepancia en `WEB_SESSION_MANIFEST §Bloqueos` antes de continuar
 5. Verificar §0 (¿hay cambio cross-project activo que afecte a Web?)
 
-→ Solo después de estos 5 pasos, ir al flujo de tarea correspondiente.
+→ Solo después de estos pasos, ir al flujo de tarea correspondiente.
 
 ---
 
@@ -142,6 +159,8 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 - [ ] Ejecutar `pnpm lint`, `pnpm type-check`, `pnpm test`
 - [ ] Actualizar [[WEB_FEATURES_INDEX]] a "Completado"
 
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
+
 ---
 
 ### 2. Crear página/ruta nueva
@@ -163,6 +182,8 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
       dashboard requiere rol `admin`
 - [ ] Verificar responsividad según [[WEB_VISUAL_STANDARDS]] §13
 
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
+
 ---
 
 ### 3. Crear o modificar componente
@@ -182,6 +203,8 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 - [ ] Documentar en [[WEB_COMPONENTS]] si es reutilizable entre features
 - [ ] Crear test con Vitest + Testing Library
 
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
+
 ---
 
 ### 4. Implementar integración con API
@@ -198,6 +221,8 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 - [ ] Manejar errores de API con `ApiError` tipado
 - [ ] Agregar el error al mapa de [[WEB_AUTH_IMPLEMENTATION]] §10 si es nuevo
 - [ ] Añadir invalidación de cache post-mutación
+
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
 
 ---
 
@@ -217,6 +242,8 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 - [ ] Si la cookie de refresh usa `SameSite=Strict`, no se requiere token CSRF adicional para
       mutaciones (ver [[WEB_AUTH_IMPLEMENTATION]] §11.4); si cambia a `Lax` o `None`, agregar CSRF
 
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
+
 ---
 
 ### 6. Testing
@@ -231,6 +258,21 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 - [ ] Test e2e con Playwright para flujos críticos
 - [ ] MSW handlers de error usan `server.use()` por test, no en el array base
 - [ ] Cobertura según umbrales de [[WEB_TESTING]] §4
+
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
+
+---
+
+## En Caso de Fallo
+
+| Situación | Acción |
+|-----------|--------|
+| `pnpm type-check` falla al inicio de sesión | No continuar. Documentar en `WEB_SESSION_MANIFEST §Bloqueos`. Marcar sesión como "🔴 Bloqueado". |
+| `pnpm test` falla en medio de una implementación | Resolver antes de continuar. No marcar feature como completada. |
+| `pnpm build` falla al cerrar sesión | Marcar estado como "⏸️ Interrumpido" en `WEB_SESSION_MANIFEST`. No actualizar `WEB_FEATURES_INDEX` a "Completado". |
+| Inconsistencia detectada entre `WEB_API_CLIENT` y el endpoint real del backend | Reportar en `WEB_SESSION_MANIFEST §Bloqueos`. No implementar contra un contrato que no coincide. |
+| Sesión interrumpida sin completar Checklist Final | Marcar estado como "⏸️ Interrumpido" en `WEB_SESSION_MANIFEST`. Documentar exactamente dónde quedó el trabajo. |
+| Cambio cross-project detectado sin entrada en `CHANGES_LOG` | Crear la entrada antes de continuar. No asumir que API o App lo sabrán. |
 
 ---
 
@@ -253,6 +295,7 @@ REST — nunca accede a la base de datos directamente. Stack completo y su justi
 | 13 | **El interceptor Axios excluye `/auth/refresh`** | Bucle infinito de refresh |
 | 14 | **Echo reconfigura token tras silent refresh** | Headers de WebSocket con token expirado |
 | 15 | **Ninguna feature importa archivos internos de otra feature** | Acoplamiento accidental, rompe el modelo feature-based |
+| 16 | **La memoria (agentmemory) es contexto de calentamiento, no fuente de verdad** — si agentmemory dice X y [[WEB_SESSION_MANIFEST]] dice Y, gana el manifest. Siempre. | Decisiones incorrectas basadas en estado de memoria obsoleto |
 
 ---
 
@@ -287,6 +330,8 @@ Si `pnpm ci` falla al cerrar una sesión:
 - [ ] Rutas protegidas verifican autenticación y rol `admin`
 - [ ] [[WEB_SESSION_MANIFEST]] actualizado
 - [ ] [[WEB_FEATURES_INDEX]] actualizado
+- [ ] Si agentmemory registró nuevos patrones: `git add 00-shared/.agent-memory/ && git commit -m "memory: <descripción>" && git push` (desde el vault)
+- [ ] Si el grafo cambió: `git add .codebase-memory/ && git commit -m "chore: update graph snapshot"` (desde `WEB/`)
 
 ---
 

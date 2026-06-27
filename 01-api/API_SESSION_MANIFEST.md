@@ -3,7 +3,7 @@ type: meta
 status: active
 priority: P0
 tags: [state, sessions]
-updated: 2026-06-20
+updated: 2026-06-26
 ---
 
 # SESSION_MANIFEST
@@ -28,32 +28,29 @@ updated: 2026-06-20
 
 | Campo            | Valor         |
 | ---------------- | ------------- |
-| **Numero**       | 8             |
-| **Nombre**       | Polish + CI/CD + Documentación |
+| **Numero**       | 9             |
+| **Nombre**       | CORS global para API |
 | **Estado**       | ✅ Completado  |
-| **Fecha inicio** | 2026-06-20    |
-| **Fecha fin**    | 2026-06-20    |
+| **Fecha inicio** | 2026-06-26    |
+| **Fecha fin**    | 2026-06-26    |
 | **Agente**       | opencode      |
 
 ---
 
 ## Resumen Ejecutivo
 
-La Sesion 8 (Polish + CI/CD + Documentacion) cierra el modulo Auth. Se
-configuro el pipeline de CI/CD en `.github/workflows/quality.yml` (Pint,
-PHPStan, Pest con cobertura, Scribe) con servicios de PostgreSQL y Redis;
-se creo `.env.ci` y `phpunit.xml.ci` para el entorno de integracion. Se
-agregaron todos los scripts solicitados en `composer.json` (`test`,
-`test:unit`, `test:integration`, `test:feature`, `test:security`,
-`test:coverage`, `stan`, `lint`, `fmt`, `migrate`, `rollback`, `scribe`,
-`ci`). Se genero la documentacion con Scribe y se crearon los 5 ADRs en
-`docs/adr/` (Clean Architecture + DDD, RS256, UUID v7, Doble token con
-rotacion, Pest). Se cubrio el caso de uso faltante `MfaVerifyBackupUseCase`
-con tests unitarios, eliminando la deprecacion de `setAccessible()` en
-`LoginUseCaseTest`. Resultado final: 253 tests pasando, cobertura global
-94.1 %, Domain 99.25 %, Application 96.54 %, Infrastructure 91.41 %,
-Presentation 93.18 %, PHPStan nivel 10 limpio, Pint sin diferencias. El
-modulo Auth esta completado.
+La Sesion 9 implementa CORS de forma permanente para permitir peticiones
+desde el frontend web (`http://localhost:5173`). Se creo
+`CorsMiddleware` en `src/Shared/Infrastructure/Middleware/` con manejo de
+preflight OPTIONS (204) e inyeccion de headers CORS en todas las respuestas.
+El middleware se registro como middleware global prepend para interceptar
+OPTIONS antes de que el router responda, y se deshabilito el middleware
+`HandleCors` por defecto de Laravel para evitar conflictos. Se agrego
+`config/cors.php` centralizado y las variables de entorno
+`CORS_ALLOWED_ORIGINS` en `.env.example`, `.env.ci` y `.env.docker`.
+Se crearon tests unitarios y feature para el middleware. Resultado final:
+259 tests pasando, PHPStan nivel 10 limpio, Pint sin diferencias,
+`composer ci` verde.
 
 ---
 
@@ -78,13 +75,13 @@ modulo Auth esta completado.
 
 | Metrica | Valor actual | Umbral | Estado |
 |---------|--------------|--------|--------|
-| Tests totales | 253 | >0 | ✅ |
-| Cobertura Domain | 99.25% | >=95% | ✅ |
-| Cobertura Application | 96.54% | >=90% | ✅ |
-| Cobertura Infrastructure | 91.41% | >=85% | ✅ |
-| Cobertura Presentation | 93.18% | >=80% | ✅ |
+| Tests totales | 259 | >0 | ✅ |
+| Cobertura Domain | 99.25% (no remedida) | >=95% | ✅ |
+| Cobertura Application | 96.54% (no remedida) | >=90% | ✅ |
+| Cobertura Infrastructure | 91.41% (no remedida) | >=85% | ✅ |
+| Cobertura Presentation | 93.18% (no remedida) | >=80% | ✅ |
 | Cobertura Security | 100% (Security + Architecture tests verdes) | 100% | ✅ |
-| Cobertura global | 94.1% | >=80% | ✅ |
+| Cobertura global | 94.1% (no remedida) | >=80% | ✅ |
 | PHPStan nivel 10 | 0 errores | 0 errores | ✅ |
 | Pint | 0 archivos | 0 archivos | ✅ |
 | Pipeline CI/CD | `.github/workflows/quality.yml` configurado | Verde | ✅ |
@@ -155,6 +152,7 @@ SORT session_number ASC
 - Plan de implementacion: [[API_IMPLEMENTATION_PLAN]] define 8 sesiones para el modulo Auth.
 - Estructura DDD propuesta en [[API_ARCHITECTURE]] Sec 2.
 - Stack tecnologico definido en [[API_ARCHITECTURE]] Sec 1.
+- CORS implementado en Sesion 9; ver nota [[docs/log/sesiones/sesion-09.md|Sesion 9 — CORS global para API]].
 
 ---
 

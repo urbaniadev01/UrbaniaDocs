@@ -48,6 +48,17 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 
 ---
 
+## Alcance de Operaciones
+
+| Operación | Rutas permitidas |
+|-----------|-----------------|
+| **Lectura** | `01-api/`, `API/`, `00-shared/` |
+| **Escritura** | `01-api/`, `API/` |
+| **Lectura cross-project** | `02-web/WEB_SESSION_MANIFEST.md`, `03-app/APP_SESSION_MANIFEST.md` solo para verificar impacto de un cambio cross-project |
+| **Prohibido** | Crear o modificar archivos en `02-web/`, `WEB/`, `03-app/`, `APP/` — derivar cambios cross-project a [[00-shared/CROSS_PROJECT_CHANGES]] |
+
+---
+
 ## 🗺️ Mapa de Documentacion
 
 ### Estructura de Documentos
@@ -84,13 +95,19 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 
 > [!warning] Nunca saltarse este ritual, aunque la sesión parezca una continuación directa.
 
-1. Leer [[API_SESSION_MANIFEST]] → estado real del proyecto
+**Sincronización previa (antes de abrir cualquier archivo):**
+```bash
+git pull   # en el vault de documentación → memoria del equipo actualizada
+git pull   # en API/ → snapshot del grafo actualizado
+```
+
+1. Leer [[API_SESSION_MANIFEST]] → estado real del proyecto (**fuente de verdad, no la memoria**)
 2. Leer [[API_IMPLEMENTATION_PLAN]] → sesión activa y tarea siguiente
 3. Ejecutar `composer test` y `phpstan analyse` para confirmar el estado reportado
 4. Reportar cualquier discrepancia antes de continuar
 5. Verificar §0 (¿hay cambio cross-project activo que afecte a la API?)
 
-→ Solo después de estos 5 pasos, ir al flujo de tarea correspondiente.
+→ Solo después de estos pasos, ir al flujo de tarea correspondiente.
 
 ---
 
@@ -126,6 +143,10 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 
 ---
 
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
+
+---
+
 ### 2. Modificar modulo existente
 
 **Documentos a consultar:**
@@ -145,6 +166,10 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 - [ ] Actualizar tests existentes
 - [ ] Ejecutar suite completa (`composer test`)
 - [ ] Ejecutar `phpstan analyse` y `pint`
+
+---
+
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
 
 ---
 
@@ -180,6 +205,10 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 
 ---
 
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
+
+---
+
 ### 4. Modificar esquema de base de datos
 
 **Documentos a consultar:**
@@ -203,6 +232,10 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 - [ ] Actualizar Mappers
 - [ ] Ejecutar `migrate` y `migrate:rollback`
 - [ ] Actualizar tests de integracion
+
+---
+
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
 
 ---
 
@@ -230,6 +263,8 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 - [ ] Implementar logging de eventos de seguridad
 - [ ] Ejecutar tests de seguridad
 
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
+
 ---
 
 ### 6. Setup/Inicializacion de proyecto
@@ -254,6 +289,21 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 4. [[API_TESTING]] → COMPLETO (estructura, reglas)
 5. [[API_ARCHITECTURE]] → Secciones 10, 4
 
+→ Al terminar: ejecutar **Checklist Final** (al pie de este documento).
+
+---
+
+## En Caso de Fallo
+
+| Situación | Acción |
+|-----------|--------|
+| `composer test` falla al inicio de sesión | No continuar. Documentar en `API_SESSION_MANIFEST §Bloqueos` con el error exacto. Marcar sesión como "🔴 Bloqueado". |
+| `phpstan` falla en medio de una implementación | Resolver antes de continuar. No commitear con errores PHPStan. |
+| Migración falla al ejecutar `migrate:rollback` | Revertir manualmente, registrar como deuda técnica en `docs/log/deuda-tecnica/`. |
+| Inconsistencia detectada entre `API_CONTRACT` y el código real | Corregir la documentación primero, luego el código. Nunca corregir en silencio. |
+| Sesión interrumpida sin completar Checklist Final | Marcar estado como "⏸️ Interrumpido" en `API_SESSION_MANIFEST`. Documentar exactamente dónde quedó el trabajo. |
+| Cambio cross-project detectado sin entrada en `CHANGES_LOG` | Crear la entrada antes de continuar. No asumir que el otro proyecto lo sabrá. |
+
 ---
 
 ## Reglas de Oro (Nunca violar)
@@ -272,6 +322,7 @@ Ingeniero senior especializado en Laravel y PostgreSQL. Construir API RESTful pa
 | 10 | **Tests antes de commit** | Unit + Integration + Feature |
 | 11 | **Actualizar [[API_SESSION_MANIFEST]] al final de cada sesion** | Estado guardado entre sesiones |
 | 12 | **NO duplicar informacion entre documentos** | Cada pieza de informacion en UN SOLO documento. Usar referencias cruzadas |
+| 13 | **La memoria (agentmemory) es contexto de calentamiento, no fuente de verdad** — si agentmemory dice X y [[API_SESSION_MANIFEST]] dice Y, gana el manifest. Siempre. | Decisiones incorrectas basadas en estado de memoria obsoleto |
 
 ---
 
@@ -307,6 +358,8 @@ Si continuas una sesion anterior:
 - [ ] Rate limiting configurado
 - [ ] Eventos de seguridad loggeados
 - [ ] [[API_SESSION_MANIFEST]] actualizado
+- [ ] Si agentmemory registró nuevos patrones: `git add 00-shared/.agent-memory/ && git commit -m "memory: <descripción>" && git push` (desde el vault)
+- [ ] Si el grafo cambió: `git add .codebase-memory/ && git commit -m "chore: update graph snapshot"` (desde `API/`)
 
 ---
 

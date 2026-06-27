@@ -63,19 +63,36 @@ Si llegas aquí desde [[AGENTS]] (global) en modo cross-project, la entrada ya d
 
 > [!warning] Nunca saltarse este ritual, aunque la sesión parezca una continuación directa.
 
-1. Leer [[APP_SESSION_MANIFEST]] → estado real del proyecto
+**Sincronización previa (antes de abrir cualquier archivo):**
+```bash
+git pull   # en el vault de documentación → memoria del equipo actualizada
+git pull   # en APP/ → snapshot del grafo actualizado
+```
+
+1. Leer [[APP_SESSION_MANIFEST]] → estado real del proyecto (**fuente de verdad, no la memoria**)
 2. Leer [[APP_IMPLEMENTATION_PLAN]] → sesión activa y tarea siguiente
 3. Ejecutar `flutter analyze && flutter test` para confirmar el estado reportado
 4. Reportar cualquier discrepancia en `APP_SESSION_MANIFEST §Bloqueos` antes de continuar
 5. Verificar §0 (¿hay cambio cross-project activo que afecte a la App?)
 
-→ Solo después de estos 5 pasos, ir al flujo de tarea correspondiente.
+→ Solo después de estos pasos, ir al flujo de tarea correspondiente.
 
 ---
 
 ## 3. Stack en una Línea
 
 Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean Architecture feature-first consumiendo Urbania API (Laravel). Detalle completo en [[APP_ARCHITECTURE]].
+
+---
+
+## 3.1 Alcance de Operaciones
+
+| Operación | Rutas permitidas |
+|-----------|-----------------|
+| **Lectura** | `03-app/`, `APP/`, `00-shared/`, `01-api/API_CONTRACT.md`, `01-api/endpoints/`, `01-api/API_JWT_IMPLEMENTATION.md` |
+| **Escritura** | `03-app/`, `APP/` |
+| **Lectura cross-project** | `01-api/API_SESSION_MANIFEST.md`, `02-web/WEB_SESSION_MANIFEST.md` solo para verificar impacto de un cambio cross-project |
+| **Prohibido** | Crear o modificar archivos en `01-api/`, `API/`, `02-web/`, `WEB/` — derivar cambios cross-project a [[00-shared/CROSS_PROJECT_CHANGES]] |
 
 ---
 
@@ -114,6 +131,8 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 - [ ] `flutter analyze` sin errores
 - [ ] Actualizar [[APP_SESSION_MANIFEST]]
 
+→ Al terminar: ejecutar **Checklist Final §6** (al pie de este documento).
+
 ---
 
 ### 4.2 Crear o modificar pantalla/widget
@@ -135,6 +154,8 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 - [ ] Widget test creado (ver [[APP_TESTING]] §3)
 - [ ] `flutter analyze` sin errores
 
+→ Al terminar: ejecutar **Checklist Final §6** (al pie de este documento).
+
 ---
 
 ### 4.3 Modificar integración con API (Data Layer)
@@ -155,6 +176,8 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 - [ ] Tests de integración contra mock server actualizados (ver [[APP_TESTING]] §4)
 - [ ] `flutter analyze` sin errores
 
+→ Al terminar: ejecutar **Checklist Final §6** (al pie de este documento).
+
 ---
 
 ### 4.4 Tocar seguridad o almacenamiento local
@@ -174,6 +197,8 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 - [ ] Tests de seguridad actualizados (ver [[APP_TESTING]] §5)
 - [ ] `flutter analyze` sin errores
 
+→ Al terminar: ejecutar **Checklist Final §6** (al pie de este documento).
+
 ---
 
 ### 4.5 Infraestructura offline/sync
@@ -192,6 +217,8 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 - [ ] Sin datos de un usuario que persistan para el siguiente (verificar en test)
 - [ ] `flutter analyze` sin errores
 
+→ Al terminar: ejecutar **Checklist Final §6** (al pie de este documento).
+
 ---
 
 ### 4.6 Testing
@@ -209,6 +236,8 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 - [ ] `flutter test --coverage` genera reporte sin fallos
 - [ ] `flutter analyze` sin errores
 
+→ Al terminar: ejecutar **Checklist Final §6** (al pie de este documento).
+
 ---
 
 ### 4.7 Release / CI-CD / Observabilidad
@@ -224,6 +253,8 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 - [ ] Pipeline CI corre `flutter analyze && flutter test && flutter build appbundle --flavor staging` sin intervención manual
 - [ ] [[APP_SESSION_MANIFEST]] actualizado con versión exacta del release candidato
 
+→ Al terminar: ejecutar **Checklist Final §6** (al pie de este documento).
+
 ---
 
 ### 4.8 Setup / Inicialización del proyecto
@@ -233,6 +264,19 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 2. [[APP_ARCHITECTURE]] → Stack y estructura de carpetas
 3. [[APP_DESIGN_SYSTEM]] → Tokens base
 4. [[APP_SECURITY]] → Configuración de flavors y secrets
+
+---
+
+## 4.9 En Caso de Fallo
+
+| Situación | Acción |
+|-----------|--------|
+| `flutter analyze` falla al inicio de sesión | No continuar. Documentar en `APP_SESSION_MANIFEST §Bloqueos`. Marcar sesión como "🔴 Bloqueado". |
+| `flutter test` falla en medio de una implementación | Resolver antes de continuar. No marcar feature como completada. |
+| `flutter build appbundle` falla al cerrar sesión | Marcar estado como "⏸️ Interrumpido" en `APP_SESSION_MANIFEST`. No actualizar `APP_IMPLEMENTATION_PLAN` como sesión completada. |
+| Inconsistencia detectada entre `APP_API_INTEGRATION` y el endpoint real del backend | Reportar en `APP_SESSION_MANIFEST §Bloqueos`. No implementar contra un contrato que no coincide. |
+| Sesión interrumpida sin completar Checklist Final | Marcar estado como "⏸️ Interrumpido" en `APP_SESSION_MANIFEST`. Documentar exactamente dónde quedó el trabajo. |
+| Cambio cross-project detectado sin entrada en `CHANGES_LOG` | Crear la entrada antes de continuar. No asumir que API o Web lo sabrán. |
 
 ---
 
@@ -252,6 +296,7 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 | 10 | **Biometría con degradación correcta** — nunca asumir hardware disponible | Crash en dispositivos sin sensor biométrico |
 | 11 | **Actualizar [[APP_SESSION_MANIFEST]] al final de cada sesión** | Estado perdido entre sesiones; la siguiente iteración parte de datos incorrectos |
 | 12 | **Si el `flutter analyze` falla, no marcar sesión como completada** | Estado "completado" que en realidad no compila ni pasa análisis estático |
+| 13 | **La memoria (agentmemory) es contexto de calentamiento, no fuente de verdad** — si agentmemory dice X y [[APP_SESSION_MANIFEST]] dice Y, gana el manifest. Siempre. | Decisiones incorrectas basadas en estado de memoria obsoleto |
 
 ---
 
@@ -270,6 +315,8 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 - [ ] Estados de carga, error y vacío en toda vista con datos remotos
 - [ ] Bloqueos activos en [[APP_SESSION_MANIFEST]] §Bloqueos actualizados
 - [ ] [[APP_SESSION_MANIFEST]] actualizado con el estado real al cierre
+- [ ] Si agentmemory registró nuevos patrones: `git add 00-shared/.agent-memory/ && git commit -m "memory: <descripción>" && git push` (desde el vault)
+- [ ] Si el grafo cambió: `git add .codebase-memory/ && git commit -m "chore: update graph snapshot"` (desde `APP/`)
 
 ---
 

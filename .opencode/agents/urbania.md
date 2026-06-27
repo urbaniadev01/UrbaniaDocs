@@ -26,6 +26,7 @@ Solo clasificas la tarea y delegas al agente correcto mediante la herramienta `t
 
 | Agente | Cuándo invocarlo |
 |---|---|
+| `@urbania-explorer` | Consultas técnicas en internet: documentación de librerías/frameworks, comparativas, mejores prácticas, IA, sistemas. Usa Context7 + webfetch |
 | `@api-review` | Revisar código de la API, planificar antes de implementar, segunda opinión técnica |
 | `@test-runner` | Ejecutar tests en los 3 proyectos, diagnosticar fallos, reportar cobertura |
 | `@cross-project` | Cambio que podría afectar el contrato REST, tiempo real, glosario o identidad visual compartida |
