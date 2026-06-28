@@ -3,7 +3,7 @@ type: reference
 status: active
 module: properties
 tags: [api, endpoints, properties, units, documents]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # Endpoints: Propiedades y Unidades
@@ -20,16 +20,16 @@ updated: 2026-06-27
 
 | # | Método | Ruta | Auth | Estado |
 |---|--------|------|------|--------|
-| 2.1 | GET | /properties | Sí (admin) | Diseñado |
-| 2.2 | POST | /properties | Sí (admin) | Diseñado |
-| 2.3 | GET | /properties/{id} | Sí | Diseñado |
-| 2.4 | PATCH | /properties/{id} | Sí (admin) | Diseñado |
-| 2.5 | DELETE | /properties/{id} | Sí (admin) | Diseñado |
-| 2.6 | PATCH | /properties/{id}/status | Sí (admin) | Diseñado |
-| 2.7 | GET | /properties/{id}/status-log | Sí | Diseñado |
-| 2.8 | GET | /properties/{id}/documents | Sí | Diseñado |
-| 2.9 | POST | /properties/{id}/documents | Sí (admin) | Diseñado |
-| 2.10 | DELETE | /properties/{id}/documents/{docId} | Sí (admin) | Diseñado |
+| 2.1 | GET | /properties | Sí (admin) | Implementado |
+| 2.2 | POST | /properties | Sí (admin) | Implementado |
+| 2.3 | GET | /properties/{id} | Sí | Implementado |
+| 2.4 | PATCH | /properties/{id} | Sí (admin) | Implementado |
+| 2.5 | DELETE | /properties/{id} | Sí (admin) | Implementado |
+| 2.6 | PATCH | /properties/{id}/status | Sí (admin) | Implementado |
+| 2.7 | GET | /properties/{id}/status-log | Sí | Implementado |
+| 2.8 | GET | /properties/{id}/documents | Sí | Implementado |
+| 2.9 | POST | /properties/{id}/documents | Sí (admin) | Implementado |
+| 2.10 | DELETE | /properties/{id}/documents/{docId} | Sí (admin) | Implementado |
 
 > `Sí` = Autenticado. `Sí (admin)` = Autenticado con rol `admin`.
 

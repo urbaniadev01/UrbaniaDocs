@@ -28,10 +28,10 @@ updated: 2026-06-28
 | 4.6 | POST | /property-statuses | Sí (admin) | Implementado |
 | 4.7 | PATCH | /property-statuses/{id} | Sí (admin) | Implementado |
 | 4.8 | DELETE | /property-statuses/{id} | Sí (admin) | Implementado |
-| 4.9 | GET | /property-document-types | Sí | Diseñado |
-| 4.10 | POST | /property-document-types | Sí (admin) | Diseñado |
-| 4.11 | PATCH | /property-document-types/{id} | Sí (admin) | Diseñado |
-| 4.12 | DELETE | /property-document-types/{id} | Sí (admin) | Diseñado |
+| 4.9 | GET | /property-document-types | Sí | Implementado |
+| 4.10 | POST | /property-document-types | Sí (admin) | Implementado |
+| 4.11 | PATCH | /property-document-types/{id} | Sí (admin) | Implementado |
+| 4.12 | DELETE | /property-document-types/{id} | Sí (admin) | Implementado |
 
 > Todos los endpoints de catálogos implementados requieren autenticación JWT y rol `admin`.
 

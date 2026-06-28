@@ -4,7 +4,7 @@ status: active
 module: contract
 scope: cross-project
 tags: [api, endpoints, rest, cross-project, dictionary]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # 🔌 API_CONTRACT
@@ -22,8 +22,7 @@ updated: 2026-06-27
 > Ver [[00-shared/SYSTEM_CONTRACT]] §1 para el contrato formal entre proyectos.
 
 > [!note] Alcance actual
-> Endpoints **implementados**: Auth (`/auth/*`, §1.x) + Health Check (`/health`, §11.1) + Catálogos de Propiedades (`/property-types`, `/property-statuses`, §4.1-§4.8). Módulo Auth cerrado y congelado (ver [[API_SESSION_MANIFEST]]).
-> Endpoints **diseñados** (pendientes de implementar): Propiedades (§2), Torres (§3), Condominiums (§5), Tipos de documento (§4.9-§4.12) — ver [[00-shared/CHANGES_LOG]] CAMBIO-004.
+> Endpoints **implementados**: Auth (`/auth/*`, §1.x) + Health Check (`/health`, §11.1) + Propiedades y Unidades (`/properties`, `/towers`, `/condominiums`, `/property-document-types`, `/property-types`, `/property-statuses`, §2-§5). Módulo Auth cerrado y congelado (ver [[API_SESSION_MANIFEST]]).
 > Los demás módulos de negocio se diseñarán e implementarán uno a la vez (ver [[00-shared/FEATURES_INDEX]]).
 
 ---
@@ -83,35 +82,35 @@ updated: 2026-06-27
 > `user*` = el residente (`role = user`) puede acceder solo a sus propios recursos (no listado completo en ese endpoint).
 > **Estado**: "Implementado" = código y tests en `main`; "Diseñado" = documentado, pendiente de codificar.
 
-### §2 — Propiedades (Diseñado)
+### §2 — Propiedades (Implementado)
 
 | # | Método | Ruta | Auth | Estado | Documento |
-|---|--------|------|------|--------|-----------|
-| 2.1 | GET | `/properties` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.1 |
-| 2.2 | POST | `/properties` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.2 |
-| 2.3 | GET | `/properties/{id}` | Sí | Diseñado | [[endpoints/PROPIEDADES]] §2.3 |
-| 2.4 | PATCH | `/properties/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.4 |
-| 2.5 | DELETE | `/properties/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.5 |
-| 2.6 | PATCH | `/properties/{id}/status` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.6 |
-| 2.7 | GET | `/properties/{id}/status-log` | Sí | Diseñado | [[endpoints/PROPIEDADES]] §2.7 |
-| 2.8 | GET | `/properties/{id}/documents` | Sí | Diseñado | [[endpoints/PROPIEDADES]] §2.8 |
-| 2.9 | POST | `/properties/{id}/documents` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.9 |
-| 2.10 | DELETE | `/properties/{id}/documents/{docId}` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.10 |
+|---|---|--------|------|------|--------|-----------|
+| 2.1 | GET | `/properties` | Sí (admin) | Implementado | [[endpoints/PROPIEDADES]] §2.1 |
+| 2.2 | POST | `/properties` | Sí (admin) | Implementado | [[endpoints/PROPIEDADES]] §2.2 |
+| 2.3 | GET | `/properties/{id}` | Sí | Implementado | [[endpoints/PROPIEDADES]] §2.3 |
+| 2.4 | PATCH | `/properties/{id}` | Sí (admin) | Implementado | [[endpoints/PROPIEDADES]] §2.4 |
+| 2.5 | DELETE | `/properties/{id}` | Sí (admin) | Implementado | [[endpoints/PROPIEDADES]] §2.5 |
+| 2.6 | PATCH | `/properties/{id}/status` | Sí (admin) | Implementado | [[endpoints/PROPIEDADES]] §2.6 |
+| 2.7 | GET | `/properties/{id}/status-log` | Sí | Implementado | [[endpoints/PROPIEDADES]] §2.7 |
+| 2.8 | GET | `/properties/{id}/documents` | Sí | Implementado | [[endpoints/PROPIEDADES]] §2.8 |
+| 2.9 | POST | `/properties/{id}/documents` | Sí (admin) | Implementado | [[endpoints/PROPIEDADES]] §2.9 |
+| 2.10 | DELETE | `/properties/{id}/documents/{docId}` | Sí (admin) | Implementado | [[endpoints/PROPIEDADES]] §2.10 |
 
-### §3 — Torres (Diseñado)
+### §3 — Torres (Implementado)
 
 | # | Método | Ruta | Auth | Estado | Documento |
-|---|--------|------|------|--------|-----------|
-| 3.1 | GET | `/condominiums/{condominium_id}/towers` | Sí (admin) | Diseñado | [[endpoints/TOWERS]] §3.1 |
-| 3.2 | POST | `/towers` | Sí (admin) | Diseñado | [[endpoints/TOWERS]] §3.2 |
-| 3.3 | GET | `/towers/{id}` | Sí (admin) | Diseñado | [[endpoints/TOWERS]] §3.3 |
-| 3.4 | PATCH | `/towers/{id}` | Sí (admin) | Diseñado | [[endpoints/TOWERS]] §3.4 |
-| 3.5 | DELETE | `/towers/{id}` | Sí (admin) | Diseñado | [[endpoints/TOWERS]] §3.5 |
+|---|---|--------|------|------|--------|-----------|
+| 3.1 | GET | `/condominiums/{condominium_id}/towers` | Sí (admin) | Implementado | [[endpoints/TOWERS]] §3.1 |
+| 3.2 | POST | `/towers` | Sí (admin) | Implementado | [[endpoints/TOWERS]] §3.2 |
+| 3.3 | GET | `/towers/{id}` | Sí (admin) | Implementado | [[endpoints/TOWERS]] §3.3 |
+| 3.4 | PATCH | `/towers/{id}` | Sí (admin) | Implementado | [[endpoints/TOWERS]] §3.4 |
+| 3.5 | DELETE | `/towers/{id}` | Sí (admin) | Implementado | [[endpoints/TOWERS]] §3.5 |
 
 ### §4 — Catálogos de Propiedades (Implementado)
 
 | # | Método | Ruta | Auth | Estado | Documento |
-|---|--------|------|------|--------|-----------|
+|---|---|--------|------|------|--------|-----------|
 | 4.1 | GET | `/property-types` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.1 |
 | 4.2 | POST | `/property-types` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.2 |
 | 4.3 | PATCH | `/property-types/{id}` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.3 |
@@ -120,19 +119,19 @@ updated: 2026-06-27
 | 4.6 | POST | `/property-statuses` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.6 |
 | 4.7 | PATCH | `/property-statuses/{id}` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.7 |
 | 4.8 | DELETE | `/property-statuses/{id}` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.8 |
-| 4.9 | GET | `/property-document-types` | Sí | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.9 |
-| 4.10 | POST | `/property-document-types` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.10 |
-| 4.11 | PATCH | `/property-document-types/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.11 |
-| 4.12 | DELETE | `/property-document-types/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.12 |
+| 4.9 | GET | `/property-document-types` | Sí | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.9 |
+| 4.10 | POST | `/property-document-types` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.10 |
+| 4.11 | PATCH | `/property-document-types/{id}` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.11 |
+| 4.12 | DELETE | `/property-document-types/{id}` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.12 |
 
-### §5 — Condominiums (Diseñado)
+### §5 — Condominiums (Implementado)
 
 | # | Método | Ruta | Auth | Estado | Documento |
-|---|--------|------|------|--------|-----------|
-| 5.1 | GET | `/condominiums` | Sí (admin) | Diseñado | [[endpoints/CONDOMINIUMS]] §5.1 |
-| 5.2 | GET | `/condominiums/{id}` | Sí (admin) | Diseñado | [[endpoints/CONDOMINIUMS]] §5.2 |
-| 5.3 | PATCH | `/condominiums/{id}` | Sí (admin) | Diseñado | [[endpoints/CONDOMINIUMS]] §5.3 |
-| 5.4 | GET | `/condominiums/{id}/coefficient-validation` | Sí (admin) | Diseñado | [[endpoints/CONDOMINIUMS]] §5.4 |
+|---|---|--------|------|------|--------|-----------|
+| 5.1 | GET | `/condominiums` | Sí (admin) | Implementado | [[endpoints/CONDOMINIUMS]] §5.1 |
+| 5.2 | GET | `/condominiums/{id}` | Sí (admin) | Implementado | [[endpoints/CONDOMINIUMS]] §5.2 |
+| 5.3 | PATCH | `/condominiums/{id}` | Sí (admin) | Implementado | [[endpoints/CONDOMINIUMS]] §5.3 |
+| 5.4 | GET | `/condominiums/{id}/coefficient-validation` | Sí (admin) | Implementado | [[endpoints/CONDOMINIUMS]] §5.4 |
 
 ---
 
@@ -273,11 +272,12 @@ Ver [[API_ARCHITECTURE]] §13 (`APP_TIMEZONE=UTC`).
 |--------|------|-------------|
 | `CONDOMINIUM_NOT_FOUND` | 404 | El condominio solicitado no existe |
 | `TOWER_NOT_FOUND` | 404 | La torre solicitada no existe |
-| `TOWER_HAS_UNITS` | 409 | La torre tiene unidades registradas y no puede eliminarse |
-| `TOWER_DUPLICATE_NAME` | 400 | Ya existe una torre con ese nombre en el condominio |
+| `TOWER_HAS_PROPERTIES` | 409 | La torre tiene unidades asociadas y no puede eliminarse |
+| `TOWER_NAME_ALREADY_EXISTS` | 409 | Ya existe una torre con ese nombre en el condominio |
 | `PROPERTY_NOT_FOUND` | 404 | La unidad solicitada no existe |
 | `PROPERTY_HAS_DEPENDENCIES` | 409 | La unidad tiene dependencias activas y no puede eliminarse |
-| `PROPERTY_DUPLICATE_UNIT` | 400 | El número de unidad ya existe en el piso/torre especificado |
+| `PROPERTY_DUPLICATE_UNIT` | 409 | El número de unidad ya existe en el piso/torre especificado |
+| `FLOOR_EXCEEDS_TOWER_LIMIT` | 422 | El piso supera la cantidad de pisos de la torre |
 | `STATUS_HAS_ACTIVE_RESIDENTS` | 400 | No se puede cambiar a un estado que no admite residentes mientras haya residentes activos |
 | `SAME_STATUS` | 400 | El estado seleccionado es el mismo que el actual |
 | `STATUS_REASON_REQUIRED` | 422 | El motivo del cambio de estado es obligatorio |
@@ -288,10 +288,12 @@ Ver [[API_ARCHITECTURE]] §13 (`APP_TIMEZONE=UTC`).
 | `PROPERTY_STATUS_NOT_FOUND` | 404 | El estado de propiedad no existe |
 | `PROPERTY_STATUS_CODE_ALREADY_EXISTS` | 409 | El código del estado de propiedad ya está en uso |
 | `PROPERTY_STATUS_IN_USE` | 409 | El estado está en uso (propiedades activas o seed protegido) |
-| `STATUS_HAS_RESIDENTS` | 409 | No se puede cambiar `allows_residents` a FALSE porque hay residentes activos |
-| `DOCUMENT_NOT_FOUND` | 404 | El documento solicitado no existe |
+| `PROPERTY_DOCUMENT_NOT_FOUND` | 404 | El documento solicitado no existe |
 | `DOCUMENT_TOO_LARGE` | 400 | El archivo excede el tamaño máximo permitido (20MB) |
 | `DOCUMENT_INVALID_TYPE` | 400 | El tipo de archivo no está permitido |
+| `PROPERTY_DOCUMENT_TYPE_NOT_FOUND` | 404 | El tipo de documento no existe |
+| `PROPERTY_DOCUMENT_TYPE_CODE_ALREADY_EXISTS` | 409 | El código del tipo de documento ya está en uso |
+| `PROPERTY_DOCUMENT_TYPE_IN_USE` | 409 | El tipo de documento está en uso |
 
 ---
 

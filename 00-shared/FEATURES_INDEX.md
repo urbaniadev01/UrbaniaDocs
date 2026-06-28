@@ -4,7 +4,7 @@ status: active
 priority: P0
 module: shared
 tags: [features, index, shared]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # FEATURES_INDEX
@@ -47,9 +47,9 @@ El orden refleja la secuencia lógica de desarrollo (dependencias primero).
 | #   | Feature                            | Estado      | Nivel    | API                   | Web       | App       | Panorama                              |
 | --- | ---------------------------------- | ----------- | -------- | --------------------- | --------- | --------- | ------------------------------------- |
 | 1   | Auth                               | Completado  | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/AUTH]]           |
-| 2   | Propiedades y unidades             | En progreso | core     | Pendiente             | Pendiente | Pendiente | [[00-shared/features/PROPIEDADES]]    |
+| 2   | Propiedades y unidades             | En progreso | core     | Implementado          | Pendiente | Pendiente | [[00-shared/features/PROPIEDADES]]    |
 | 3   | Configuración (Perfil y Seguridad) | En progreso | core     | Implementado vía AUTH | Pendiente | N/A       | [[00-shared/features/CONFIGURACION]]  |
-| 4   | Directorio (Residentes y Propietarios) | Propuesto | core  | Pendiente             | Pendiente | Pendiente | —                                     |
+| 4   | Directorio (Residentes y Propietarios) | En progreso | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/DIRECTORIO]]     |
 | 5   | Roles y Permisos                   | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
 | 6   | Comunicaciones                     | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
 | 7   | Cobranza (Gastos Comunes)          | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |

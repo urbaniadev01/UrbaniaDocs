@@ -3,7 +3,7 @@ type: reference
 status: active
 module: properties
 tags: [api, endpoints, towers]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # Endpoints: Torres
@@ -20,11 +20,11 @@ updated: 2026-06-27
 
 | # | Método | Ruta | Auth | Estado |
 |---|--------|------|------|--------|
-| 3.1 | GET | /condominiums/{condominium_id}/towers | Sí (admin) | Diseñado |
-| 3.2 | POST | /towers | Sí (admin) | Diseñado |
-| 3.3 | GET | /towers/{id} | Sí (admin) | Diseñado |
-| 3.4 | PATCH | /towers/{id} | Sí (admin) | Diseñado |
-| 3.5 | DELETE | /towers/{id} | Sí (admin) | Diseñado |
+| 3.1 | GET | /condominiums/{condominium_id}/towers | Sí (admin) | Implementado |
+| 3.2 | POST | /towers | Sí (admin) | Implementado |
+| 3.3 | GET | /towers/{id} | Sí (admin) | Implementado |
+| 3.4 | PATCH | /towers/{id} | Sí (admin) | Implementado |
+| 3.5 | DELETE | /towers/{id} | Sí (admin) | Implementado |
 
 ---
 

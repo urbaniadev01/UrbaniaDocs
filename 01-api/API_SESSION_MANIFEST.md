@@ -28,8 +28,8 @@ updated: 2026-06-28
 
 | Campo            | Valor                          |
 | ---------------- | ------------------------------ |
-| **Numero**       | 13                             |
-| **Nombre**       | Propiedades y Unidades — Paso 2: Endpoints de catálogos |
+| **Numero**       | 14                             |
+| **Nombre**       | Propiedades y Unidades — Paso 3, 4 y 5: Torres, Propiedades y Documentos |
 | **Estado**       | ✅ Completado con observaciones |
 | **Fecha inicio** | 2026-06-28                     |
 | **Fecha fin**    | 2026-06-28                     |
@@ -39,24 +39,25 @@ updated: 2026-06-28
 
 ## Resumen Ejecutivo
 
-La Sesion 13 implementa el Paso 2 del feature "Propiedades y Unidades":
-endpoints CRUD de catálogos configurables (`property-types` y
-`property-statuses`) bajo `api/v1`. Se completó la capa Application
-(DTOs, UseCases), Infrastructure (repositorios Eloquent, mappers,
-controllers, requests, resources), Presentation (rutas, service provider
-bindings) y tests feature.
+La Sesion 14 implementa los Pasos 3, 4 y 5 del feature "Propiedades y Unidades":
+CRUD de torres (`/towers`), CRUD de unidades (`/properties`), cambio de estado
+con auditoria (`/properties/{id}/status`), historial de estados
+(`/properties/{id}/status-log`), CRUD de tipos de documento
+(`/property-document-types`) y gestion de documentos adjuntos
+(`/properties/{id}/documents`). Se completaron las entidades de dominio
+(Condominium, Tower, Property, PropertyStatusLog, PropertyDocument,
+PropertyDocumentType), excepciones tipificadas, repositorios, mappers, DTOs,
+casos de uso, servicios (generacion de `full_designation`), controllers,
+requests, resources, routes y bindings del service provider.
 
-Los endpoints implementados son: GET /property-types, POST /property-types,
-PATCH /property-types/{id}, DELETE /property-types/{id}, y los equivalentes
-para /property-statuses. Incluyen paginación, búsqueda, filtros por
-`is_active`, ordenamiento, validación de códigos únicos, protección de seed
-data y validación de dependencias con propiedades activas.
+Tambien se actualizaron los endpoints de condominios para listar, obtener
+detalle, actualizar y validar coeficientes (`/condominiums/{id}/coefficient-validation`).
 
-`composer test:feature` pasa todos los tests nuevos de Propiedades. Los
-unicos fallos globales son los 3 preexistentes (rate limiting flaky y 2 tests
-de CORS con origen `localhost:5174` en lugar de `5173`). `composer stan`
-reporta solo los 6 errores preexistentes en `app/Providers/AppServiceProvider.php`;
-el codigo nuevo de Propiedades es PHPStan nivel 10 limpio.
+`composer test` reporta 314 tests pasados. Los unicos fallos globales son los
+3 preexistentes (rate limiting flaky y 2 tests de CORS con origen
+`localhost:5174` en lugar de `5173`). `composer stan` reporta solo los 6 errores
+preexistentes en `app/Providers/AppServiceProvider.php`; el codigo nuevo de
+Propiedades es PHPStan nivel 10 limpio.
 
 Se mantiene vigente el problema operativo documentado: `composer dump-autoload`
 requiere timeout extendido / `--no-scripts` para completar.
@@ -69,7 +70,7 @@ requiere timeout extendido / `--no-scripts` para completar.
 |-------|-------|
 | **Modulo** | Propiedades y Unidades |
 | **Prioridad** | P0 |
-| **Estado** | 🚧 En progreso (Paso 2 de 5 completado) |
+| **Estado** | ✅ Completado en API (Pasos 1-5 terminados) |
 | **Sesion de inicio** | Sesion 12 |
 
 > [!info] Nota de alcance
@@ -83,7 +84,7 @@ requiere timeout extendido / `--no-scripts` para completar.
 
 | Metrica | Valor actual | Umbral | Estado |
 |---------|--------------|--------|--------|
-| Tests totales | 286 pasados, 3 fallos preexistentes (rate limiting flaky + 2 CORS origen 5174) | >0 | ⚠️ |
+| Tests totales | 314 pasados, 3 fallos preexistentes (rate limiting flaky + 2 CORS origen 5174) | >0 | ⚠️ |
 | Cobertura Domain | No re-midida | >=95% | ⚠️ |
 | Cobertura Application | No re-midida | >=90% | ⚠️ |
 | Cobertura Infrastructure | No re-midida | >=85% | ⚠️ |
@@ -98,66 +99,73 @@ requiere timeout extendido / `--no-scripts` para completar.
 
 ## Archivos Creados y Modificados
 
-### Nuevos archivos (Sesión 13)
+### Nuevos archivos (Sesión 14)
 
 **Capa Domain DDD (`Urbania\Propiedades\`)**
-- `src/Propiedades/Domain/Exceptions/PropertyTypeNotFoundException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyTypeCodeAlreadyExistsException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyTypeInUseException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyStatusNotFoundException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyStatusCodeAlreadyExistsException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyStatusInUseException.php`
-- `src/Propiedades/Domain/Repositories/PropertyTypeRepositoryInterface.php`
-- `src/Propiedades/Domain/Repositories/PropertyStatusRepositoryInterface.php`
+- `src/Propiedades/Domain/Entities/CondominiumEntity.php`
+- `src/Propiedades/Domain/Entities/TowerEntity.php`
+- `src/Propiedades/Domain/Entities/PropertyEntity.php`
+- `src/Propiedades/Domain/Entities/PropertyStatusLogEntity.php`
+- `src/Propiedades/Domain/Entities/PropertyDocumentEntity.php`
+- `src/Propiedades/Domain/Entities/PropertyDocumentTypeEntity.php`
+- `src/Propiedades/Domain/Exceptions/CondominiumNotFoundException.php`
+- `src/Propiedades/Domain/Exceptions/TowerNotFoundException.php`
+- `src/Propiedades/Domain/Exceptions/TowerNameAlreadyExistsException.php`
+- `src/Propiedades/Domain/Exceptions/TowerHasPropertiesException.php`
+- `src/Propiedades/Domain/Exceptions/PropertyNotFoundException.php`
+- `src/Propiedades/Domain/Exceptions/PropertyDuplicateUnitException.php`
+- `src/Propiedades/Domain/Exceptions/PropertyHasDependenciesException.php`
+- `src/Propiedades/Domain/Exceptions/SameStatusException.php`
+- `src/Propiedades/Domain/Exceptions/StatusHasActiveResidentsException.php`
+- `src/Propiedades/Domain/Exceptions/StatusReasonRequiredException.php`
+- `src/Propiedades/Domain/Exceptions/FloorExceedsTowerLimitException.php`
+- `src/Propiedades/Domain/Exceptions/PropertyDocumentNotFoundException.php`
+- `src/Propiedades/Domain/Exceptions/DocumentTooLargeException.php`
+- `src/Propiedades/Domain/Exceptions/DocumentInvalidTypeException.php`
+- `src/Propiedades/Domain/Exceptions/PropertyDocumentTypeNotFoundException.php`
+- `src/Propiedades/Domain/Exceptions/PropertyDocumentTypeCodeAlreadyExistsException.php`
+- `src/Propiedades/Domain/Exceptions/PropertyDocumentTypeInUseException.php`
+- `src/Propiedades/Domain/Repositories/CondominiumRepositoryInterface.php`
+- `src/Propiedades/Domain/Repositories/TowerRepositoryInterface.php`
+- `src/Propiedades/Domain/Repositories/PropertyRepositoryInterface.php`
+- `src/Propiedades/Domain/Repositories/PropertyStatusLogRepositoryInterface.php`
+- `src/Propiedades/Domain/Repositories/PropertyDocumentRepositoryInterface.php`
+- `src/Propiedades/Domain/Repositories/PropertyDocumentTypeRepositoryInterface.php`
 
 **Capa Application (`Urbania\Propiedades\`)**
-- `src/Propiedades/Application/DTOs/CreatePropertyTypeRequestDto.php`
-- `src/Propiedades/Application/DTOs/UpdatePropertyTypeRequestDto.php`
-- `src/Propiedades/Application/DTOs/PropertyTypeResponseDto.php`
-- `src/Propiedades/Application/DTOs/CreatePropertyStatusRequestDto.php`
-- `src/Propiedades/Application/DTOs/UpdatePropertyStatusRequestDto.php`
-- `src/Propiedades/Application/DTOs/PropertyStatusResponseDto.php`
-- `src/Propiedades/Application/DTOs/PaginatedResponseDto.php`
-- `src/Propiedades/Application/UseCases/PropertyTypes/ListPropertyTypesUseCase.php`
-- `src/Propiedades/Application/UseCases/PropertyTypes/CreatePropertyTypeUseCase.php`
-- `src/Propiedades/Application/UseCases/PropertyTypes/UpdatePropertyTypeUseCase.php`
-- `src/Propiedades/Application/UseCases/PropertyTypes/DeletePropertyTypeUseCase.php`
-- `src/Propiedades/Application/UseCases/PropertyStatuses/ListPropertyStatusesUseCase.php`
-- `src/Propiedades/Application/UseCases/PropertyStatuses/CreatePropertyStatusUseCase.php`
-- `src/Propiedades/Application/UseCases/PropertyStatuses/UpdatePropertyStatusUseCase.php`
-- `src/Propiedades/Application/UseCases/PropertyStatuses/DeletePropertyStatusUseCase.php`
+- DTOs y UseCases de Condominiums: list, get, update, coefficient-validation
+- DTOs y UseCases de Towers: list, create, get, update, delete
+- DTOs y UseCases de Properties: list, create, get, update, delete, change-status, status-log
+- DTOs y UseCases de PropertyDocumentTypes: list, create, update, delete
+- DTOs y UseCases de PropertyDocuments: list, upload, delete
+- `src/Propiedades/Application/Services/GenerateFullDesignationService.php`
 
 **Capa Infrastructure (`Urbania\Propiedades\`)**
-- `src/Propiedades/Infrastructure/Mappers/PropertyTypeMapper.php`
-- `src/Propiedades/Infrastructure/Mappers/PropertyStatusMapper.php`
-- `src/Propiedades/Infrastructure/Persistence/EloquentPropertyTypeRepository.php`
-- `src/Propiedades/Infrastructure/Persistence/EloquentPropertyStatusRepository.php`
-- `src/Propiedades/Infrastructure/Http/Controllers/PropertyTypeController.php`
-- `src/Propiedades/Infrastructure/Http/Controllers/PropertyStatusController.php`
-- `src/Propiedades/Infrastructure/Http/Requests/ListPropertyTypesRequest.php`
-- `src/Propiedades/Infrastructure/Http/Requests/CreatePropertyTypeRequest.php`
-- `src/Propiedades/Infrastructure/Http/Requests/UpdatePropertyTypeRequest.php`
-- `src/Propiedades/Infrastructure/Http/Requests/ListPropertyStatusesRequest.php`
-- `src/Propiedades/Infrastructure/Http/Requests/CreatePropertyStatusRequest.php`
-- `src/Propiedades/Infrastructure/Http/Requests/UpdatePropertyStatusRequest.php`
-- `src/Propiedades/Infrastructure/Http/Resources/PropertyTypeResource.php`
-- `src/Propiedades/Infrastructure/Http/Resources/PropertyTypeCollection.php`
-- `src/Propiedades/Infrastructure/Http/Resources/PropertyStatusResource.php`
-- `src/Propiedades/Infrastructure/Http/Resources/PropertyStatusCollection.php`
+- Mappers: `CondominiumMapper`, `TowerMapper`, `PropertyMapper`, `PropertyStatusLogMapper`, `PropertyDocumentMapper`, `PropertyDocumentTypeMapper`
+- Repositorios Eloquent: `EloquentCondominiumRepository`, `EloquentTowerRepository`, `EloquentPropertyRepository`, `EloquentPropertyStatusLogRepository`, `EloquentPropertyDocumentRepository`, `EloquentPropertyDocumentTypeRepository`
+- Controllers: `CondominiumController`, `TowerController`, `PropertyController`, `PropertyDocumentTypeController`, `PropertyDocumentController`
+- FormRequests y Resources/Collections para los nuevos endpoints
 
 **Tests**
-- `tests/Feature/Propiedades/PropertyTypeControllerTest.php`
-- `tests/Feature/Propiedades/PropertyStatusControllerTest.php`
+- `tests/Feature/Propiedades/CondominiumControllerTest.php`
+- `tests/Feature/Propiedades/TowerControllerTest.php`
+- `tests/Feature/Propiedades/PropertyControllerTest.php`
+- `tests/Feature/Propiedades/PropertyDocumentTypeControllerTest.php`
+- `tests/Feature/Propiedades/PropertyDocumentControllerTest.php`
 
-### Archivos modificados (Sesión 13)
+### Archivos modificados (Sesión 14)
 
-- `src/Propiedades/Domain/Entities/PropertyTypeEntity.php` — agregados métodos `update()`, `updateCode()` y `deactivate()`.
-- `src/Propiedades/Domain/Entities/PropertyStatusEntity.php` — agregados métodos `update()`, `updateCode()` y `deactivate()`.
-- `src/Propiedades/Presentation/UrbaniaPropiedadesServiceProvider.php` — bindings de repositorios.
-- `src/Propiedades/Presentation/routes.php` — rutas de catálogos bajo `api/v1`.
-- `01-api/endpoints/PROPERTY_CATALOGS.md` — documentación de endpoints implementados.
-- `01-api/API_CONTRACT.md` — estado de §4 y códigos de error.
-- `00-shared/features/PROPIEDADES.md` — actualizado estado de API y checklists.
+- `src/Propiedades/Presentation/UrbaniaPropiedadesServiceProvider.php` — bindings de todos los nuevos repositorios.
+- `src/Propiedades/Presentation/routes.php` — rutas de condominiums, towers, properties, documentos y property-document-types bajo `api/v1`.
+- `bootstrap/app.php` — manejo de `PropertyHasDependenciesException` con campo `details`.
+- `01-api/endpoints/CONDOMINIUMS.md` — marcado como Implementado.
+- `01-api/endpoints/TOWERS.md` — marcado como Implementado.
+- `01-api/endpoints/PROPIEDADES.md` — marcado como Implementado.
+- `01-api/endpoints/PROPERTY_CATALOGS.md` — agregados endpoints de property-document-types.
+- `01-api/API_CONTRACT.md` — estados de §2, §3, §4.9-§4.12 y §5 a Implementado; códigos de error nuevos.
+- `00-shared/features/PROPIEDADES.md` — estado de API y checklists actualizados.
+- `00-shared/FEATURES_INDEX.md` — estado de API del feature a "Implementado".
+- `00-shared/CHANGES_LOG.md` — entrada CAMBIO-004 actualizada.
 
 > [!note] Nota
 > Ya no se acumulan en tablas manuales aqui — desde la adopcion del vault de Obsidian, cada sesion registra sus propios archivos creados/modificados en su nota individual (`docs/log/sesiones/`, plantilla `_templates/nueva-sesion.md`). Ver la lista de sesiones en [[_Home]].
@@ -193,19 +201,16 @@ SORT severity DESC
 
 ## Proxima Sesion
 
-**Proxima Sesion**: Sesion 14 — Propiedades y Unidades — Paso 3: Endpoints de torres
+**Proxima Sesion**: Sesion 15 — Cierre del modulo Propiedades y Unidades en API / sincronizacion con Web y App
 **Objetivo**:
-1. Implementar CRUD de `towers` (`GET /condominiums/{id}/towers`, `POST /towers`,
-   `GET /towers/{id}`, `PATCH /towers/{id}`, `DELETE /towers/{id}`).
-2. Casos de uso, repositorios, controllers, requests, resources y rutas bajo
-   `api/v1` siguiendo DDD.
-3. Validar unicidad de nombre por condominio y proteccion ante unidades asociadas.
-4. Tests feature para endpoints de torres.
-5. Ejecutar `composer test` y `composer stan`; asegurar que pasan excepto
-   deuda preexistente documentada.
+1. Ejecutar `composer pint` y resolver formato si es necesario (sin tocar AppServiceProvider).
+2. Revisar cobertura de tests del modulo Propiedades; agregar tests unitarios de Domain si faltan.
+3. Generar documentacion Scribe (`php artisan scribe:generate`) y verificar que los endpoints nuevos aparecen.
+4. Sincronizar con orquestador para delegar implementacion Web/App o cerrar CAMBIO-004.
+5. Actualizar `API_IMPLEMENTATION_PLAN.md` con sesiones futuras del modulo siguiente.
 
 **Documentos a consultar**: [[API_AGENTS]], [[API_ARCHITECTURE]], [[API_CONTRACT]],
-[[01-api/endpoints/TOWERS.md]], [[00-shared/features/PROPIEDADES]]
+[[API_TESTING]], [[00-shared/features/PROPIEDADES]], [[00-shared/CHANGES_LOG]]
 **Estado**: 🚧 Pendiente
 
 ---

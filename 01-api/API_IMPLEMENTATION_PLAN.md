@@ -3,7 +3,7 @@ type: meta
 status: active
 priority: P0
 tags: [planning, sessions]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # IMPLEMENTATION_PLAN
@@ -556,9 +556,39 @@ Sesion 9: CORS global (transversal — posterior al cierre del modulo Auth)
 
 ---
 
+## Sesion 14: Propiedades y Unidades — Paso 3, 4 y 5: Torres, Propiedades y Documentos ✅ COMPLETADA (2026-06-28)
+
+**Objetivo**: Completar el módulo Propiedades y Unidades con CRUD de torres, unidades, documentos y tipos de documento.
+**Prioridad**: P0 — Core del inventario del sistema.
+**Dependencias**: Sesion 13 completada.
+
+### Tareas
+- [x] Entidades de dominio: Condominium, Tower, Property, PropertyStatusLog, PropertyDocument, PropertyDocumentType.
+- [x] Excepciones de dominio tipificadas para todos los nuevos recursos.
+- [x] Repositorios de Domain e implementaciones Eloquent.
+- [x] Mappers, DTOs y casos de uso para Condominiums, Towers, Properties, PropertyDocumentTypes y PropertyDocuments.
+- [x] Servicio `GenerateFullDesignationService`.
+- [x] Controllers, FormRequests, Resources y Collections.
+- [x] Rutas bajo `api/v1` con middleware JWT + role:admin.
+- [x] Bindings en `UrbaniaPropiedadesServiceProvider`.
+- [x] Feature tests para todos los nuevos endpoints.
+- [x] Documentación actualizada: `CONDOMINIUMS.md`, `TOWERS.md`, `PROPIEDADES.md`, `PROPERTY_CATALOGS.md`, `API_CONTRACT.md`, `PROPIEDADES.md` (panorama), `FEATURES_INDEX.md`, `CHANGES_LOG.md`.
+
+### Entregable
+- Endpoints de condominios, torres, propiedades, documentos y property-document-types funcionales.
+- 28 tests feature nuevos pasan (total 314 tests).
+- PHPStan nivel 10 limpio en código nuevo.
+
+### Checklist de cierre
+- [x] Todos los endpoints retornan formato de respuesta estándar con `trace_id`.
+- [x] Paginación, filtros y ordenamiento operativos.
+- [x] Validación de unicidad, dependencias, pisos y coeficientes.
+- [x] Auditoría de cambios de estado (`property_status_log`).
+- [x] `composer test` pasa excepto deuda preexistente documentada.
+
 ## Proxima Sesion
 
-**Sesion 14**: Propiedades y Unidades — Paso 3: Endpoints de torres (towers).
+**Sesion 15**: Cierre del módulo Propiedades y Unidades en API / sincronización con Web y App.
 
 ---
 

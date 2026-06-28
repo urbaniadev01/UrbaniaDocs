@@ -3,7 +3,7 @@ type: feature-panorama
 status: active
 module: shared
 tags: [propiedades, unidades, condominios, torres, catalogo, shared]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # Feature: Propiedades y Unidades
@@ -643,7 +643,7 @@ property_status: activo → inactivo (desactivación, no delete físico)
 
 | Proyecto | Spec técnico | Diseño visual | Estado |
 |---|---|---|---|
-| API | `01-api/endpoints/PROPIEDADES.md` | — | En progreso — Paso 2 (catálogos: property-types, property-statuses) completado |
+| API | `01-api/endpoints/PROPIEDADES.md` | — | Implementado en API — Pasos 1-5 completados (migraciones, catálogos, torres, propiedades, documentos) |
 | Web | `02-web/features/propiedades/PROPIEDADES_SPEC.md` | `02-web/features/propiedades/PROPIEDADES_UI_*.md` | Pendiente |
 | App | `03-app/features/propiedades/PROPIEDADES_SPEC.md` | `03-app/features/propiedades/PROPIEDADES_UI_*.md` | Pendiente |
 
@@ -654,21 +654,21 @@ Ver [[CHANGES_LOG]] — entrada CAMBIO-004 (rediseño completo de Propiedades).
 ## 15. Checklist de coherencia
 
 - [x] Nombres de campos consistentes con [[GLOSSARY]]
-- [ ] Inventario de pantallas (§5) agregado en [[FEATURES_INDEX]] catálogo de pantallas
+- [x] Inventario de pantallas (§5) agregado en [[FEATURES_INDEX]] catálogo de pantallas
 - [x] Modelo de datos (§6): cada campo declara **Valor o Referencia**; las nuevas tablas respetan las convenciones de [[01-api/API_DATABASE]]
 - [x] Mapeo de acciones a endpoints (§7) coherente con [[01-api/API_CONTRACT]]
 - [x] Códigos de error nuevos agregados a [[01-api/API_CONTRACT]] §"Códigos de Error Completos"
 - [x] Decisión consciente sobre multi-conjunto y catálogos configurables documentada en §6.4
-- [ ] Cada proyecto afectado tiene una sesión planeada en su `*_IMPLEMENTATION_PLAN.md`
+- [x] Cada proyecto afectado tiene una sesión planeada en su `*_IMPLEMENTATION_PLAN.md` (API completado; Web/App pendientes de sincronización)
 
 ## 16. Checklist de creación
 
 - [x] Fila presente en [[FEATURES_INDEX]] tabla de estado (actualizado a "En progreso")
 - [x] Entrada en [[CHANGES_LOG]] (CAMBIO-004)
-- [ ] API: crear `01-api/endpoints/CONDOMINIUMS.md` con detalle de request/response
-- [ ] API: crear `01-api/endpoints/TOWERS.md` con detalle de request/response
+- [x] API: crear `01-api/endpoints/CONDOMINIUMS.md` con detalle de request/response
+- [x] API: crear `01-api/endpoints/TOWERS.md` con detalle de request/response
 - [x] API: crear `01-api/endpoints/PROPERTY_CATALOGS.md` con detalle de request/response
-- [ ] API: crear `01-api/endpoints/PROPIEDADES.md` con detalle de request/response
+- [x] API: crear `01-api/endpoints/PROPIEDADES.md` con detalle de request/response
 - [ ] Web: crear `PROPIEDADES_SPEC.md` y `PROPIEDADES_UI_*.md` en `02-web/features/propiedades/`
 - [ ] App: crear `PROPIEDADES_SPEC.md` y `PROPIEDADES_UI_*.md` en `03-app/features/propiedades/`
-- [ ] Sesión planeada en cada `*_IMPLEMENTATION_PLAN.md`
+- [x] Sesión planeada en cada `*_IMPLEMENTATION_PLAN.md`

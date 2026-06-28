@@ -3,7 +3,7 @@ type: reference
 status: active
 module: properties
 tags: [api, endpoints, condominiums]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # Endpoints: Condominiums
@@ -20,10 +20,10 @@ updated: 2026-06-27
 
 | # | Método | Ruta | Auth | Estado |
 |---|--------|------|------|--------|
-| 5.1 | GET | /condominiums | Sí (admin) | Diseñado |
-| 5.2 | GET | /condominiums/{id} | Sí (admin) | Diseñado |
-| 5.3 | PATCH | /condominiums/{id} | Sí (admin) | Diseñado |
-| 5.4 | GET | /condominiums/{id}/coefficient-validation | Sí (admin) | Diseñado |
+| 5.1 | GET | /condominiums | Sí (admin) | Implementado |
+| 5.2 | GET | /condominiums/{id} | Sí (admin) | Implementado |
+| 5.3 | PATCH | /condominiums/{id} | Sí (admin) | Implementado |
+| 5.4 | GET | /condominiums/{id}/coefficient-validation | Sí (admin) | Implementado |
 
 ---
 
