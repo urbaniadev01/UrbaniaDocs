@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "00-shared/FEATURES_INDEX.md",
+                "file": "00-shared/features/PROPIEDADES.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "FEATURES_INDEX"
+              "title": "PROPIEDADES"
             }
           },
           {
@@ -170,13 +170,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "00-shared/FEATURES_INDEX.md",
+                "file": "00-shared/features/PROPIEDADES.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema de FEATURES_INDEX"
+              "title": "Esquema de PROPIEDADES"
             }
           },
           {
@@ -214,10 +214,14 @@
   },
   "active": "cac0d0647ca87a3f",
   "lastOpenFiles": [
-    "00-shared/FEATURE_PLANNING_TEMPLATE.md",
-    "00-shared/FEATURES_INDEX.md",
-    "00-shared/features/PROPIEDADES.md",
+    "01-api/endpoints/PROPIEDADES.md",
+    "01-api/endpoints/PROPERTY_CATALOGS.md",
+    "01-api/endpoints/TOWERS.md",
+    "01-api/endpoints/CONDOMINIUMS.md",
     "00-shared/features/CONFIGURACION.md",
+    "00-shared/FEATURES_INDEX.md",
+    "00-shared/FEATURE_PLANNING_TEMPLATE.md",
+    "00-shared/features/PROPIEDADES.md",
     "00-shared/CHANGES_LOG.md.tmp.16712.e9c34c8c9840",
     "00-shared/CHANGES_LOG.md.tmp.16712.3d2ec662b781",
     "00-shared/FEATURES_INDEX.md.tmp.16712.141a31387241",
@@ -247,10 +251,6 @@
     "03-app/features/auth/AUTH_SPEC.md",
     "02-web/features/auth/logo.jpeg",
     "02-web/features/auth/AUTH_UI_verificacion-mfa.md",
-    "02-web/features/auth/AUTH_UI_resetear-contrasena.md",
-    "02-web/features/auth/AUTH_UI_recuperar-contrasena.md",
-    "02-web/features/auth/AUTH_UI_login.md",
-    "02-web/features/auth/AUTH_SPEC.md",
     "WEB/test-results/auth-Autenticación-1-Login-válido-→-redirige-al-dashboard-mobile-chrome/test-failed-1.png",
     "WEB/test-results/auth-Autenticación-1-Login-válido-→-redirige-al-dashboard-chromium/test-failed-1.png",
     "WEB/test-results/auth-Autenticación-4-Sesió-a8d47-e-página-→-redirige-a-login-mobile-chrome/test-failed-1.png",
