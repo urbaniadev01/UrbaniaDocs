@@ -3,7 +3,7 @@ type: reference
 status: active
 module: properties
 tags: [api, endpoints, catalogs, property-types, property-statuses]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # Endpoints: Catálogos de Propiedades
@@ -20,18 +20,50 @@ updated: 2026-06-27
 
 | # | Método | Ruta | Auth | Estado |
 |---|--------|------|------|--------|
-| 4.1 | GET | /property-types | Sí | Diseñado |
-| 4.2 | POST | /property-types | Sí (admin) | Diseñado |
-| 4.3 | PATCH | /property-types/{id} | Sí (admin) | Diseñado |
-| 4.4 | DELETE | /property-types/{id} | Sí (admin) | Diseñado |
-| 4.5 | GET | /property-statuses | Sí | Diseñado |
-| 4.6 | POST | /property-statuses | Sí (admin) | Diseñado |
-| 4.7 | PATCH | /property-statuses/{id} | Sí (admin) | Diseñado |
-| 4.8 | DELETE | /property-statuses/{id} | Sí (admin) | Diseñado |
+| 4.1 | GET | /property-types | Sí (admin) | Implementado |
+| 4.2 | POST | /property-types | Sí (admin) | Implementado |
+| 4.3 | PATCH | /property-types/{id} | Sí (admin) | Implementado |
+| 4.4 | DELETE | /property-types/{id} | Sí (admin) | Implementado |
+| 4.5 | GET | /property-statuses | Sí (admin) | Implementado |
+| 4.6 | POST | /property-statuses | Sí (admin) | Implementado |
+| 4.7 | PATCH | /property-statuses/{id} | Sí (admin) | Implementado |
+| 4.8 | DELETE | /property-statuses/{id} | Sí (admin) | Implementado |
 | 4.9 | GET | /property-document-types | Sí | Diseñado |
 | 4.10 | POST | /property-document-types | Sí (admin) | Diseñado |
 | 4.11 | PATCH | /property-document-types/{id} | Sí (admin) | Diseñado |
 | 4.12 | DELETE | /property-document-types/{id} | Sí (admin) | Diseñado |
+
+> Todos los endpoints de catálogos implementados requieren autenticación JWT y rol `admin`.
+
+---
+
+## Formato de respuesta
+
+### Respuesta única
+
+```json
+{
+  "data": { ... },
+  "meta": {
+    "trace_id": "uuid"
+  }
+}
+```
+
+### Respuesta paginada
+
+```json
+{
+  "data": [...],
+  "meta": {
+    "trace_id": "uuid",
+    "current_page": 1,
+    "per_page": 20,
+    "total": 10,
+    "last_page": 1
+  }
+}
+```
 
 ---
 
@@ -47,8 +79,12 @@ GET /api/v1/property-types
 
 | Parámetro | Tipo | Req | Descripción |
 |-----------|------|-----|-------------|
-| `include_inactive` | boolean | no | Incluir tipos desactivados (default: false) |
-| `all` | boolean | no | Si es true, retorna todos sin paginación (para dropdowns) |
+| `search` | string | no | Búsqueda por `code` o `name` (ilike) |
+| `is_active` | boolean | no | Filtrar por estado activo/inactivo |
+| `sort_by` | string | no | Campo de ordenamiento: `code`, `name`, `sort_order`, `created_at` (default: `sort_order`) |
+| `sort_order` | string | no | `asc` o `desc` (default: `asc`) |
+| `page` | integer | no | Página actual (default: 1) |
+| `per_page` | integer | no | Tamaño de página 1-100 (default: 20) |
 
 **Response 200:**
 ```json
@@ -61,54 +97,24 @@ GET /api/v1/property-types
       "description": "Unidad residencial estándar",
       "sort_order": 1,
       "is_active": true,
-      "properties_count": 85,
-      "created_at": "2026-06-27T12:00:00Z",
-      "updated_at": "2026-06-27T12:00:00Z"
-    },
-    {
-      "id": "0190a1b2-c3d4-5678-9abc-def012345672",
-      "code": "local",
-      "name": "Local Comercial",
-      "description": "Espacio de uso comercial",
-      "sort_order": 2,
-      "is_active": true,
-      "properties_count": 12,
-      "created_at": "2026-06-27T12:00:00Z",
-      "updated_at": "2026-06-27T12:00:00Z"
-    },
-    {
-      "id": "0190a1b2-c3d4-5678-9abc-def012345673",
-      "code": "parqueadero",
-      "name": "Parqueadero",
-      "description": "Plaza de estacionamiento",
-      "sort_order": 3,
-      "is_active": true,
-      "properties_count": 80,
-      "created_at": "2026-06-27T12:00:00Z",
-      "updated_at": "2026-06-27T12:00:00Z"
-    },
-    {
-      "id": "0190a1b2-c3d4-5678-9abc-def012345674",
-      "code": "deposito",
-      "name": "Depósito",
-      "description": "Bodega o cuarto de almacenamiento",
-      "sort_order": 4,
-      "is_active": true,
-      "properties_count": 15,
       "created_at": "2026-06-27T12:00:00Z",
       "updated_at": "2026-06-27T12:00:00Z"
     }
   ],
   "meta": {
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000",
+    "current_page": 1,
+    "per_page": 20,
+    "total": 4,
+    "last_page": 1
   }
 }
 ```
 
 ### Diseño
 
-- **Precondiciones:** Usuario autenticado (cualquier rol). Los catálogos son de lectura para residentes.
-- **Reglas de negocio:** Por defecto solo retorna `is_active = true`. Con `include_inactive=true` retorna todos. `properties_count` es el conteo en tiempo real de unidades activas con ese tipo.
+- **Precondiciones:** Usuario autenticado con rol `admin`.
+- **Reglas de negocio:** Orden por defecto `sort_order ASC`. El filtro `is_active` acepta `0`/`1`, `true`/`false`.
 - **Side effects:** Ninguno.
 
 ---
@@ -141,7 +147,6 @@ POST /api/v1/property-types
     "description": "Bodega de almacenamiento independiente",
     "sort_order": 5,
     "is_active": true,
-    "properties_count": 0,
     "created_at": "2026-06-27T13:00:00Z",
     "updated_at": "2026-06-27T13:00:00Z"
   },
@@ -151,17 +156,13 @@ POST /api/v1/property-types
 }
 ```
 
-**Response 400:**
+**Response 409:**
 ```json
 {
   "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Error de validación",
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000",
-    "errors": {
-      "code": ["El código ya está en uso"],
-      "name": ["El nombre es obligatorio"]
-    }
+    "code": "PROPERTY_TYPE_CODE_ALREADY_EXISTS",
+    "message": "El código de tipo de propiedad ya existe",
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
   }
 }
 ```
@@ -169,8 +170,8 @@ POST /api/v1/property-types
 ### Diseño
 
 - **Precondiciones:** Usuario autenticado con rol `admin`.
-- **Reglas de negocio:** `code` es UNIQUE y no debe cambiarse después de creado (nunca implementar un endpoint PATCH de `code` para un catálogo con referencias activas). `code` en minúsculas, sin espacios, sin caracteres especiales (regex: `^[a-z][a-z0-9_]*$`).
-- **Side effects:** Ninguno.
+- **Reglas de negocio:** `code` es UNIQUE. `sort_order` default 0.
+- **Side effects:** Crea un registro en `property_types`.
 
 ---
 
@@ -201,6 +202,7 @@ PATCH /api/v1/property-types/{id}
     "description": "Bodega de almacenamiento con acceso independiente",
     "sort_order": 6,
     "is_active": true,
+    "created_at": "2026-06-27T13:00:00Z",
     "updated_at": "2026-06-27T13:30:00Z"
   },
   "meta": {
@@ -209,11 +211,33 @@ PATCH /api/v1/property-types/{id}
 }
 ```
 
+**Response 404:**
+```json
+{
+  "error": {
+    "code": "PROPERTY_TYPE_NOT_FOUND",
+    "message": "Tipo de propiedad no encontrado",
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+**Response 409:**
+```json
+{
+  "error": {
+    "code": "PROPERTY_TYPE_IN_USE",
+    "message": "No se puede cambiar el código porque el tipo está en uso",
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
 ### Diseño
 
 - **Precondiciones:** Usuario autenticado con rol `admin`. Tipo debe existir.
-- **Reglas de negocio:** `code` NO se puede modificar (es el identificador estable del catálogo). `sort_order` se puede reordenar.
-- **Side effects:** El cambio de `name` se refleja en todas las unidades que usan este tipo.
+- **Reglas de negocio:** `code` se puede modificar solo si no hay propiedades activas referenciándolo. `name`, `description` y `sort_order` son actualizables.
+- **Side effects:** Actualiza `updated_at`.
 
 ---
 
@@ -225,44 +249,29 @@ DELETE /api/v1/property-types/{id}
 
 **Headers:** Headers obligatorios estándar.
 
-**Response 200:**
-```json
-{
-  "data": {
-    "id": "0190a1b2-c3d4-5678-9abc-def012345675",
-    "code": "bodega",
-    "name": "Bodega Privada",
-    "is_active": false,
-    "properties_count": 0
-  },
-  "meta": {
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
-  }
-}
-```
+**Response 204:** Sin cuerpo.
+
+**Response 404:** `PROPERTY_TYPE_NOT_FOUND`
 
 **Response 409:**
 ```json
 {
   "error": {
-    "code": "CATALOG_IN_USE",
-    "message": "No se puede desactivar el tipo porque hay 5 unidades activas que lo usan. Reasigne esas unidades a otro tipo primero.",
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000",
-    "details": {
-      "properties_count": 5
-    }
+    "code": "PROPERTY_TYPE_IN_USE",
+    "message": "El tipo de propiedad está en uso y no puede ser desactivado",
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
   }
 }
 ```
 
 ### Diseño
 
-- **Precondiciones:** Tipo debe existir.
+- **Precondiciones:** Usuario autenticado con rol `admin`. Tipo debe existir.
 - **Reglas de negocio:**
-  - **No es DELETE físico.** Es un soft-disable: `is_active = false`. El registro permanece en BD para integridad referencial con unidades existentes.
-  - Si `properties_count > 0` (unidades activas usando este tipo), se rechaza con 409.
-  - Los tipos del seed (`apartamento`, `local`, `parqueadero`, `deposito`) deben tener una protección extra: no permitir ni siquiera la desactivación si hay unidades activas. Si son seed, `is_seed = true` se valida en backend.
-  - No hay endpoint de "reactivar" por ahora. Opcional post-MVP.
+  - **No es DELETE físico.** Es un soft-disable: `is_active = false`.
+  - No se puede desactivar si hay propiedades activas usando este tipo.
+  - Los tipos del seed (`apartamento`, `local`, `parqueadero`, `deposito`) no pueden desactivarse.
+  - No hay endpoint de "reactivar" por ahora.
 - **Side effects:** Ninguno.
 
 ---
@@ -279,8 +288,12 @@ GET /api/v1/property-statuses
 
 | Parámetro | Tipo | Req | Descripción |
 |-----------|------|-----|-------------|
-| `include_inactive` | boolean | no | Incluir estados desactivados (default: false) |
-| `all` | boolean | no | Sin paginación (para dropdowns) |
+| `search` | string | no | Búsqueda por `code` o `name` (ilike) |
+| `is_active` | boolean | no | Filtrar por estado activo/inactivo |
+| `sort_by` | string | no | Campo de ordenamiento: `code`, `name`, `sort_order`, `created_at` (default: `sort_order`) |
+| `sort_order` | string | no | `asc` o `desc` (default: `asc`) |
+| `page` | integer | no | Página actual (default: 1) |
+| `per_page` | integer | no | Tamaño de página 1-100 (default: 20) |
 
 **Response 200:**
 ```json
@@ -294,57 +307,24 @@ GET /api/v1/property-statuses
       "allows_residents": true,
       "sort_order": 1,
       "is_active": true,
-      "properties_count": 85,
-      "created_at": "2026-06-27T12:00:00Z",
-      "updated_at": "2026-06-27T12:00:00Z"
-    },
-    {
-      "id": "0190a1b2-c3d4-5678-9abc-def012345682",
-      "code": "vacia",
-      "name": "Vacía",
-      "description": "Unidad desocupada, sin residentes",
-      "allows_residents": false,
-      "sort_order": 2,
-      "is_active": true,
-      "properties_count": 22,
-      "created_at": "2026-06-27T12:00:00Z",
-      "updated_at": "2026-06-27T12:00:00Z"
-    },
-    {
-      "id": "0190a1b2-c3d4-5678-9abc-def012345683",
-      "code": "en_venta",
-      "name": "En Venta",
-      "description": "Unidad en proceso de comercialización",
-      "allows_residents": true,
-      "sort_order": 3,
-      "is_active": true,
-      "properties_count": 8,
-      "created_at": "2026-06-27T12:00:00Z",
-      "updated_at": "2026-06-27T12:00:00Z"
-    },
-    {
-      "id": "0190a1b2-c3d4-5678-9abc-def012345684",
-      "code": "en_remodelacion",
-      "name": "En Remodelación",
-      "description": "Unidad en obras de remodelación interna",
-      "allows_residents": false,
-      "sort_order": 4,
-      "is_active": true,
-      "properties_count": 5,
       "created_at": "2026-06-27T12:00:00Z",
       "updated_at": "2026-06-27T12:00:00Z"
     }
   ],
   "meta": {
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000",
+    "current_page": 1,
+    "per_page": 20,
+    "total": 4,
+    "last_page": 1
   }
 }
 ```
 
 ### Diseño
 
-- **Precondiciones:** Usuario autenticado (cualquier rol).
-- **Reglas de negocio:** `allows_residents` es la flag crítica que el frontend debe mostrar. Si `allows_residents = false`, el sistema no permitirá asignar residentes a unidades en ese estado.
+- **Precondiciones:** Usuario autenticado con rol `admin`.
+- **Reglas de negocio:** `allows_residents` indica si las unidades en este estado pueden tener residentes asignados.
 
 ---
 
@@ -378,8 +358,8 @@ POST /api/v1/property-statuses
     "allows_residents": true,
     "sort_order": 5,
     "is_active": true,
-    "properties_count": 0,
-    "created_at": "2026-06-27T14:00:00Z"
+    "created_at": "2026-06-27T14:00:00Z",
+    "updated_at": "2026-06-27T14:00:00Z"
   },
   "meta": {
     "trace_id": "550e8400-e29b-41d4-a716-446655440000"
@@ -387,10 +367,12 @@ POST /api/v1/property-statuses
 }
 ```
 
+**Response 409:** `PROPERTY_STATUS_CODE_ALREADY_EXISTS`
+
 ### Diseño
 
-- Mismas reglas que §4.2 (Crear tipo). `code` UNIQUE, minúsculas, sin espacios.
-- `allows_residents` es obligatorio y default true.
+- **Precondiciones:** Usuario autenticado con rol `admin`.
+- **Reglas de negocio:** `code` es UNIQUE. `allows_residents` default true.
 
 ---
 
@@ -406,7 +388,9 @@ PATCH /api/v1/property-statuses/{id}
 ```json
 {
   "name": "Embargada Judicialmente",
-  "description": "Unidad bajo proceso judicial de embargo — no puede realizar transferencias"
+  "description": "Unidad bajo proceso judicial de embargo",
+  "allows_residents": true,
+  "sort_order": 6
 }
 ```
 
@@ -417,10 +401,11 @@ PATCH /api/v1/property-statuses/{id}
     "id": "0190a1b2-c3d4-5678-9abc-def012345685",
     "code": "embargada",
     "name": "Embargada Judicialmente",
-    "description": "Unidad bajo proceso judicial de embargo — no puede realizar transferencias",
+    "description": "Unidad bajo proceso judicial de embargo",
     "allows_residents": true,
-    "sort_order": 5,
+    "sort_order": 6,
     "is_active": true,
+    "created_at": "2026-06-27T14:00:00Z",
     "updated_at": "2026-06-27T14:30:00Z"
   },
   "meta": {
@@ -429,9 +414,14 @@ PATCH /api/v1/property-statuses/{id}
 }
 ```
 
+**Response 404:** `PROPERTY_STATUS_NOT_FOUND`
+
+**Response 409:** `PROPERTY_STATUS_IN_USE` (al cambiar `code` con propiedades activas)
+
 ### Diseño
 
-- Mismas reglas que §4.3. `code` no se puede modificar. `allows_residents` se puede modificar pero con precaución: si se cambia de TRUE a FALSE, se debe verificar que ninguna unidad activa con este estado tenga residentes asignados.
+- **Precondiciones:** Usuario autenticado con rol `admin`. El estado debe existir.
+- **Reglas de negocio:** `code` se puede modificar solo si no hay propiedades activas con este estado.
 
 ---
 
@@ -443,25 +433,28 @@ DELETE /api/v1/property-statuses/{id}
 
 **Headers:** Headers obligatorios estándar.
 
-**Response 200:** Misma estructura que §4.4.
+**Response 204:** Sin cuerpo.
+
+**Response 404:** `PROPERTY_STATUS_NOT_FOUND`
 
 **Response 409:**
 ```json
 {
   "error": {
-    "code": "CATALOG_IN_USE",
-    "message": "No se puede desactivar el estado porque hay 12 unidades activas en este estado. Cambie esas unidades a otro estado primero.",
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000",
-    "details": {
-      "properties_count": 12
-    }
+    "code": "PROPERTY_STATUS_IN_USE",
+    "message": "El estado de propiedad está en uso y no puede ser desactivado",
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
   }
 }
 ```
 
 ### Diseño
 
-- Mismas reglas que §4.4. Soft-disable. Seed data protegido.
+- **Precondiciones:** Usuario autenticado con rol `admin`. El estado debe existir.
+- **Reglas de negocio:**
+  - **No es DELETE físico.** Es un soft-disable: `is_active = false`.
+  - No se puede desactivar si hay propiedades activas usando este estado.
+  - Los estados del seed (`ocupada`, `vacia`, `en_venta`, `en_remodelacion`) no pueden desactivarse.
 
 ---
 
@@ -480,44 +473,12 @@ GET /api/v1/property-document-types
 | `include_inactive` | boolean | no | Incluir tipos desactivados (default: false) |
 | `all` | boolean | no | Si es true, retorna todos sin paginación (para dropdowns) |
 
-**Response 200:**
-```json
-{
-  "data": [
-    {
-      "id": "0190a1b2-c3d4-5678-9abc-def012345900",
-      "code": "escritura",
-      "name": "Escritura Pública",
-      "description": "Escritura pública de la unidad",
-      "sort_order": 1,
-      "is_active": true,
-      "documents_count": 24,
-      "created_at": "2026-06-27T12:00:00Z",
-      "updated_at": "2026-06-27T12:00:00Z"
-    },
-    {
-      "id": "0190a1b2-c3d4-5678-9abc-def012345901",
-      "code": "plano",
-      "name": "Plano Arquitectónico",
-      "description": "Plano arquitectónico de la unidad",
-      "sort_order": 2,
-      "is_active": true,
-      "documents_count": 18,
-      "created_at": "2026-06-27T12:00:00Z",
-      "updated_at": "2026-06-27T12:00:00Z"
-    }
-  ],
-  "meta": {
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
-  }
-}
-```
+**Response 200:** Ver diseño en §4.1 (estructura similar, sin paginación).
 
 ### Diseño
 
-- **Precondiciones:** Usuario autenticado (cualquier rol). Los tipos de documento son de lectura para residentes.
-- **Reglas de negocio:** Por defecto solo retorna `is_active = true`. Con `include_inactive=true` retorna todos. `documents_count` es el conteo en tiempo real de documentos activos con ese tipo.
-- **Side effects:** Ninguno.
+- **Estado:** Diseñado, no implementado.
+- **Precondiciones:** Usuario autenticado (cualquier rol).
 
 ---
 
@@ -529,41 +490,12 @@ POST /api/v1/property-document-types
 
 **Headers:** Headers obligatorios estándar.
 
-**Request:**
-```json
-{
-  "code": "acta_entrega",
-  "name": "Acta de Entrega",
-  "description": "Documento de entrega de la unidad al propietario",
-  "sort_order": 7
-}
-```
-
-**Response 201:**
-```json
-{
-  "data": {
-    "id": "0190a1b2-c3d4-5678-9abc-def012345902",
-    "code": "acta_entrega",
-    "name": "Acta de Entrega",
-    "description": "Documento de entrega de la unidad al propietario",
-    "sort_order": 7,
-    "is_active": true,
-    "documents_count": 0,
-    "created_at": "2026-06-27T13:00:00Z",
-    "updated_at": "2026-06-27T13:00:00Z"
-  },
-  "meta": {
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
-  }
-}
-```
+**Request/Response:** Ver §4.2 (estructura similar).
 
 ### Diseño
 
+- **Estado:** Diseñado, no implementado.
 - **Precondiciones:** Usuario autenticado con rol `admin`.
-- **Reglas de negocio:** `code` es UNIQUE y no debe cambiarse después de creado (nunca implementar un endpoint PATCH de `code` para un catálogo con referencias activas). `code` en minúsculas, sin espacios, sin caracteres especiales (regex: `^[a-z][a-z0-9_]*$`).
-- **Side effects:** Ninguno.
 
 ---
 
@@ -575,38 +507,12 @@ PATCH /api/v1/property-document-types/{id}
 
 **Headers:** Headers obligatorios estándar.
 
-**Request:**
-```json
-{
-  "name": "Acta de Entrega de Llaves",
-  "description": "Acta de entrega de llaves y accesorios",
-  "sort_order": 8
-}
-```
-
-**Response 200:**
-```json
-{
-  "data": {
-    "id": "0190a1b2-c3d4-5678-9abc-def012345902",
-    "code": "acta_entrega",
-    "name": "Acta de Entrega de Llaves",
-    "description": "Acta de entrega de llaves y accesorios",
-    "sort_order": 8,
-    "is_active": true,
-    "updated_at": "2026-06-27T13:30:00Z"
-  },
-  "meta": {
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
-  }
-}
-```
+**Request/Response:** Ver §4.3 (estructura similar).
 
 ### Diseño
 
-- **Precondiciones:** Usuario autenticado con rol `admin`. El tipo debe existir.
-- **Reglas de negocio:** `code` NO se puede modificar (es el identificador estable del catálogo). `sort_order` se puede reordenar.
-- **Side effects:** El cambio de `name` se refleja en todos los documentos que usan este tipo.
+- **Estado:** Diseñado, no implementado.
+- **Precondiciones:** Usuario autenticado con rol `admin`.
 
 ---
 
@@ -618,45 +524,12 @@ DELETE /api/v1/property-document-types/{id}
 
 **Headers:** Headers obligatorios estándar.
 
-**Response 200:**
-```json
-{
-  "data": {
-    "id": "0190a1b2-c3d4-5678-9abc-def012345902",
-    "code": "acta_entrega",
-    "name": "Acta de Entrega de Llaves",
-    "is_active": false,
-    "documents_count": 0
-  },
-  "meta": {
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
-  }
-}
-```
-
-**Response 409:**
-```json
-{
-  "error": {
-    "code": "CATALOG_IN_USE",
-    "message": "No se puede desactivar el tipo de documento porque hay 5 documentos activos que lo usan. Reasigne esos documentos a otro tipo primero.",
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000",
-    "details": {
-      "documents_count": 5
-    }
-  }
-}
-```
+**Request/Response:** Ver §4.4 (estructura similar).
 
 ### Diseño
 
-- **Precondiciones:** Usuario autenticado con rol `admin`. El tipo debe existir.
-- **Reglas de negocio:**
-  - **No es DELETE físico.** Es un soft-disable: `is_active = false`. El registro permanece en BD para integridad referencial con documentos existentes.
-  - Si `documents_count > 0` (documentos activos usando este tipo), se rechaza con 409.
-  - Los tipos del seed (`escritura`, `plano`, `certificado_libertad`, `recibo_pago`, `contrato`, `otros`) deben tener protección extra: no permitir ni siquiera la desactivación si hay documentos activos. Si son seed, `is_seed = true` se valida en backend.
-  - No hay endpoint de "reactivar" por ahora. Opcional post-MVP.
-- **Side effects:** Ninguno.
+- **Estado:** Diseñado, no implementado.
+- **Precondiciones:** Usuario autenticado con rol `admin`.
 
 ---
 
@@ -664,11 +537,12 @@ DELETE /api/v1/property-document-types/{id}
 
 | Código | HTTP | Descripción |
 |--------|------|-------------|
-| `CATALOG_IN_USE` | 409 | No se puede desactivar un catálogo que tiene unidades activas referenciándolo |
-| `CATALOG_CODE_EXISTS` | 400 | El código del catálogo ya está en uso |
-| `CATALOG_NOT_FOUND` | 404 | El elemento del catálogo no existe |
-| `CATALOG_SEED_PROTECTED` | 403 | No se puede eliminar un registro de seed data |
-| `STATUS_HAS_RESIDENTS` | 409 | No se puede cambiar `allows_residents` a FALSE porque hay residentes activos en unidades con este estado |
+| `PROPERTY_TYPE_NOT_FOUND` | 404 | El tipo de propiedad no existe |
+| `PROPERTY_TYPE_CODE_ALREADY_EXISTS` | 409 | El código del tipo de propiedad ya está en uso |
+| `PROPERTY_TYPE_IN_USE` | 409 | El tipo está en uso (propiedades activas o seed protegido) |
+| `PROPERTY_STATUS_NOT_FOUND` | 404 | El estado de propiedad no existe |
+| `PROPERTY_STATUS_CODE_ALREADY_EXISTS` | 409 | El código del estado ya está en uso |
+| `PROPERTY_STATUS_IN_USE` | 409 | El estado está en uso (propiedades activas o seed protegido) |
 
 ---
 

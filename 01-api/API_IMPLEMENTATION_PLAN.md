@@ -432,6 +432,136 @@ Sesion 9: CORS global (transversal — posterior al cierre del modulo Auth)
 
 ---
 
+## Modulo Directorio
+
+> [!note] Nuevo modulo de negocio
+> El modulo Directorio no estaba en el arco original de 8 sesiones del modulo
+> Auth. Se anadio posteriormente para gestionar contactos, tipos de ocupante y
+> la vinculacion de contactos a unidades/propiedades.
+
+---
+
+## Sesion 10: Domain Layer Directorio ✅ COMPLETADA (2026-06-27)
+
+**Objetivo**: Entidades, Value Objects, Excepciones e interfaces de repositorio de Directorio completos y testeados.
+**Prioridad**: P0 — Fundamento del modulo.
+**Dependencias**: Sesion 9 completada.
+**Nota**: 🔒 Domain congelado al final de esta sesion.
+
+### Tareas
+- [x] `Directorio/Domain/ValueObjects/`: `DocumentType`, `DocumentNumber`, `OccupantTypeCode`
+- [x] `Directorio/Domain/Entities/`: `Contact`, `OccupantType`, `PropertyOccupant`
+- [x] `Directorio/Domain/Exceptions/`: `ContactNotFoundException`, `DuplicateContactDocumentException`, `ContactHasActiveOccupantsException`, `DuplicateOccupantException`, `OccupantNotFoundException`, `MustHaveOwnerException`
+- [x] `Directorio/Domain/Repositories/`: `ContactRepository`, `OccupantTypeRepository`, `PropertyOccupantRepository`
+- [x] Agregar namespace `Directorio\` a `composer.json`
+- [x] Verificar: `phpstan` en Domain Directorio sin errores
+
+### Entregable
+- Capa Domain pura, sin dependencias externas.
+- PHPStan nivel 10 limpio en `src/Directorio/Domain/`.
+
+### Checklist de cierre
+- [x] Ningun archivo en `src/Directorio/Domain/` importa `Illuminate\` o `Laravel\`
+- [x] Todas las entidades son inmutables (readonly donde aplique)
+- [x] Todas las excepciones extienden `DomainException`
+- [x] Repositories son interfaces, no implementaciones
+
+---
+
+## Sesion 11: Application + Infrastructure + Presentation Directorio ✅ COMPLETADA (2026-06-27)
+
+**Objetivo**: Completar el modulo Directorio con DTOs, casos de uso, repositorios Eloquent, controllers y rutas.
+**Prioridad**: P0 — API funcional para contactos y ocupantes.
+**Dependencias**: Sesion 10 completada (Domain congelada).
+**Nota**: Application, Infrastructure y Presentation quedan congeladas al final de esta sesion.
+
+### Tareas
+- [x] `Directorio/Application/DTOs/`: `CreateContactDTO`, `UpdateContactDTO`, `CreateOccupantDTO`, `UpdateOccupantDTO`
+- [x] `Directorio/Application/UseCases/`: Catalogos, Contactos y Ocupantes
+- [x] `Directorio/Infrastructure/Mappers/`: `ContactMapper`, `OccupantTypeMapper`, `PropertyOccupantMapper`
+- [x] `Directorio/Infrastructure/Persistence/`: `ContactRepositoryImpl`, `OccupantTypeRepositoryImpl`, `PropertyOccupantRepositoryImpl`
+- [x] `Directorio/Infrastructure/Http/Controllers/`: `ContactController`, `OccupantTypeController`, `PropertyOccupantController`
+- [x] `Directorio/Presentation/routes.php`: rutas bajo `api/v1`
+- [x] `Directorio/Presentation/DirectorioServiceProvider.php`: bindings y carga de rutas
+- [x] Sobreescribir modelos Eloquent `App\Models\{Contact, OccupantType, PropertyOccupant}`
+- [x] Registrar `DirectorioServiceProvider` en `bootstrap/providers.php`
+- [x] Verificar rutas con `php artisan route:list`
+
+### Entregable
+- Endpoints de Directorio registrados y resolubles por el contenedor.
+- PHPStan nivel 10 sin errores en codigo nuevo.
+- `composer test` pasa excepto test flaky preexistente de rate limiting.
+
+### Checklist de cierre
+- [x] Todos los DTOs son `final readonly class`
+- [x] UseCases no dependen de Infrastructure (solo interfaces de Domain)
+- [x] Repositorios Eloquent implementan interfaces de Domain
+- [x] Mappers preservan todos los campos del esquema
+- [x] `app()->bind()` cubre todas las interfaces de Domain de Directorio
+- [x] Ninguna relacion Eloquent cruza bounded contexts
+
+---
+
+## Sesion 12: Propiedades y Unidades — Paso 1: Migraciones y Seed ✅ COMPLETADA (2026-06-28)
+
+**Objetivo**: Crear el esquema de base de datos del módulo Propiedades y su seed inicial.
+**Prioridad**: P0 — Fundamento del feature.
+**Dependencias**: Sesion 9 completada.
+
+### Tareas
+- [x] 8 migraciones PostgreSQL: condominiums, towers, property_types, property_statuses, properties, property_status_log, property_document_types, property_documents.
+- [x] 8 modelos Eloquent y 8 factories.
+- [x] 5 seeders: condominio por defecto, tipos de unidad, estados de unidad, tipos de documento.
+- [x] Capa Domain DDD inicial: 8 Entities en `src/Propiedades/Domain/Entities/`.
+- [x] Registrar `UrbaniaPropiedadesServiceProvider` en `bootstrap/providers.php`.
+
+### Entregable
+- Esquema de BD creado y reversible.
+- Seed inicial funcional.
+
+### Checklist de cierre
+- [x] Migraciones reversibles (`migrate:rollback` verificado).
+- [x] Seeders ejecutados exitosamente sobre `urbania_test`.
+
+---
+
+## Sesion 13: Propiedades y Unidades — Paso 2: Endpoints de catalogos ✅ COMPLETADA (2026-06-28)
+
+**Objetivo**: CRUD completo de catálogos configurables (`property-types`, `property-statuses`).
+**Prioridad**: P0 — Datos de referencia para el resto del módulo.
+**Dependencias**: Sesion 12 completada.
+
+### Tareas
+- [x] Repositorios: interfaces de Domain e implementaciones Eloquent.
+- [x] Mappers: Entity ↔ Model.
+- [x] DTOs de request/response y PaginatedResponseDto.
+- [x] UseCases: List, Create, Update, Delete para property-types y property-statuses.
+- [x] Excepciones de dominio: NotFound, CodeAlreadyExists, InUse.
+- [x] Controllers, FormRequests, Resources y Collections.
+- [x] Rutas bajo `api/v1` con middleware JWT + role:admin.
+- [x] Bindings en `UrbaniaPropiedadesServiceProvider`.
+- [x] Feature tests para ambos catálogos.
+- [x] Documentacion: `01-api/endpoints/PROPERTY_CATALOGS.md`, `API_CONTRACT.md`, `PROPIEDADES.md`.
+
+### Entregable
+- Endpoints `/property-types` y `/property-statuses` funcionales.
+- 21 tests feature nuevos pasan.
+- PHPStan nivel 10 limpio en código nuevo.
+
+### Checklist de cierre
+- [x] Todos los endpoints retornan formato de respuesta estándar con `trace_id`.
+- [x] Paginación con meta (`current_page`, `per_page`, `total`, `last_page`).
+- [x] Validación de códigos únicos y protección de seed data.
+- [x] `composer test` pasa excepto deuda preexistente documentada.
+
+---
+
+## Proxima Sesion
+
+**Sesion 14**: Propiedades y Unidades — Paso 3: Endpoints de torres (towers).
+
+---
+
 ## Session Manifest Template
 
 > [!note] Plantilla completa

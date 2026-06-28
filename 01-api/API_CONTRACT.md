@@ -22,8 +22,8 @@ updated: 2026-06-27
 > Ver [[00-shared/SYSTEM_CONTRACT]] §1 para el contrato formal entre proyectos.
 
 > [!note] Alcance actual
-> Endpoints **implementados**: Auth (`/auth/*`, §1.x) + Health Check (`/health`, §11.1). Módulo Auth cerrado y congelado (ver [[API_SESSION_MANIFEST]]).
-> Endpoints **diseñados** (pendientes de implementar): Propiedades (§2), Torres (§3), Catálogos (§4), Condominiums (§5) — ver [[00-shared/CHANGES_LOG]] CAMBIO-004.
+> Endpoints **implementados**: Auth (`/auth/*`, §1.x) + Health Check (`/health`, §11.1) + Catálogos de Propiedades (`/property-types`, `/property-statuses`, §4.1-§4.8). Módulo Auth cerrado y congelado (ver [[API_SESSION_MANIFEST]]).
+> Endpoints **diseñados** (pendientes de implementar): Propiedades (§2), Torres (§3), Condominiums (§5), Tipos de documento (§4.9-§4.12) — ver [[00-shared/CHANGES_LOG]] CAMBIO-004.
 > Los demás módulos de negocio se diseñarán e implementarán uno a la vez (ver [[00-shared/FEATURES_INDEX]]).
 
 ---
@@ -108,18 +108,18 @@ updated: 2026-06-27
 | 3.4 | PATCH | `/towers/{id}` | Sí (admin) | Diseñado | [[endpoints/TOWERS]] §3.4 |
 | 3.5 | DELETE | `/towers/{id}` | Sí (admin) | Diseñado | [[endpoints/TOWERS]] §3.5 |
 
-### §4 — Catálogos de Propiedades (Diseñado)
+### §4 — Catálogos de Propiedades (Implementado)
 
 | # | Método | Ruta | Auth | Estado | Documento |
 |---|--------|------|------|--------|-----------|
-| 4.1 | GET | `/property-types` | Sí | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.1 |
-| 4.2 | POST | `/property-types` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.2 |
-| 4.3 | PATCH | `/property-types/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.3 |
-| 4.4 | DELETE | `/property-types/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.4 |
-| 4.5 | GET | `/property-statuses` | Sí | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.5 |
-| 4.6 | POST | `/property-statuses` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.6 |
-| 4.7 | PATCH | `/property-statuses/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.7 |
-| 4.8 | DELETE | `/property-statuses/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.8 |
+| 4.1 | GET | `/property-types` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.1 |
+| 4.2 | POST | `/property-types` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.2 |
+| 4.3 | PATCH | `/property-types/{id}` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.3 |
+| 4.4 | DELETE | `/property-types/{id}` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.4 |
+| 4.5 | GET | `/property-statuses` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.5 |
+| 4.6 | POST | `/property-statuses` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.6 |
+| 4.7 | PATCH | `/property-statuses/{id}` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.7 |
+| 4.8 | DELETE | `/property-statuses/{id}` | Sí (admin) | Implementado | [[endpoints/PROPERTY_CATALOGS]] §4.8 |
 | 4.9 | GET | `/property-document-types` | Sí | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.9 |
 | 4.10 | POST | `/property-document-types` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.10 |
 | 4.11 | PATCH | `/property-document-types/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.11 |
@@ -282,10 +282,12 @@ Ver [[API_ARCHITECTURE]] §13 (`APP_TIMEZONE=UTC`).
 | `SAME_STATUS` | 400 | El estado seleccionado es el mismo que el actual |
 | `STATUS_REASON_REQUIRED` | 422 | El motivo del cambio de estado es obligatorio |
 | `COEFFICIENT_IMBALANCE` | 400 | El coeficiente causaría un desbalance en la suma total del condominio |
-| `CATALOG_IN_USE` | 409 | No se puede desactivar un catálogo que tiene unidades activas referenciándolo |
-| `CATALOG_CODE_EXISTS` | 400 | El código del catálogo ya está en uso |
-| `CATALOG_NOT_FOUND` | 404 | El elemento del catálogo no existe |
-| `CATALOG_SEED_PROTECTED` | 403 | No se puede eliminar un registro de seed data |
+| `PROPERTY_TYPE_NOT_FOUND` | 404 | El tipo de propiedad no existe |
+| `PROPERTY_TYPE_CODE_ALREADY_EXISTS` | 409 | El código del tipo de propiedad ya está en uso |
+| `PROPERTY_TYPE_IN_USE` | 409 | El tipo está en uso (propiedades activas o seed protegido) |
+| `PROPERTY_STATUS_NOT_FOUND` | 404 | El estado de propiedad no existe |
+| `PROPERTY_STATUS_CODE_ALREADY_EXISTS` | 409 | El código del estado de propiedad ya está en uso |
+| `PROPERTY_STATUS_IN_USE` | 409 | El estado está en uso (propiedades activas o seed protegido) |
 | `STATUS_HAS_RESIDENTS` | 409 | No se puede cambiar `allows_residents` a FALSE porque hay residentes activos |
 | `DOCUMENT_NOT_FOUND` | 404 | El documento solicitado no existe |
 | `DOCUMENT_TOO_LARGE` | 400 | El archivo excede el tamaño máximo permitido (20MB) |

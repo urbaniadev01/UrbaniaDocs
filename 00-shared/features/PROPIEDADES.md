@@ -643,7 +643,7 @@ property_status: activo → inactivo (desactivación, no delete físico)
 
 | Proyecto | Spec técnico | Diseño visual | Estado |
 |---|---|---|---|
-| API | `01-api/endpoints/PROPIEDADES.md` | — | Pendiente (crear al implementar) |
+| API | `01-api/endpoints/PROPIEDADES.md` | — | En progreso — Paso 2 (catálogos: property-types, property-statuses) completado |
 | Web | `02-web/features/propiedades/PROPIEDADES_SPEC.md` | `02-web/features/propiedades/PROPIEDADES_UI_*.md` | Pendiente |
 | App | `03-app/features/propiedades/PROPIEDADES_SPEC.md` | `03-app/features/propiedades/PROPIEDADES_UI_*.md` | Pendiente |
 
@@ -656,8 +656,8 @@ Ver [[CHANGES_LOG]] — entrada CAMBIO-004 (rediseño completo de Propiedades).
 - [x] Nombres de campos consistentes con [[GLOSSARY]]
 - [ ] Inventario de pantallas (§5) agregado en [[FEATURES_INDEX]] catálogo de pantallas
 - [x] Modelo de datos (§6): cada campo declara **Valor o Referencia**; las nuevas tablas respetan las convenciones de [[01-api/API_DATABASE]]
-- [ ] Mapeo de acciones a endpoints (§7) coherente con [[01-api/API_CONTRACT]] *(al implementar)*
-- [ ] Códigos de error nuevos agregados a [[01-api/API_CONTRACT]] §"Códigos de Error Completos" *(al implementar)*
+- [x] Mapeo de acciones a endpoints (§7) coherente con [[01-api/API_CONTRACT]]
+- [x] Códigos de error nuevos agregados a [[01-api/API_CONTRACT]] §"Códigos de Error Completos"
 - [x] Decisión consciente sobre multi-conjunto y catálogos configurables documentada en §6.4
 - [ ] Cada proyecto afectado tiene una sesión planeada en su `*_IMPLEMENTATION_PLAN.md`
 
@@ -667,7 +667,7 @@ Ver [[CHANGES_LOG]] — entrada CAMBIO-004 (rediseño completo de Propiedades).
 - [x] Entrada en [[CHANGES_LOG]] (CAMBIO-004)
 - [ ] API: crear `01-api/endpoints/CONDOMINIUMS.md` con detalle de request/response
 - [ ] API: crear `01-api/endpoints/TOWERS.md` con detalle de request/response
-- [ ] API: crear `01-api/endpoints/PROPERTY_CATALOGS.md` con detalle de request/response
+- [x] API: crear `01-api/endpoints/PROPERTY_CATALOGS.md` con detalle de request/response
 - [ ] API: crear `01-api/endpoints/PROPIEDADES.md` con detalle de request/response
 - [ ] Web: crear `PROPIEDADES_SPEC.md` y `PROPIEDADES_UI_*.md` en `02-web/features/propiedades/`
 - [ ] App: crear `PROPIEDADES_SPEC.md` y `PROPIEDADES_UI_*.md` en `03-app/features/propiedades/`
