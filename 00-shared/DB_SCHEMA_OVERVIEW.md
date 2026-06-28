@@ -15,9 +15,8 @@ updated: 2026-06-27
 > **La fuente de verdad detallada** (columnas, tipos, índices, constraints) está en `01-api/API_DATABASE.md`.
 > Este documento debe mantenerse sincronizado con ese archivo.
 
-> [!note] Estado tras el reinicio de diseños (2026-06-27)
-> Se eliminaron los diseños especulativos de features. Este resumen muestra solo lo que existe hoy:
-> **Auth** (implementado, con código y tests) y **Propiedades** (en diseño, como ejemplo del método).
+> [!note] Estado actual (2026-06-27)
+> **Auth** (6 tablas) implementado con código. **Propiedades** (7 tablas) diseñado en [[00-shared/features/PROPIEDADES]], pendiente de implementar.
 > El esquema **crece a medida que se rediseña cada feature**: la sección §6 "Modelo de datos" de cada
 > panorama (ver [[FEATURE_PLANNING_TEMPLATE]]) define sus tablas, que al implementarse pasan a
 > `01-api/API_DATABASE.md` y se reflejan aquí.
@@ -40,22 +39,31 @@ updated: 2026-06-27
 ## Diagrama de Relaciones (Texto)
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        AUTH (6 tablas) — implementado            │
-│  users ──< refresh_tokens      users ──< password_history        │
-│  users ──< login_attempts      users ──< security_events         │
-│  password_reset_tokens (PK: email)                               │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │ owner_user_id (NULLABLE)
+┌──────────────────────────────────────────────────────────────────────┐
+│              AUTH (6 tablas) — implementado                           │
+│  users ──< refresh_tokens      users ──< password_history             │
+│  users ──< login_attempts      users ──< security_events              │
+│  password_reset_tokens (PK: email)                                    │
+└───────────────────────────────┬──────────────────────────────────────┘
+                                │ uploaded_by_user_id (FK)
+                                │ changed_by_user_id (FK)
                                 ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              PROPIEDADES (tabla base) — en diseño                 │
-│  properties ─ tower, floor, number, type, area_m2,               │
-│               coefficient, status, owner_user_id (FK users)      │
-│                                                                  │
-│  → A futuro, las tablas de negocio (residents, fees, payments,   │
-│    visitors, …) referenciarán properties.id vía unit_id.         │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│  PROPIEDADES (7 tablas) — diseñado, pendiente de implementar         │
+│                                                                      │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │  CONDOMINIUMS ──< TOWERS ──< PROPERTIES ──< PROPERTY_STATUS_LOG│  │
+│  │       │                        │                               │  │
+│  │       │                        └──< PROPERTY_DOCUMENTS         │  │
+│  │       └──< PROPERTIES (denormalizado)                          │  │
+│  │                                                                  │  │
+│  │  PROPERTY_TYPES ──< PROPERTIES (tipo configurable)              │  │
+│  │  PROPERTY_STATUSES ──< PROPERTIES (estado configurable)         │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  → Todo feature futuro (residentes, cobranza, pagos, visitantes,     │
+│    mantenimiento, reservas) referencia properties.id vía unit_id.    │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -73,13 +81,19 @@ updated: 2026-06-27
 | `security_events` | Eventos de seguridad (login, MFA, bloqueos) | `user_id → users` (NULLABLE) |
 | `password_reset_tokens` | Tokens de recuperación de contraseña (TTL 60 min) | PK: `email` |
 
-### Propiedades (En diseño — ver [[00-shared/features/PROPIEDADES]])
+### Propiedades (Diseñado — ver [[00-shared/features/PROPIEDADES]])
 
 | Tabla | Descripción | FK principales |
 |---|---|---|
-| `properties` | **Tabla base.** Unidades (apto, local, parqueadero, depósito) | `owner_user_id → users` (NULLABLE) |
+| `condominiums` | Conjunto residencial / propiedad horizontal. Raíz del inventario | — |
+| `towers` | Torre, bloque o sección dentro de un conjunto | `condominium_id → condominiums` |
+| `property_types` | **Catálogo configurable** de tipos de unidad (apartamento, local, parqueadero, depósito, …) | — |
+| `property_statuses` | **Catálogo configurable** de estados de unidad (ocupada, vacía, en venta, en remodelación, …) | — |
+| `properties` | **Tabla central.** Unidad individual | `condominium_id → condominiums`, `tower_id → towers`, `property_type_id → property_types`, `property_status_id → property_statuses` |
+| `property_status_log` | Auditoría de cambios de estado por unidad | `property_id → properties`, `from/to_status_id → property_statuses`, `changed_by_user_id → users` |
+| `property_documents` | Documentos adjuntos por unidad (escrituras, planos) | `property_id → properties`, `uploaded_by_user_id → users` |
 
-> El diccionario de campos completo de `properties` está en [[00-shared/features/PROPIEDADES]] §6.
+> El diccionario de campos completo de las 7 tablas está en [[00-shared/features/PROPIEDADES]] §6.
 
 ---
 
@@ -88,7 +102,7 @@ updated: 2026-06-27
 | Estado | Tablas |
 |---|---|
 | ✅ Implementadas | `users`, `refresh_tokens`, `password_history`, `login_attempts`, `security_events`, `password_reset_tokens` |
-| 📐 En diseño | `properties` (ejemplo del método; el resto se diseña feature por feature) |
+| 📐 Diseñadas (pendientes de implementar) | `condominiums`, `towers`, `property_types`, `property_statuses`, `properties`, `property_status_log`, `property_documents` |
 
 > La fuente de verdad detallada con columnas, tipos, índices y ENUMs está en [[01-api/API_DATABASE]].
 

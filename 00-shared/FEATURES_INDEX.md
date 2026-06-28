@@ -47,7 +47,7 @@ El orden refleja la secuencia lógica de desarrollo (dependencias primero).
 | #   | Feature                            | Estado      | Nivel    | API                   | Web       | App       | Panorama                              |
 | --- | ---------------------------------- | ----------- | -------- | --------------------- | --------- | --------- | ------------------------------------- |
 | 1   | Auth                               | Completado  | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/AUTH]]           |
-| 2   | Propiedades y unidades             | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | [[00-shared/features/PROPIEDADES]]    |
+| 2   | Propiedades y unidades             | En progreso | core     | Pendiente             | Pendiente | Pendiente | [[00-shared/features/PROPIEDADES]]    |
 | 3   | Configuración (Perfil y Seguridad) | En progreso | core     | Implementado vía AUTH | Pendiente | N/A       | [[00-shared/features/CONFIGURACION]]  |
 | 4   | Directorio (Residentes y Propietarios) | Propuesto | core  | Pendiente             | Pendiente | Pendiente | —                                     |
 | 5   | Roles y Permisos                   | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
