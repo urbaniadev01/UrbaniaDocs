@@ -29,10 +29,11 @@ ultima_revision: 2026-06-27
 
 ## Estado de Módulos
 
-| #   | Módulo                      | Ruta                              | Prioridad | Estado      | Sesión   | Depende de         |
-| --- | --------------------------- | --------------------------------- | --------- | ----------- | -------- | ------------------ |
-| 1   | Auth (Login, MFA, Logout)   | `/login`, `/login/mfa`            | P0        | ✅ Completado | Sesión 1 | API Auth           |
-| 2   | Layout + Perfil + Seguridad | `/settings`, `/settings/security` | P0        | ⬜ Pendiente | Sesión 2 | Sesión 1, API Auth |
+| #   | Módulo                      | Ruta                              | Prioridad | Estado      | Sesión   | Depende de              |
+| --- | --------------------------- | --------------------------------- | --------- | ----------- | -------- | ----------------------- |
+| 1   | Auth (Login, MFA, Logout)   | `/login`, `/login/mfa`            | P0        | ✅ Completado | Sesión 1 | API Auth                |
+| 2   | Layout + Perfil + Seguridad | `/settings`, `/settings/security` | P0        | ⬜ Pendiente | Sesión 2 | Sesión 1, API Auth      |
+| 3   | Propiedades y Unidades      | `/properties`, `/properties/towers`, `/properties/catalogs` | P0 | 📐 Diseñado | — | API Propiedades (§2-§5) |
 
 ### Leyenda de estados
 | Ícono | Estado |
@@ -41,6 +42,7 @@ ultima_revision: 2026-06-27
 | 🔵 | En progreso — sesión actual |
 | 🔴 | Bloqueado — `pnpm ci` falla o hay dependencia sin resolver |
 | ✅ | Completado — `pnpm ci` pasa, tests cubren el módulo |
+| 📐 | Diseñado — docs listos, pendiente de implementar código |
 
 ---
 
@@ -69,6 +71,16 @@ ultima_revision: 2026-06-27
 **API**: `POST /auth/login`, `POST /auth/mfa/verify`, `POST /auth/mfa/verify-backup`,
   `POST /auth/refresh`, `POST /auth/forgot-password`, `POST /auth/reset-password`,
   `POST /auth/verify-email`, `POST /auth/resend-verification`
+
+---
+
+### Propiedades y Unidades (P0) — Diseñado
+
+**Páginas**: `/properties`, `/properties/towers`, `/properties/catalogs`
+**Componentes**: `PropertyFilters`, `PropertyForm`, `PropertyStatusForm`, `PropertyDetail`, `TowerForm`, `CatalogForm`, `DocumentList`, `CoefficientSummary`
+**Hooks**: `useProperties`, `useProperty`, `useCreateProperty`, `useUpdateProperty`, `useDeleteProperty`, `useChangePropertyStatus`, `useStatusLog`, `useCoefficientValidation`, `useTowers`, `useCreateTower`, `useUpdateTower`, `useDeleteTower`, `usePropertyTypes`, `usePropertyStatuses`, `usePropertyDocuments`, `useUploadDocument`, `useDeleteDocument`
+**API**: `GET /properties`, `POST /properties`, `GET /properties/{id}`, `PATCH /properties/{id}`, `DELETE /properties/{id}`, `PATCH /properties/{id}/status`, `GET /properties/{id}/status-log`, `GET /properties/coefficient-validation`, `GET /properties/{id}/documents`, `POST /properties/{id}/documents`, `DELETE /properties/{id}/documents/{docId}`, `GET /condominiums/{id}/towers`, `POST /towers`, `PATCH /towers/{id}`, `DELETE /towers/{id}`, `GET /property-types`, `GET /property-statuses`
+**Docs**: [[02-web/features/propiedades/PROPIEDADES_SPEC]], [[00-shared/features/PROPIEDADES]]
 
 ---
 
