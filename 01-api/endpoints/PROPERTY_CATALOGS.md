@@ -28,6 +28,10 @@ updated: 2026-06-27
 | 4.6 | POST | /property-statuses | Sí (admin) | Diseñado |
 | 4.7 | PATCH | /property-statuses/{id} | Sí (admin) | Diseñado |
 | 4.8 | DELETE | /property-statuses/{id} | Sí (admin) | Diseñado |
+| 4.9 | GET | /property-document-types | Sí | Diseñado |
+| 4.10 | POST | /property-document-types | Sí (admin) | Diseñado |
+| 4.11 | PATCH | /property-document-types/{id} | Sí (admin) | Diseñado |
+| 4.12 | DELETE | /property-document-types/{id} | Sí (admin) | Diseñado |
 
 ---
 
@@ -458,6 +462,201 @@ DELETE /api/v1/property-statuses/{id}
 ### Diseño
 
 - Mismas reglas que §4.4. Soft-disable. Seed data protegido.
+
+---
+
+## §4.9 Listar tipos de documento
+
+```
+GET /api/v1/property-document-types
+```
+
+**Headers:** Headers obligatorios estándar.
+
+**Query params:**
+
+| Parámetro | Tipo | Req | Descripción |
+|-----------|------|-----|-------------|
+| `include_inactive` | boolean | no | Incluir tipos desactivados (default: false) |
+| `all` | boolean | no | Si es true, retorna todos sin paginación (para dropdowns) |
+
+**Response 200:**
+```json
+{
+  "data": [
+    {
+      "id": "0190a1b2-c3d4-5678-9abc-def012345900",
+      "code": "escritura",
+      "name": "Escritura Pública",
+      "description": "Escritura pública de la unidad",
+      "sort_order": 1,
+      "is_active": true,
+      "documents_count": 24,
+      "created_at": "2026-06-27T12:00:00Z",
+      "updated_at": "2026-06-27T12:00:00Z"
+    },
+    {
+      "id": "0190a1b2-c3d4-5678-9abc-def012345901",
+      "code": "plano",
+      "name": "Plano Arquitectónico",
+      "description": "Plano arquitectónico de la unidad",
+      "sort_order": 2,
+      "is_active": true,
+      "documents_count": 18,
+      "created_at": "2026-06-27T12:00:00Z",
+      "updated_at": "2026-06-27T12:00:00Z"
+    }
+  ],
+  "meta": {
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+### Diseño
+
+- **Precondiciones:** Usuario autenticado (cualquier rol). Los tipos de documento son de lectura para residentes.
+- **Reglas de negocio:** Por defecto solo retorna `is_active = true`. Con `include_inactive=true` retorna todos. `documents_count` es el conteo en tiempo real de documentos activos con ese tipo.
+- **Side effects:** Ninguno.
+
+---
+
+## §4.10 Crear tipo de documento
+
+```
+POST /api/v1/property-document-types
+```
+
+**Headers:** Headers obligatorios estándar.
+
+**Request:**
+```json
+{
+  "code": "acta_entrega",
+  "name": "Acta de Entrega",
+  "description": "Documento de entrega de la unidad al propietario",
+  "sort_order": 7
+}
+```
+
+**Response 201:**
+```json
+{
+  "data": {
+    "id": "0190a1b2-c3d4-5678-9abc-def012345902",
+    "code": "acta_entrega",
+    "name": "Acta de Entrega",
+    "description": "Documento de entrega de la unidad al propietario",
+    "sort_order": 7,
+    "is_active": true,
+    "documents_count": 0,
+    "created_at": "2026-06-27T13:00:00Z",
+    "updated_at": "2026-06-27T13:00:00Z"
+  },
+  "meta": {
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+### Diseño
+
+- **Precondiciones:** Usuario autenticado con rol `admin`.
+- **Reglas de negocio:** `code` es UNIQUE y no debe cambiarse después de creado (nunca implementar un endpoint PATCH de `code` para un catálogo con referencias activas). `code` en minúsculas, sin espacios, sin caracteres especiales (regex: `^[a-z][a-z0-9_]*$`).
+- **Side effects:** Ninguno.
+
+---
+
+## §4.11 Actualizar tipo de documento
+
+```
+PATCH /api/v1/property-document-types/{id}
+```
+
+**Headers:** Headers obligatorios estándar.
+
+**Request:**
+```json
+{
+  "name": "Acta de Entrega de Llaves",
+  "description": "Acta de entrega de llaves y accesorios",
+  "sort_order": 8
+}
+```
+
+**Response 200:**
+```json
+{
+  "data": {
+    "id": "0190a1b2-c3d4-5678-9abc-def012345902",
+    "code": "acta_entrega",
+    "name": "Acta de Entrega de Llaves",
+    "description": "Acta de entrega de llaves y accesorios",
+    "sort_order": 8,
+    "is_active": true,
+    "updated_at": "2026-06-27T13:30:00Z"
+  },
+  "meta": {
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+### Diseño
+
+- **Precondiciones:** Usuario autenticado con rol `admin`. El tipo debe existir.
+- **Reglas de negocio:** `code` NO se puede modificar (es el identificador estable del catálogo). `sort_order` se puede reordenar.
+- **Side effects:** El cambio de `name` se refleja en todos los documentos que usan este tipo.
+
+---
+
+## §4.12 Desactivar tipo de documento
+
+```
+DELETE /api/v1/property-document-types/{id}
+```
+
+**Headers:** Headers obligatorios estándar.
+
+**Response 200:**
+```json
+{
+  "data": {
+    "id": "0190a1b2-c3d4-5678-9abc-def012345902",
+    "code": "acta_entrega",
+    "name": "Acta de Entrega de Llaves",
+    "is_active": false,
+    "documents_count": 0
+  },
+  "meta": {
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+**Response 409:**
+```json
+{
+  "error": {
+    "code": "CATALOG_IN_USE",
+    "message": "No se puede desactivar el tipo de documento porque hay 5 documentos activos que lo usan. Reasigne esos documentos a otro tipo primero.",
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000",
+    "details": {
+      "documents_count": 5
+    }
+  }
+}
+```
+
+### Diseño
+
+- **Precondiciones:** Usuario autenticado con rol `admin`. El tipo debe existir.
+- **Reglas de negocio:**
+  - **No es DELETE físico.** Es un soft-disable: `is_active = false`. El registro permanece en BD para integridad referencial con documentos existentes.
+  - Si `documents_count > 0` (documentos activos usando este tipo), se rechaza con 409.
+  - Los tipos del seed (`escritura`, `plano`, `certificado_libertad`, `recibo_pago`, `contrato`, `otros`) deben tener protección extra: no permitir ni siquiera la desactivación si hay documentos activos. Si son seed, `is_seed = true` se valida en backend.
+  - No hay endpoint de "reactivar" por ahora. Opcional post-MVP.
+- **Side effects:** Ninguno.
 
 ---
 

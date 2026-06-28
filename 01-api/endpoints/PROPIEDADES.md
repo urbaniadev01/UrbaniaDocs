@@ -27,10 +27,9 @@ updated: 2026-06-27
 | 2.5 | DELETE | /properties/{id} | Sí (admin) | Diseñado |
 | 2.6 | PATCH | /properties/{id}/status | Sí (admin) | Diseñado |
 | 2.7 | GET | /properties/{id}/status-log | Sí | Diseñado |
-| 2.8 | GET | /properties/coefficient-validation | Sí (admin) | Diseñado |
-| 2.9 | GET | /properties/{id}/documents | Sí | Diseñado |
-| 2.10 | POST | /properties/{id}/documents | Sí (admin) | Diseñado |
-| 2.11 | DELETE | /properties/{id}/documents/{docId} | Sí (admin) | Diseñado |
+| 2.8 | GET | /properties/{id}/documents | Sí | Diseñado |
+| 2.9 | POST | /properties/{id}/documents | Sí (admin) | Diseñado |
+| 2.10 | DELETE | /properties/{id}/documents/{docId} | Sí (admin) | Diseñado |
 
 > `Sí` = Autenticado. `Sí (admin)` = Autenticado con rol `admin`.
 
@@ -56,7 +55,7 @@ GET /api/v1/properties
 | `floor_min` | integer | no | Piso mínimo (rango) |
 | `floor_max` | integer | no | Piso máximo (rango) |
 | `search` | string | no | Búsqueda por `unit_number` |
-| `has_residents` | boolean | no | `true` = solo unidades con residentes, `false` = solo sin residentes |
+| `has_residents` | boolean | no | `true` = solo unidades con residentes, `false` = solo sin residentes *(post-MVP — requiere feature #4 Directorio de Residentes)* |
 | `is_active` | boolean | no | `true` (default) = excluir soft-deleted |
 | `page` | integer | no | Número de página (default: 1) |
 | `per_page` | integer | no | Resultados por página (default: 20, max: 100) |
@@ -94,7 +93,7 @@ GET /api/v1/properties
       "bathrooms": 2,
       "has_parking": true,
       "parking_lot": "P-12",
-      "residents_count": 3,
+      "residents_count": 0,
       "created_at": "2026-06-27T12:00:00Z",
       "updated_at": "2026-06-27T12:00:00Z"
     }
@@ -109,12 +108,14 @@ GET /api/v1/properties
 }
 ```
 
+> `residents_count` retorna `0` hasta que exista el **feature #4 Directorio de Residentes**.
+
 ### Diseño
 
 - **Precondiciones:** Usuario autenticado. Si es `admin`, ve todas las unidades del condominio. Si es `user` (residente), solo ve su propia unidad (scope futuro con feature #4 Directorio).
 - **Reglas de negocio:**
   - `full_designation` es un campo calculado: `"{tower_code} - {unit_number}"` (ej: "T1 - 302"). Sirve para mostrar en tablas y búsquedas sin tener que renderizar torre + número por separado.
-  - `residents_count` es un COUNT en tiempo real de residentes activos en la unidad. Para el MVP puede ser 0 y se implementa cuando exista el feature #4 Directorio.
+  - `residents_count` es un COUNT en tiempo real de residentes activos en la unidad. Para el MVP retorna `0`; se implementa cuando exista el feature #4 Directorio.
   - Los resultados se ordenan por defecto por: torre (sort_order) → piso (asc) → número de unidad (asc).
 - **Side effects:** Ninguno.
 - **Casos borde:** Sin filtros retorna todas las unidades del condominio activo.
@@ -221,9 +222,9 @@ POST /api/v1/properties
 - **Precondiciones:** Usuario autenticado con rol `admin`. `tower_id`, `property_type_id`, `property_status_id` deben existir y estar activos.
 - **Reglas de negocio:**
   - `condominium_id` se verifica contra la torre (debe coincidir con `towers.condominium_id`). Si no coincide, se rechaza con `VALIDATION_ERROR`.
-  - `unit_number` debe ser UNIQUE dentro de (`tower_id`, `floor`).
+  - `unit_number` debe ser UNIQUE dentro de (`tower_id`, `floor`). La validación de unicidad excluye unidades soft-deleteadas (partial unique index WHERE deleted_at IS NULL).
   - `floor` debe ser <= `towers.floor_count`. `floor` = 0 es sótano/subterráneo.
-  - `coefficient` debe ser > 0. La suma de coeficientes del condominio se valida después de crear (no bloqueante en creación, pero se advierte vía §2.8).
+  - `coefficient` debe ser > 0. La suma de coeficientes del condominio se valida después de crear (no bloqueante en creación, pero se advierte vía `GET /condominiums/{condominium_id}/coefficient-validation` — ver [[endpoints/CONDOMINIUMS]] §5.4).
   - `area_m2` debe ser > 0.
   - `property_status_id` inicial: por defecto el estado con código `vacia` si no se envía.
   - Se genera automáticamente un registro en `property_status_log` con `from_status_id = NULL` y `reason = "Creación de la unidad"`.
@@ -293,7 +294,7 @@ GET /api/v1/properties/{id}
         "created_at": "2026-06-27T14:00:00Z"
       }
     ],
-    "residents_count": 3,
+    "residents_count": 0,
     "documents_count": 2,
     "created_at": "2026-06-27T12:00:00Z",
     "updated_at": "2026-06-27T14:00:00Z"
@@ -303,6 +304,8 @@ GET /api/v1/properties/{id}
   }
 }
 ```
+
+> `residents_count` retorna `0` hasta que exista el **feature #4 Directorio de Residentes**.
 
 **Response 404:**
 ```json
@@ -320,7 +323,7 @@ GET /api/v1/properties/{id}
 - **Precondiciones:** Usuario autenticado. La unidad debe existir y no estar soft-deleted.
 - **Reglas de negocio:**
   - `status_history` incluye los últimos 10 cambios (los más recientes primero). Para el historial completo, usar §2.7.
-  - `residents_count` y `documents_count` son conteos en tiempo real.
+  - `residents_count` es un COUNT en tiempo real de residentes activos; retorna `0` en el MVP hasta que exista el feature #4 Directorio. `documents_count` es un conteo en tiempo real.
   - Si el usuario es residente (no admin), solo puede acceder a su propia unidad (validación de asignación vía feature #4 Directorio).
 - **Side effects:** Ninguno.
 
@@ -386,7 +389,7 @@ PATCH /api/v1/properties/{id}
   - `tower_id`: si se cambia, se debe verificar que la nueva torre pertenezca al mismo condominio. Validar que no haya residentes activos (feature futuro).
   - `unit_number`: si se cambia, validar UNIQUE(`tower_id`, `floor`, `unit_number`).
   - `floor`: si se cambia, validar contra `towers.floor_count` de la torre asignada.
-  - `coefficient`: si se cambia, el endpoint retorna una advertencia en meta: `{ "warning": "coefficient_changed", "message": "Se recomienda validar la suma total de coeficientes vía GET /properties/coefficient-validation" }`.
+  - `coefficient`: si se cambia, el endpoint retorna una advertencia en meta: `{ "warning": "coefficient_changed", "message": "Se recomienda validar la suma total de coeficientes vía GET /condominiums/{condominium_id}/coefficient-validation" }`.
   - `property_status_id`: **NO se actualiza aquí.** Usar §2.6. Si se envía, se ignora silenciosamente.
   - `condominium_id`: no se puede cambiar. Se ignora silenciosamente.
 - **Side effects:** Si cambia `coefficient`, la validación de suma total puede quedar inconsistente hasta que el admin la verifique.
@@ -637,77 +640,7 @@ GET /api/v1/properties/{id}/status-log
 
 ---
 
-## §2.8 Validar coeficientes del condominio
-
-```
-GET /api/v1/properties/coefficient-validation
-```
-
-**Headers:** Headers obligatorios estándar.
-
-**Query params:**
-
-| Parámetro | Tipo | Req | Descripción |
-|-----------|------|-----|-------------|
-| `condominium_id` | UUID | no | Condominio a validar (default: único activo) |
-
-**Response 200:**
-```json
-{
-  "data": {
-    "condominium_id": "0190a1b2-c3d4-5678-9abc-def012345001",
-    "condominium_name": "Conjunto Residencial San Rafael",
-    "total_coefficient_expected": "1.000000",
-    "total_coefficient_sum": "0.999998",
-    "difference": "-0.000002",
-    "is_balanced": false,
-    "total_units": 120,
-    "units_with_coefficient_zero": 0,
-    "warnings": [
-      {
-        "type": "IMBALANCE",
-        "message": "La suma de coeficientes (0.999998) difiere del total esperado (1.000000) en -0.000002"
-      }
-    ],
-    "checked_at": "2026-06-27T17:30:00Z"
-  },
-  "meta": {
-    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
-  }
-}
-```
-
-**Response 200 (balanceado):**
-```json
-{
-  "data": {
-    "condominium_id": "0190a1b2-c3d4-5678-9abc-def012345001",
-    "total_coefficient_expected": "1.000000",
-    "total_coefficient_sum": "1.000000",
-    "difference": "0.000000",
-    "is_balanced": true,
-    "total_units": 120,
-    "units_with_coefficient_zero": 0,
-    "warnings": [],
-    "checked_at": "2026-06-27T17:30:00Z"
-  }
-}
-```
-
-### Diseño
-
-- **Precondiciones:** Usuario autenticado con rol `admin`.
-- **Reglas de negocio:**
-  - Calcula `SUM(coefficient)` de todas las unidades activas del condominio (excluyendo soft-deleted).
-  - Compara con `condominiums.total_coefficient`.
-  - `is_balanced = true` cuando `difference = 0` (considerando precisión NUMERIC(7,6)).
-  - Si `total_units = 0`, retorna `is_balanced: true` con nota "Sin unidades registradas".
-  - Si hay unidades con `coefficient = 0`, se listan en `warnings`.
-- **Side effects:** Ninguno. Es endpoint de solo lectura.
-
----
-
-## §2.9 Listar documentos de unidad
+## §2.8 Listar documentos de unidad
 
 ```
 GET /api/v1/properties/{id}/documents
@@ -721,7 +654,11 @@ GET /api/v1/properties/{id}/documents
   "data": [
     {
       "id": "0190a1b2-c3d4-5678-9abc-def012345800",
-      "document_type": "escritura",
+      "document_type": {
+        "id": "0190a1b2-c3d4-5678-9abc-def012345900",
+        "code": "escritura",
+        "name": "Escritura Pública"
+      },
       "name": "Escritura Pública 1234 - Unidad 302",
       "file_url": "https://storage.urbania.com/documents/escritura-302.pdf",
       "file_size_bytes": 2457600,
@@ -758,7 +695,7 @@ GET /api/v1/properties/{id}/documents
 
 ---
 
-## §2.10 Subir documento a unidad
+## §2.9 Subir documento a unidad
 
 ```
 POST /api/v1/properties/{id}/documents
@@ -777,7 +714,7 @@ Authorization: Bearer <jwt_token>
 | Campo | Tipo | Req | Descripción |
 |-------|------|-----|-------------|
 | `file` | file | sí | Archivo a subir (PDF, JPEG, PNG, max 20MB) |
-| `document_type` | string | sí | Tipo: `escritura`, `plano`, `certificado_libertad`, `recibo_pago`, `contrato`, `otros` |
+| `document_type` | UUID | sí | ID del tipo de documento del catálogo `property_document_types` |
 | `name` | string | sí | Nombre descriptivo del documento |
 | `notes` | string | no | Notas opcionales |
 
@@ -786,7 +723,11 @@ Authorization: Bearer <jwt_token>
 {
   "data": {
     "id": "0190a1b2-c3d4-5678-9abc-def012345801",
-    "document_type": "plano",
+    "document_type": {
+      "id": "0190a1b2-c3d4-5678-9abc-def012345901",
+      "code": "plano",
+      "name": "Plano Arquitectónico"
+    },
     "name": "Plano Arquitectónico - Unidad 302",
     "file_url": "https://storage.urbania.com/documents/plano-302.pdf",
     "file_size_bytes": 1048576,
@@ -823,7 +764,7 @@ Authorization: Bearer <jwt_token>
 
 - **Precondiciones:** Usuario autenticado con rol `admin`. La unidad debe existir.
 - **Reglas de negocio:**
-  - `document_type` debe ser uno de los valores predefinidos: `escritura`, `plano`, `certificado_libertad`, `recibo_pago`, `contrato`, `otros`.
+  - `document_type` debe ser un UUID que referencie un tipo activo del catálogo `property_document_types`.
   - El archivo se almacena en un sistema de archivos externo (S3 / DigitalOcean Spaces / MinIO). La URL se guarda en BD.
   - Tamaño máximo: 20 MB por archivo.
   - Formatos permitidos: PDF, JPEG, PNG.
@@ -833,7 +774,7 @@ Authorization: Bearer <jwt_token>
 
 ---
 
-## §2.11 Eliminar documento de unidad
+## §2.10 Eliminar documento de unidad
 
 ```
 DELETE /api/v1/properties/{id}/documents/{docId}
@@ -871,7 +812,6 @@ DELETE /api/v1/properties/{id}/documents/{docId}
 | `PROPERTY_DUPLICATE_UNIT` | 400 | El número de unidad ya existe en el piso/torre especificado |
 | `STATUS_HAS_ACTIVE_RESIDENTS` | 400 | No se puede cambiar a un estado que no admite residentes mientras haya residentes activos |
 | `SAME_STATUS` | 400 | El estado seleccionado es el mismo que el estado actual |
-| `INVALID_STATUS_TRANSITION` | 400 | Transición de estado no permitida por reglas de negocio |
 | `STATUS_REASON_REQUIRED` | 422 | El motivo del cambio de estado es obligatorio |
 | `COEFFICIENT_IMBALANCE` | 400 | El coeficiente causaría un desbalance en la suma total del condominio |
 | `DOCUMENT_NOT_FOUND` | 404 | El documento solicitado no existe |

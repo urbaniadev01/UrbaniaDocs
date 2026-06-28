@@ -23,6 +23,7 @@ updated: 2026-06-27
 | 5.1 | GET | /condominiums | Sí (admin) | Diseñado |
 | 5.2 | GET | /condominiums/{id} | Sí (admin) | Diseñado |
 | 5.3 | PATCH | /condominiums/{id} | Sí (admin) | Diseñado |
+| 5.4 | GET | /condominiums/{id}/coefficient-validation | Sí (admin) | Diseñado |
 
 ---
 
@@ -244,6 +245,85 @@ PATCH /api/v1/condominiums/{id}
   - `city`, `department`, `country` solo se pueden modificar si no hay torres registradas (para mantener consistencia geográfica).
 - **Side effects:** Si cambia el `name`, se refleja en todos los endpoints que muestren el nombre del conjunto. No hay notificaciones por este cambio.
 - **Casos borde:** PATCH con body vacío retorna 200 con los datos actuales (no hay nada que cambiar).
+
+---
+
+## §5.4 Validar coeficientes del condominio
+
+```
+GET /api/v1/condominiums/{id}/coefficient-validation
+```
+
+**Headers:** Headers obligatorios estándar.
+
+**Response 200:**
+```json
+{
+  "data": {
+    "condominium_id": "0190a1b2-c3d4-5678-9abc-def012345001",
+    "condominium_name": "Conjunto Residencial San Rafael",
+    "total_coefficient_expected": "1.000000",
+    "total_coefficient_sum": "0.999998",
+    "difference": "-0.000002",
+    "is_balanced": false,
+    "total_units": 120,
+    "units_with_coefficient_zero": 0,
+    "warnings": [
+      {
+        "type": "IMBALANCE",
+        "message": "La suma de coeficientes (0.999998) difiere del total esperado (1.000000) en -0.000002"
+      }
+    ],
+    "checked_at": "2026-06-27T17:30:00Z"
+  },
+  "meta": {
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+**Response 200 (balanceado):**
+```json
+{
+  "data": {
+    "condominium_id": "0190a1b2-c3d4-5678-9abc-def012345001",
+    "condominium_name": "Conjunto Residencial San Rafael",
+    "total_coefficient_expected": "1.000000",
+    "total_coefficient_sum": "1.000000",
+    "difference": "0.000000",
+    "is_balanced": true,
+    "total_units": 120,
+    "units_with_coefficient_zero": 0,
+    "warnings": [],
+    "checked_at": "2026-06-27T17:30:00Z"
+  },
+  "meta": {
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+**Response 404:**
+```json
+{
+  "error": {
+    "code": "CONDOMINIUM_NOT_FOUND",
+    "message": "El conjunto solicitado no existe",
+    "trace_id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+### Diseño
+
+- **Precondiciones:** Usuario autenticado con rol `admin`. El condominium debe existir y no estar soft-deleted.
+- **Reglas de negocio:**
+  - Calcula `SUM(coefficient)` de todas las unidades activas del condominio (excluyendo soft-deleted).
+  - Compara con `condominiums.total_coefficient`.
+  - `is_balanced = true` cuando `difference = 0` (considerando precisión NUMERIC(7,6)).
+  - Si `total_units = 0`, retorna `is_balanced: true` con nota "Sin unidades registradas".
+  - Si hay unidades con `coefficient = 0`, se listan en `warnings`.
+- **Side effects:** Ninguno. Es endpoint de solo lectura.
 
 ---
 

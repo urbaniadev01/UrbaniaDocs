@@ -94,10 +94,9 @@ updated: 2026-06-27
 | 2.5 | DELETE | `/properties/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.5 |
 | 2.6 | PATCH | `/properties/{id}/status` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.6 |
 | 2.7 | GET | `/properties/{id}/status-log` | Sí | Diseñado | [[endpoints/PROPIEDADES]] §2.7 |
-| 2.8 | GET | `/properties/coefficient-validation` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.8 |
-| 2.9 | GET | `/properties/{id}/documents` | Sí | Diseñado | [[endpoints/PROPIEDADES]] §2.9 |
-| 2.10 | POST | `/properties/{id}/documents` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.10 |
-| 2.11 | DELETE | `/properties/{id}/documents/{docId}` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.11 |
+| 2.8 | GET | `/properties/{id}/documents` | Sí | Diseñado | [[endpoints/PROPIEDADES]] §2.8 |
+| 2.9 | POST | `/properties/{id}/documents` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.9 |
+| 2.10 | DELETE | `/properties/{id}/documents/{docId}` | Sí (admin) | Diseñado | [[endpoints/PROPIEDADES]] §2.10 |
 
 ### §3 — Torres (Diseñado)
 
@@ -121,6 +120,10 @@ updated: 2026-06-27
 | 4.6 | POST | `/property-statuses` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.6 |
 | 4.7 | PATCH | `/property-statuses/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.7 |
 | 4.8 | DELETE | `/property-statuses/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.8 |
+| 4.9 | GET | `/property-document-types` | Sí | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.9 |
+| 4.10 | POST | `/property-document-types` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.10 |
+| 4.11 | PATCH | `/property-document-types/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.11 |
+| 4.12 | DELETE | `/property-document-types/{id}` | Sí (admin) | Diseñado | [[endpoints/PROPERTY_CATALOGS]] §4.12 |
 
 ### §5 — Condominiums (Diseñado)
 
@@ -129,6 +132,7 @@ updated: 2026-06-27
 | 5.1 | GET | `/condominiums` | Sí (admin) | Diseñado | [[endpoints/CONDOMINIUMS]] §5.1 |
 | 5.2 | GET | `/condominiums/{id}` | Sí (admin) | Diseñado | [[endpoints/CONDOMINIUMS]] §5.2 |
 | 5.3 | PATCH | `/condominiums/{id}` | Sí (admin) | Diseñado | [[endpoints/CONDOMINIUMS]] §5.3 |
+| 5.4 | GET | `/condominiums/{id}/coefficient-validation` | Sí (admin) | Diseñado | [[endpoints/CONDOMINIUMS]] §5.4 |
 
 ---
 

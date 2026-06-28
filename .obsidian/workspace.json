@@ -214,6 +214,8 @@
   },
   "active": "cac0d0647ca87a3f",
   "lastOpenFiles": [
+    "00-shared/FEATURES_INDEX.md",
+    "00-shared/features/PROPIEDADES.md",
     "03-app/features/propiedades/PROPIEDADES_UI_detalle-unidad.md",
     "03-app/features/propiedades/PROPIEDADES_UI_lista-unidades.md",
     "03-app/features/propiedades/PROPIEDADES_SPEC.md",
@@ -232,9 +234,7 @@
     "01-api/endpoints/TOWERS.md",
     "01-api/endpoints/CONDOMINIUMS.md",
     "00-shared/features/CONFIGURACION.md",
-    "00-shared/FEATURES_INDEX.md",
     "00-shared/FEATURE_PLANNING_TEMPLATE.md",
-    "00-shared/features/PROPIEDADES.md",
     "00-shared/CHANGES_LOG.md.tmp.16712.e9c34c8c9840",
     "00-shared/CHANGES_LOG.md.tmp.16712.3d2ec662b781",
     "00-shared/FEATURES_INDEX.md.tmp.16712.141a31387241",

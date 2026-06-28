@@ -42,7 +42,7 @@ Página principal de gestión de unidades. Layout: sidebar + barra de filtros su
 | Área | `area_m2` + "m²" | Alineado a la derecha |
 | Coeficiente | Valor del coeficiente | Tooltip: "Porcentaje de copropiedad" |
 | Estado | `StatusBadge` coloreado | Color mapeado por status code |
-| Residentes | Número de residentes | Si es 0, mostrar "—" |
+| Residentes | Número de residentes | *(post-MVP, siempre 0 hasta feature #4)* Si es 0, mostrar "—" |
 | Acciones | Menú de tres puntos: Ver, Cambiar estado, Editar, Eliminar | Solo visible para admin |
 
 - **Botón flotante "+ Nueva unidad"** — FAB abajo a la derecha, abre el modal de creación
@@ -97,4 +97,5 @@ Página principal de gestión de unidades. Layout: sidebar + barra de filtros su
 | Tipo | Select | "Todos" + tipos activos |
 | Estado | Select | "Todos" + estados activos (coloreados) |
 | Piso | Select | "Todos" + números de 0 a floor_count de la torre seleccionada |
+| Residentes | Select | *(post-MVP — requiere feature #4 Directorio de Residentes)* "Todos" / "Con residentes" / "Sin residentes" |
 | Búsqueda | Text input con debounce | Búsqueda server-side por número de unidad |

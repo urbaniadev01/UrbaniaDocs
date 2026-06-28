@@ -91,7 +91,7 @@ updated: 2026-06-27
 | `useDeleteProperty` | `properties.service.delete()` | `DELETE /properties/{id}` |
 | `useChangePropertyStatus` | `properties.service.changeStatus()` | `PATCH /properties/{id}/status` |
 | `useStatusLog` | `properties.service.getStatusLog()` | `GET /properties/{id}/status-log` |
-| `useCoefficientValidation` | `properties.service.validateCoefficients()` | `GET /properties/coefficient-validation` |
+| `useCoefficientValidation` | `properties.service.validateCoefficients()` | `GET /condominiums/{id}/coefficient-validation` |
 | `useTowers` | `towers.service.list()` | `GET /condominiums/{id}/towers` |
 | `useCreateTower` | `towers.service.create()` | `POST /towers` |
 | `useUpdateTower` | `towers.service.update()` | `PATCH /towers/{id}` |
@@ -201,6 +201,16 @@ export interface PropertyStatus {
   properties_count?: number;
 }
 
+export interface PropertyDocumentType {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+  documents_count?: number;
+}
+
 export interface Property {
   id: string;
   condominium_id: string;
@@ -218,7 +228,7 @@ export interface Property {
   has_parking: boolean;
   parking_lot?: string;
   notes?: string;
-  residents_count: number;
+  residents_count: number; // post-MVP: requiere feature #4
   documents_count?: number;
   status_history?: StatusLogEntry[];
   created_at: string;
@@ -236,7 +246,7 @@ export interface StatusLogEntry {
 
 export interface PropertyDocument {
   id: string;
-  document_type: string;
+  document_type: { id: string; code: string; name: string };
   name: string;
   file_url: string;
   file_size_bytes?: number;
@@ -366,10 +376,10 @@ export interface PaginatedResponse<T> {
 | `DELETE /properties/{id}` | [[01-api/API_CONTRACT]] §2.5 | [[01-api/endpoints/PROPIEDADES]] §2.5 |
 | `PATCH /properties/{id}/status` | [[01-api/API_CONTRACT]] §2.6 | [[01-api/endpoints/PROPIEDADES]] §2.6 |
 | `GET /properties/{id}/status-log` | [[01-api/API_CONTRACT]] §2.7 | [[01-api/endpoints/PROPIEDADES]] §2.7 |
-| `GET /properties/coefficient-validation` | [[01-api/API_CONTRACT]] §2.8 | [[01-api/endpoints/PROPIEDADES]] §2.8 |
-| `GET /properties/{id}/documents` | [[01-api/API_CONTRACT]] §2.9 | [[01-api/endpoints/PROPIEDADES]] §2.9 |
-| `POST /properties/{id}/documents` | [[01-api/API_CONTRACT]] §2.10 | [[01-api/endpoints/PROPIEDADES]] §2.10 |
-| `DELETE /properties/{id}/documents/{docId}` | [[01-api/API_CONTRACT]] §2.11 | [[01-api/endpoints/PROPIEDADES]] §2.11 |
+| `GET /condominiums/{id}/coefficient-validation` | [[01-api/API_CONTRACT]] §5.4 | [[01-api/endpoints/CONDOMINIUMS]] §5.4 |
+| `GET /properties/{id}/documents` | [[01-api/API_CONTRACT]] §2.8 | [[01-api/endpoints/PROPIEDADES]] §2.8 |
+| `POST /properties/{id}/documents` | [[01-api/API_CONTRACT]] §2.9 | [[01-api/endpoints/PROPIEDADES]] §2.9 |
+| `DELETE /properties/{id}/documents/{docId}` | [[01-api/API_CONTRACT]] §2.10 | [[01-api/endpoints/PROPIEDADES]] §2.10 |
 | `GET /condominiums/{id}/towers` | [[01-api/API_CONTRACT]] §3.1 | [[01-api/endpoints/TOWERS]] §3.1 |
 | `POST /towers` | [[01-api/API_CONTRACT]] §3.2 | [[01-api/endpoints/TOWERS]] §3.2 |
 | `PATCH /towers/{id}` | [[01-api/API_CONTRACT]] §3.4 | [[01-api/endpoints/TOWERS]] §3.4 |

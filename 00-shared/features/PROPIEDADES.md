@@ -79,7 +79,7 @@ Gestiona el inventario físico del conjunto: las torres/edificios y las unidades
 
 ## 6. Modelo de datos / diccionario de campos
 
-> Puente entre el diseño y el esquema de BD. Define las **7 tablas** que el feature introduce y, para cada campo, si es **valor** (columna inline) o **referencia** (FK a otra entidad).
+> Puente entre el diseño y el esquema de BD. Define las **8 tablas** que el feature introduce y, para cada campo, si es **valor** (columna inline) o **referencia** (FK a otra entidad).
 
 ### 6.1 Entidades del feature
 
@@ -91,6 +91,7 @@ Gestiona el inventario físico del conjunto: las torres/edificios y las unidades
 | `property_statuses` | **Nueva** | **Catálogo configurable** de estados de unidad (ocupada, vacía, en venta, …) |
 | `properties` | **Nueva** | Cada unidad individual. Tabla central del sistema |
 | `property_status_log` | **Nueva** | Auditoría de cambios de estado (quién, cuándo, desde/hacia qué estado) |
+| `property_document_types` | **Nueva** | Catálogo configurable de tipos de documento (escritura, plano, certificado_libertad, recibo_pago, contrato, otros, …) |
 | `property_documents` | **Nueva** | Documentos adjuntos a una unidad (escrituras, planos, certificados) |
 
 ### 6.2 Diccionario de campos
@@ -213,15 +214,22 @@ Gestiona el inventario físico del conjunto: las torres/edificios y las unidades
 | `deleted_at` | timestamptz | no | Valor | — | soft delete |
 
 **Restricciones:**
-- UNIQUE(`tower_id`, `floor`, `unit_number`) — no pueden existir dos unidades con el mismo número en el mismo piso de la misma torre
+- UNIQUE(`tower_id`, `floor`, `unit_number`) WHERE `deleted_at IS NULL` — partial unique index; permite reutilizar números de unidad soft-deleteadas
 - CHECK(`floor` >= 0) — pisos subterráneos se numeran como 0
 - CHECK(`area_m2` > 0)
 - CHECK(`coefficient` > 0)
 - FK a `condominiums`, `towers`, `property_types`, `property_statuses`
 - `condominium_id` está denormalizado (redundante con `tower_id → condominium_id`) para evitar JOINs en consultas frecuentes de cobranza y reportes. Se mantiene sincronizado vía lógica de aplicación.
 
+> **Implementar en PostgreSQL como partial unique index:**
+> ```sql
+> CREATE UNIQUE INDEX idx_properties_unit_unique
+> ON properties(tower_id, floor, unit_number)
+> WHERE deleted_at IS NULL;
+> ```
+
 **Índices recomendados:**
-- UNIQUE(`tower_id`, `floor`, `unit_number`)
+- UNIQUE(`tower_id`, `floor`, `unit_number`) WHERE `deleted_at IS NULL` — partial unique index
 - INDEX(`condominium_id`, `tower_id`) — filtros por torre
 - INDEX(`condominium_id`, `property_type_id`) — filtros por tipo
 - INDEX(`condominium_id`, `property_status_id`) — filtros por estado
@@ -248,13 +256,40 @@ Gestiona el inventario físico del conjunto: las torres/edificios y las unidades
 
 ---
 
+**`property_document_types`** (catálogo configurable)
+
+| Campo | Tipo | Req | Valor o Referencia | Catálogo / FK | Reglas / Notas |
+|---|---|---|---|---|---|---|
+| `id` | UUID v7 | sí | Valor | — | PK |
+| `code` | VARCHAR(20) | sí | Valor | — | Código interno. UNIQUE. Ej: "escritura", "plano" |
+| `name` | VARCHAR(100) | sí | Valor | — | Nombre visible. Ej: "Escritura Pública", "Plano Arquitectónico" |
+| `description` | TEXT | no | Valor | — | Descripción opcional |
+| `sort_order` | INT | sí | Valor | — | DEFAULT 0 |
+| `is_active` | BOOLEAN | sí | Valor | — | DEFAULT TRUE |
+| `created_at`, `updated_at` | timestamptz | sí | Valor | — | automáticos |
+
+**Seed data:**
+
+| code | name | sort_order |
+|------|------|------------|
+| `escritura` | Escritura Pública | 1 |
+| `plano` | Plano Arquitectónico | 2 |
+| `certificado_libertad` | Certificado de Libertad y Tradición | 3 |
+| `recibo_pago` | Recibo de Pago | 4 |
+| `contrato` | Contrato | 5 |
+| `otros` | Otros | 6 |
+
+> El admin puede crear nuevos tipos de documento sin tocar código. Un tipo desactivado no puede asignarse a nuevos documentos pero los existentes lo conservan.
+
+---
+
 **`property_documents`**
 
 | Campo | Tipo | Req | Valor o Referencia | Catálogo / FK | Reglas / Notas |
 |---|---|---|---|---|---|
 | `id` | UUID v7 | sí | Valor | — | PK |
 | `property_id` | UUID v7 | sí | **Referencia** | `→ properties.id` | Unidad asociada |
-| `document_type` | VARCHAR(50) | sí | Valor | — | Tipo: `escritura`, `plano`, `certificado_libertad`, `recibo_pago`, `contrato`, `otros` |
+| `property_document_type_id` | UUID v7 | sí | **Referencia** | `→ property_document_types.id` | Tipo de documento del catálogo configurable |
 | `name` | VARCHAR(255) | sí | Valor | — | Nombre descriptivo del documento |
 | `file_url` | VARCHAR(500) | sí | Valor | — | URL del archivo (almacenado en S3/DO Spaces) |
 | `file_size_bytes` | INTEGER | no | Valor | — | Tamaño en bytes |
@@ -275,6 +310,7 @@ erDiagram
     PROPERTY_STATUSES ||--o{ PROPERTIES : "estado actual"
     PROPERTIES ||--o{ PROPERTY_STATUS_LOG : "historial de"
     PROPERTIES ||--o{ PROPERTY_DOCUMENTS : "documentos"
+    PROPERTY_DOCUMENT_TYPES ||--o{ PROPERTY_DOCUMENTS : "clasifica"
     USERS ||--o{ PROPERTY_STATUS_LOG : "cambiado por"
     USERS ||--o{ PROPERTY_DOCUMENTS : "subido por"
 
@@ -326,6 +362,15 @@ erDiagram
         int sort_order
     }
 
+    PROPERTY_DOCUMENT_TYPES {
+        uuid id PK
+        varchar code
+        varchar name
+        text description
+        int sort_order
+        boolean is_active
+    }
+
     PROPERTIES {
         uuid id PK
         uuid condominium_id FK
@@ -357,7 +402,7 @@ erDiagram
     PROPERTY_DOCUMENTS {
         uuid id PK
         uuid property_id FK
-        varchar document_type
+        uuid property_document_type_id FK
         varchar name
         varchar file_url
         int file_size_bytes
@@ -376,6 +421,7 @@ erDiagram
 | `towers` como tabla | ✅ Entidad (tabla propia) | Atributo en `properties` (como en el borrador original) | Tiene atributos propios (floor_count, elevator), se referencia desde properties, mantenimiento, reservas. Un cambio menor de diseño que evita una migración costosa después |
 | `property_types` como catálogo | ✅ Tabla catálogo configurable | ENUM PostgreSQL (como en el borrador original) | El admin debe poder agregar nuevos tipos sin deploy. Seed de 4 tipos estándar |
 | `property_statuses` como catálogo | ✅ Tabla catálogo configurable | ENUM PostgreSQL (como en el borrador original) | El admin debe poder crear nuevos estados. La flag `allows_residents` protege consistencia. Seed de 4 estados estándar |
+| `document_type` como catálogo | ✅ Tabla catálogo configurable (`property_document_types`) | VARCHAR libre en `property_documents` | Consistente con `property_types` y `property_statuses`. Seed de 6 tipos estándar. El admin puede crear nuevos tipos sin deploy |
 | `condominium_id` denormalizado en `properties` | ✅ Columna redundante | JOIN vía `towers → condominiums` | Las consultas de cobranza y reportes filtran por condominio constantemente. La redundancia evita JOINs y el costo de sincronización es bajo (se actualiza al cambiar tower_id, que es poco frecuente) |
 | `floor` como valor | ✅ Valor (columna SMALLINT) | Catálogo de pisos | Un piso solo tiene un número; no carga atributos. Se valida contra `towers.floor_count` |
 | `city` / `department` como valor | ✅ Valor (columnas inline) | Catálogo `cities` + `departments` | MVP con un conjunto. Si el producto escala a multi-conjunto en varias geografías, se promueven a catálogo |
@@ -426,7 +472,7 @@ erDiagram
 | Eliminar unidad | Modal eliminar | DELETE | `/properties/{id}` |
 | Cambiar estado de unidad | Modal cambiar estado | PATCH | `/properties/{id}/status` |
 | Ver historial de estados | Detalle de unidad | GET | `/properties/{id}/status-log` |
-| Validar coeficientes | — | GET | `/properties/coefficient-validation` |
+| Validar coeficientes | — | GET | `/condominiums/{id}/coefficient-validation` |
 
 ### Documentos
 
@@ -442,9 +488,9 @@ erDiagram
 
 ### Sobre unidades
 
-1. **Unique por torre-piso-número**: no puede haber dos unidades con el mismo número en el mismo piso de la misma torre.
+1. **Unique por torre-piso-número**: no puede haber dos unidades con el mismo número en el mismo piso de la misma torre. La restricción es un *partial unique index* que excluye unidades soft-deleteadas (`WHERE deleted_at IS NULL`), permitiendo reutilizar números de unidades eliminadas.
 2. **Piso vs torre**: `floor` debe ser ≤ `towers.floor_count`. Un sótano se registra como piso 0.
-3. **Coeficiente**: el coeficiente de cada unidad debe ser > 0. La suma de coeficientes de todas las unidades activas de un conjunto debe ser igual a `condominiums.total_coefficient` (por defecto 1.000000). El endpoint `GET /properties/coefficient-validation` retorna el desajuste si lo hay.
+3. **Coeficiente**: el coeficiente de cada unidad debe ser > 0. La suma de coeficientes de todas las unidades activas de un conjunto debe ser igual a `condominiums.total_coefficient` (por defecto 1.000000). El endpoint `GET /condominiums/{id}/coefficient-validation` retorna el desajuste si lo hay.
 4. **Área**: debe ser > 0.
 5. **Protección contra eliminación**: no se puede eliminar (soft delete) una unidad que tenga:
    - Residentes activos asignados (feature #4)
@@ -528,7 +574,7 @@ property_status: activo → inactivo (desactivación, no delete físico)
 | `DELETE /properties/{id}` | §Propiedades | `01-api/endpoints/PROPIEDADES.md` |
 | `PATCH /properties/{id}/status` | §Propiedades | `01-api/endpoints/PROPIEDADES.md` |
 | `GET /properties/{id}/status-log` | §Propiedades | `01-api/endpoints/PROPIEDADES.md` |
-| `GET /properties/coefficient-validation` | §Propiedades | `01-api/endpoints/PROPIEDADES.md` |
+| `GET /condominiums/{id}/coefficient-validation` | §Condominiums | `01-api/endpoints/CONDOMINIUMS.md` |
 | `GET /properties/{id}/documents` | §Propiedades - Documentos | `01-api/endpoints/PROPIEDADES.md` |
 | `POST /properties/{id}/documents` | §Propiedades - Documentos | `01-api/endpoints/PROPIEDADES.md` |
 | `DELETE /properties/{id}/documents/{docId}` | §Propiedades - Documentos | `01-api/endpoints/PROPIEDADES.md` |
@@ -537,7 +583,7 @@ property_status: activo → inactivo (desactivación, no delete físico)
 
 ## 11. Orden de implementación
 
-1. **API — Migraciones y seed**: crear las 7 tablas con sus migraciones + seed de catálogos y conjunto por defecto
+1. **API — Migraciones y seed**: crear las 8 tablas con sus migraciones + seed de catálogos y conjunto por defecto
 2. **API — Endpoints de catálogos** (property-types, property-statuses): CRUD primero porque son datos de referencia
 3. **API — Endpoints de torres** (towers): CRUD dentro de un condominio
 4. **API — Endpoints de propiedades** (properties): CRUD + status-change + coefficient-validation
@@ -581,6 +627,17 @@ property_status: activo → inactivo (desactivación, no delete físico)
 | `vacia` | Vacía | FALSE | 2 |
 | `en_venta` | En Venta | TRUE | 3 |
 | `en_remodelacion` | En Remodelación | FALSE | 4 |
+
+### Tipos de documento (6 registros)
+
+| code | name | sort_order |
+|---|---|---|
+| `escritura` | Escritura Pública | 1 |
+| `plano` | Plano Arquitectónico | 2 |
+| `certificado_libertad` | Certificado de Libertad y Tradición | 3 |
+| `recibo_pago` | Recibo de Pago | 4 |
+| `contrato` | Contrato | 5 |
+| `otros` | Otros | 6 |
 
 ## 13. Especificaciones técnicas por proyecto
 

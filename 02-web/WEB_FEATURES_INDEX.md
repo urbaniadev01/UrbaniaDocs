@@ -79,7 +79,7 @@ ultima_revision: 2026-06-27
 **Páginas**: `/properties`, `/properties/towers`, `/properties/catalogs`
 **Componentes**: `PropertyFilters`, `PropertyForm`, `PropertyStatusForm`, `PropertyDetail`, `TowerForm`, `CatalogForm`, `DocumentList`, `CoefficientSummary`
 **Hooks**: `useProperties`, `useProperty`, `useCreateProperty`, `useUpdateProperty`, `useDeleteProperty`, `useChangePropertyStatus`, `useStatusLog`, `useCoefficientValidation`, `useTowers`, `useCreateTower`, `useUpdateTower`, `useDeleteTower`, `usePropertyTypes`, `usePropertyStatuses`, `usePropertyDocuments`, `useUploadDocument`, `useDeleteDocument`
-**API**: `GET /properties`, `POST /properties`, `GET /properties/{id}`, `PATCH /properties/{id}`, `DELETE /properties/{id}`, `PATCH /properties/{id}/status`, `GET /properties/{id}/status-log`, `GET /properties/coefficient-validation`, `GET /properties/{id}/documents`, `POST /properties/{id}/documents`, `DELETE /properties/{id}/documents/{docId}`, `GET /condominiums/{id}/towers`, `POST /towers`, `PATCH /towers/{id}`, `DELETE /towers/{id}`, `GET /property-types`, `GET /property-statuses`
+**API**: `GET /properties`, `POST /properties`, `GET /properties/{id}`, `PATCH /properties/{id}`, `DELETE /properties/{id}`, `PATCH /properties/{id}/status`, `GET /properties/{id}/status-log`, `GET /condominiums/{id}/coefficient-validation`, `GET /properties/{id}/documents`, `POST /properties/{id}/documents`, `DELETE /properties/{id}/documents/{docId}`, `GET /condominiums/{id}/towers`, `POST /towers`, `PATCH /towers/{id}`, `DELETE /towers/{id}`, `GET /property-types`, `GET /property-statuses`, `GET /property-document-types`
 **Docs**: [[02-web/features/propiedades/PROPIEDADES_SPEC]], [[00-shared/features/PROPIEDADES]]
 
 ---

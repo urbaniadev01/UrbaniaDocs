@@ -16,7 +16,7 @@ updated: 2026-06-27
 > Este documento debe mantenerse sincronizado con ese archivo.
 
 > [!note] Estado actual (2026-06-27)
-> **Auth** (6 tablas) implementado con código. **Propiedades** (7 tablas) diseñado en [[00-shared/features/PROPIEDADES]], pendiente de implementar.
+> **Auth** (6 tablas) implementado con código. **Propiedades** (8 tablas) diseñado en [[00-shared/features/PROPIEDADES]], pendiente de implementar.
 > El esquema **crece a medida que se rediseña cada feature**: la sección §6 "Modelo de datos" de cada
 > panorama (ver [[FEATURE_PLANNING_TEMPLATE]]) define sus tablas, que al implementarse pasan a
 > `01-api/API_DATABASE.md` y se reflejan aquí.
@@ -49,13 +49,15 @@ updated: 2026-06-27
                                 │ changed_by_user_id (FK)
                                 ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│  PROPIEDADES (7 tablas) — diseñado, pendiente de implementar         │
+│  PROPIEDADES (8 tablas) — diseñado, pendiente de implementar         │
 │                                                                      │
 │  ┌────────────────────────────────────────────────────────────────┐  │
 │  │  CONDOMINIUMS ──< TOWERS ──< PROPERTIES ──< PROPERTY_STATUS_LOG│  │
 │  │       │                        │                               │  │
 │  │       │                        └──< PROPERTY_DOCUMENTS         │  │
-│  │       └──< PROPERTIES (denormalizado)                          │  │
+│  │       │                              ▲                         │  │
+│  │       │                              │                         │  │
+│  │       └──< PROPERTIES (denormalizado)  PROPERTY_DOCUMENT_TYPES  │  │
 │  │                                                                  │  │
 │  │  PROPERTY_TYPES ──< PROPERTIES (tipo configurable)              │  │
 │  │  PROPERTY_STATUSES ──< PROPERTIES (estado configurable)         │  │
@@ -89,11 +91,12 @@ updated: 2026-06-27
 | `towers` | Torre, bloque o sección dentro de un conjunto | `condominium_id → condominiums` |
 | `property_types` | **Catálogo configurable** de tipos de unidad (apartamento, local, parqueadero, depósito, …) | — |
 | `property_statuses` | **Catálogo configurable** de estados de unidad (ocupada, vacía, en venta, en remodelación, …) | — |
+| `property_document_types` | **Catálogo configurable** de tipos de documento (escritura, plano, certificado_libertad, recibo_pago, contrato, otros, …) | — |
 | `properties` | **Tabla central.** Unidad individual | `condominium_id → condominiums`, `tower_id → towers`, `property_type_id → property_types`, `property_status_id → property_statuses` |
 | `property_status_log` | Auditoría de cambios de estado por unidad | `property_id → properties`, `from/to_status_id → property_statuses`, `changed_by_user_id → users` |
-| `property_documents` | Documentos adjuntos por unidad (escrituras, planos) | `property_id → properties`, `uploaded_by_user_id → users` |
+| `property_documents` | Documentos adjuntos por unidad (escrituras, planos) | `property_id → properties`, `property_document_type_id → property_document_types`, `uploaded_by_user_id → users` |
 
-> El diccionario de campos completo de las 7 tablas está en [[00-shared/features/PROPIEDADES]] §6.
+> El diccionario de campos completo de las 8 tablas está en [[00-shared/features/PROPIEDADES]] §6.
 
 ---
 
@@ -102,7 +105,7 @@ updated: 2026-06-27
 | Estado | Tablas |
 |---|---|
 | ✅ Implementadas | `users`, `refresh_tokens`, `password_history`, `login_attempts`, `security_events`, `password_reset_tokens` |
-| 📐 Diseñadas (pendientes de implementar) | `condominiums`, `towers`, `property_types`, `property_statuses`, `properties`, `property_status_log`, `property_documents` |
+| 📐 Diseñadas (pendientes de implementar) | `condominiums`, `towers`, `property_types`, `property_statuses`, `property_document_types`, `properties`, `property_status_log`, `property_documents` |
 
 > La fuente de verdad detallada con columnas, tipos, índices y ENUMs está en [[01-api/API_DATABASE]].
 

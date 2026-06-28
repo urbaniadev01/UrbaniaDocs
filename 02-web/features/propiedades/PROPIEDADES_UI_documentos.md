@@ -29,7 +29,7 @@ updated: 2026-06-27
 |---|---|
 | Icono | Icono según tipo de archivo (PDF, imagen) |
 | Nombre | Nombre descriptivo del documento |
-| Tipo | Badge del `document_type` (escritura, plano, certificado, etc.) |
+| Tipo | Badge del nombre del tipo de documento (`document_type.name`, ej: "Escritura Pública", "Plano Arquitectónico") |
 | Tamaño | Formateado: "2.4 MB", "180 KB" |
 | Subido por | Nombre del admin que lo subió |
 | Fecha | Fecha relativa: "hace 2h", "ayer" |
@@ -39,7 +39,7 @@ updated: 2026-06-27
 
 **Modal de subida:**
 - File picker: arrastrar y soltar o seleccionar archivo (PDF, JPEG, PNG, max 20MB)
-- Tipo de documento: Select con valores: escritura, plano, certificado_libertad, recibo_pago, contrato, otros
+- Tipo de documento: Select que carga los tipos activos desde `GET /property-document-types`; envía el `id` como `document_type`
 - Nombre: Input texto (pre-poblado con nombre del archivo si no se cambia)
 - Notas: Textarea opcional
 - Barra de progreso durante la subida
