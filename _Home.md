@@ -4,7 +4,7 @@ status: active
 priority: P0
 module: global
 tags: [home, dashboard, global]
-updated: 2026-06-26
+updated: 2026-06-27
 ---
 
 # 🏠 Urbania — Dashboard Global
@@ -60,7 +60,7 @@ LIMIT 40
 
 | Proyecto | Sesión | Estado | Siguiente tarea |
 |----------|--------|--------|-----------------|
-| API      | 8      | ✅ Completada | Auth module terminado — 253 tests, PHPStan level 10 |
+| API      | 9      | ✅ Completada | Auth (8 sesiones) + CORS global — 259 tests, PHPStan level 10 |
 | Web      | 1      | ✅ Completada | Setup + Auth — 13 tests, 8 módulos planificados |
 | App      | 0      | ⏸ No iniciada | Pendiente de kickoff — sesión 1 por planificar |
 

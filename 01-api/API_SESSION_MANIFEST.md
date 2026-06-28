@@ -3,7 +3,7 @@ type: meta
 status: active
 priority: P0
 tags: [state, sessions]
-updated: 2026-06-26
+updated: 2026-06-27
 ---
 
 # SESSION_MANIFEST
@@ -60,7 +60,7 @@ Se crearon tests unitarios y feature para el middleware. Resultado final:
 |-------|-------|
 | **Modulo** | Auth |
 | **Prioridad** | P0 |
-| **Estado** | ✅ Completado (Sesion 8 finalizada) |
+| **Estado** | ✅ Completado (modulo Auth cerrado en Sesion 8; CORS agregado en Sesion 9) |
 | **Sesion de inicio** | Sesion 1 (completada) |
 
 > [!info] Nota de alcance
@@ -148,8 +148,8 @@ SORT session_number ASC
 
 ## Notas Adicionales
 
-- Documentacion tecnica completa: 8 documentos en raiz del proyecto.
-- Plan de implementacion: [[API_IMPLEMENTATION_PLAN]] define 8 sesiones para el modulo Auth.
+- Documentacion tecnica: 10 documentos en la raiz del proyecto (8 tecnicos + plan + manifest).
+- Plan de implementacion: [[API_IMPLEMENTATION_PLAN]] define las 8 sesiones del modulo Auth + la Sesion 9 (CORS, transversal).
 - Estructura DDD propuesta en [[API_ARCHITECTURE]] Sec 2.
 - Stack tecnologico definido en [[API_ARCHITECTURE]] Sec 1.
 - CORS implementado en Sesion 9; ver nota [[docs/log/sesiones/sesion-09.md|Sesion 9 — CORS global para API]].

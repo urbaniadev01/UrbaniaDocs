@@ -4,7 +4,7 @@ type: estado
 tags: [urbania-web, manifest, estado-proyecto]
 status: vigente
 fuente_unica: false
-ultima_revision: 2026-06-25
+ultima_revision: 2026-06-27
 ---
 
 # 📊 WEB_SESSION_MANIFEST
@@ -83,13 +83,13 @@ Sesión 1 completada. Infraestructura de autenticación completa: Zustand store 
 | Tests unitarios | 13 | > 0 | ✅ |
 | Cobertura unitaria | TBD (restaurar thresholds) | ≥ 90% | 🔵 |
 | Cobertura componentes | TBD | ≥ 80% | 🔵 |
-| Flujos e2e críticos | 3/11 | 11/11 | 🔵 |
+| Flujos e2e críticos | 4/7 | 7/7 | 🔵 |
 | Build exitoso | Sin errores | Sin errores | ✅ |
 | Pipeline CI | Verde (individual) | Verde | ✅ |
 
 > [!note]
 > Los thresholds de coverage en `vitest.config.ts` siguen desactivados (pendiente restaurar).
-> Se restaurarán cuando `sonner` se instale y se pueda ejecutar `pnpm test:coverage` con datos reales.
+> Se restaurarán en la Sesión 2 al ejecutar `pnpm test:coverage` con datos reales (`sonner` ya está instalado).
 
 ---
 
@@ -127,11 +127,9 @@ Sesión 1 completada. Infraestructura de autenticación completa: Zustand store 
 | `WEB/tests/mocks/server.ts` | Servidor MSW | 0 |
 | `WEB/tests/unit/lib/utils.test.ts` | Tests unitarios para `cn` (2 tests) | 0 |
 | `WEB/src/types/api.types.ts` | Tipos base API (ApiResponse, ApiError, PaginatedResponse) | 1 |
-| `WEB/src/types/sonner.d.ts` | ⚠️ TEMPORAL: Type declarations para sonner (eliminar tras pnpm install) | 1 |
 | `WEB/src/features/auth/types/auth.types.ts` | Tipos de auth (AuthUser, LoginResponseData, etc.) | 1 |
 | `WEB/src/lib/constants.ts` | Query keys para TanStack Query | 1 |
 | `WEB/src/lib/validators.ts` | Schemas Zod (login, MFA) | 1 |
-| `WEB/src/lib/sonner-mock.ts` | ⚠️ TEMPORAL: Mock de sonner (eliminar tras pnpm install) | 1 |
 | `WEB/src/stores/auth.store.ts` | Zustand store (tokens en memoria, user, session) | 1 |
 | `WEB/src/services/api-client.ts` | Axios client con interceptores (Bearer, silent refresh, 429 backoff) | 1 |
 | `WEB/src/features/auth/api/auth.service.ts` | Servicio auth (login, silentRefresh, logout, getMe) | 1 |
@@ -172,8 +170,7 @@ Sesión 1 completada. Infraestructura de autenticación completa: Zustand store 
 | `WEB/vitest.config.ts` | Eliminado triple-slash reference, ajustados thresholds de coverage | 0 |
 | `WEB/eslint.config.js` | Agregado `allowExportNames: ['buttonVariants']` y `triple-slash-reference: off` | 0 |
 | `WEB/tests/unit/lib/utils.test.ts` | Corregidas expresiones constantes detectadas por ESLint | 0 |
-| `WEB/package.json` | Agregada dependencia `sonner: ^1.7.0` | 1 |
-| `WEB/vite.config.ts` | Agregado alias temporal `sonner` → mock local | 1 |
+| `WEB/package.json` | Agregada dependencia `sonner: ^1.7.4`; mock y alias temporales eliminados | 1 |
 | `WEB/src/main.tsx` | Actualizado con providers (Query, Theme, Toast) | 1 |
 | `WEB/src/app/App.tsx` | Reemplazado placeholder con RouterProvider | 1 |
 | `WEB/src/app/guards/ProtectedRoute.tsx` | Implementado con verificación de auth + redirect | 1 |
@@ -190,7 +187,7 @@ Sesión 1 completada. Infraestructura de autenticación completa: Zustand store 
 |---|-------------|---------------|-------------------|--------|
 | 1 | Instalar dependencias y componentes iniciales de shadcn/ui | 0 | 0 | ✅ Resuelto |
 | 2 | Ejecutar `pnpm run ci` y verificar que pase en verde | 0 | 0 | ✅ Resuelto |
-| 3 | Restaurar thresholds de coverage en `vitest.config.ts` | 0 | 1 | ⬜ Pendiente |
+| 3 | Restaurar thresholds de coverage en `vitest.config.ts` | 0 | 2 | ⬜ Pendiente |
 | 4 | Revisar advertencia `@types/dompurify` deprecado | 0 | 1 | ⬜ Pendiente |
 | 5 | Vocabulario `audience` en COMUNICADOS difiere entre API y Web | — | TBD | ⬜ Pendiente |
 | 6 | Tests e2e de auth: 4 implementados (login válido/inválido, ruta protegida, sesión expirada), 3 pendientes (logout, role=user, MFA) — requieren UI/API | 1 | 2 | 🔵 En progreso (4/7) |

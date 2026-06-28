@@ -4,7 +4,7 @@ type: catalogo
 tags: [urbania-web, modulos, estado]
 status: vigente
 fuente_unica: false
-ultima_revision: 2026-06-20
+ultima_revision: 2026-06-27
 ---
 
 # 📋 WEB_FEATURES_INDEX
@@ -31,7 +31,7 @@ ultima_revision: 2026-06-20
 
 | #   | Módulo                      | Ruta                              | Prioridad | Estado      | Sesión   | Depende de         |
 | --- | --------------------------- | --------------------------------- | --------- | ----------- | -------- | ------------------ |
-| 1   | Auth (Login, MFA, Logout)   | `/login`, `/login/mfa`            | P0        | ⬜ Pendiente | Sesión 1 | API Auth           |
+| 1   | Auth (Login, MFA, Logout)   | `/login`, `/login/mfa`            | P0        | ✅ Completado | Sesión 1 | API Auth           |
 | 2   | Layout + Perfil + Seguridad | `/settings`, `/settings/security` | P0        | ⬜ Pendiente | Sesión 2 | Sesión 1, API Auth |
 
 ### Leyenda de estados

@@ -27,7 +27,7 @@ El documento creado con esta plantilla es **vivo**: existe durante la planificac
 > [!important] Qué NO va en este documento
 > - No va el detalle técnico de implementación (componentes, hooks, widgets) — eso vive en `02-web/features/<nombre>/<NOMBRE>_SPEC.md` y `03-app/features/<nombre>/<NOMBRE>_SPEC.md`.
 > - No va el request/response de los endpoints — eso vive en `01-api/endpoints/<FEATURE>.md`.
-> - Aquí va el **panorama y análisis previo a la implementación**: inventario de pantallas, mapeo de acciones a endpoints, lógica de negocio derivada del diseño, reglas globales. Es lo suficiente para entender el feature completo sin tener que leer todo lo demás.
+> - Aquí va el **panorama y análisis previo a la implementación**: inventario de pantallas, modelo de datos (diccionario de campos), mapeo de acciones a endpoints, lógica de negocio derivada del diseño, reglas globales. Es lo suficiente para entender el feature completo sin tener que leer todo lo demás.
 
 ---
 
@@ -73,7 +73,55 @@ El documento creado con esta plantilla es **vivo**: existe durante la planificac
 
 ---
 
-## 6. Mapeo de acciones a endpoints
+## 6. Modelo de datos / diccionario de campos
+
+> **Puente entre el diseño y el esquema de BD.** Es el paso que evita que el modelo se invente
+> al implementar. Para CADA entidad/tabla que el feature crea o toca, declarar sus campos y, sobre
+> todo, si cada campo es un **valor** (columna inline) o una **referencia** a otra entidad
+> (FK a un catálogo/tabla). Esa decisión no debe quedar implícita.
+
+### 6.1 Entidades del feature
+| Entidad (tabla) | Nueva / Existente | Descripción (1 línea) |
+|---|---|---|
+| `<tabla>` | Nueva / Existente | <qué representa> |
+
+### 6.2 Diccionario de campos (una tabla por entidad nueva)
+
+**`<tabla>`**
+
+| Campo | Tipo | Req | Valor o Referencia | Catálogo / FK | Reglas / Notas |
+|---|---|---|---|---|---|
+| `id` | UUID v7 | sí | Valor | — | PK |
+| `<campo>` | `<tipo>` | sí/no | Valor / Referencia | `→ <tabla>.id` si es referencia | default, unique, enum, etc. |
+| `created_at`, `updated_at` | timestamptz | sí | Valor | — | automáticos |
+
+> **Cómo decidir "Valor o Referencia":**
+> - **Referencia** (entidad/catálogo propio + FK) cuando: necesitas lista controlada (dropdown),
+>   integridad referencial, el concepto tiene atributos o ciclo de vida propios, vas a
+>   filtrar/agrupar/reportar por él de forma confiable, o se reutiliza en varias features.
+> - **Valor** (columna string/number/enum inline) cuando: es texto libre o poco reutilizado,
+>   no cuelga más data de él, no necesitas integridad entre registros. Conjunto pequeño y fijo → **enum**.
+> - Si es ambiguo, **no asumir**: anotarlo como pregunta abierta y resolverlo antes de implementar.
+
+### 6.3 Diagrama ER (Mermaid)
+En el documento real, insertar un bloque `mermaid` con `erDiagram` mostrando las entidades nuevas
+y su relación con las existentes. Estructura:
+
+    erDiagram
+        EXISTENTE ||--o{ NUEVA : "relación"
+        NUEVA {
+            uuid id PK
+            uuid existente_id FK
+            text campo_valor
+        }
+
+> **Fuente de verdad** del esquema implementado: [[01-api/API_DATABASE]]. Esta sección lo alimenta —
+> al implementar, las tablas pasan a `API_DATABASE.md` y al resumen [[DB_SCHEMA_OVERVIEW]].
+> Respetar sus convenciones: PK `id` UUID v7, FK `{tabla_singular}_id`, timestamps, soft delete `deleted_at`.
+
+---
+
+## 7. Mapeo de acciones a endpoints
 
 > Para cada acción que el usuario puede hacer en las pantallas del §5, indicar el endpoint que la resuelve.
 > Esta tabla es el puente entre el diseño visual y el contrato de API.
@@ -84,17 +132,17 @@ El documento creado con esta plantilla es **vivo**: existe durante la planificac
 
 ---
 
-## 7. Reglas de negocio globales
+## 8. Reglas de negocio globales
 - <Regla 1>
 - <Regla 2>
 > Reglas que aplican a todos los proyectos. Si una regla solo aplica a un proyecto,
 > va en el spec técnico de ese proyecto, no aquí.
 
-## 8. Estados del recurso
+## 9. Estados del recurso
 <Diagrama Mermaid de estados si aplica, o lista simple>
 > Ej: pendiente → confirmada → cancelada
 
-## 9. Endpoints
+## 10. Endpoints
 | Endpoint | Sección en API_CONTRACT | Documento de detalle |
 |---|---|---|
 | METHOD /ruta | [[01-api/API_CONTRACT]] §N.N | [[01-api/endpoints/<FEATURE>]] §N.N |
@@ -103,12 +151,12 @@ El documento creado con esta plantilla es **vivo**: existe durante la planificac
 > en `01-api/API_CONTRACT.md` (índice). Este documento solo **cita** — nunca duplica
 > request/response.
 
-## 10. Orden de implementación
+## 11. Orden de implementación
 Por defecto: API define y estabiliza el contrato → Web y App implementan
 en paralelo contra ese contrato.
 > Ajustar si el feature requiere un orden distinto.
 
-## 11. Especificaciones técnicas por proyecto
+## 12. Especificaciones técnicas por proyecto
 
 | Proyecto | Spec técnico | Diseño visual | Archivos adicionales |
 |---|---|---|---|
@@ -117,19 +165,20 @@ en paralelo contra ese contrato.
 
 > Si el feature no aplica a un cliente, eliminar su fila.
 
-## 12. Estado de sincronización
+## 13. Estado de sincronización
 Enlace a la entrada correspondiente en [[CHANGES_LOG]].
 
-## 13. Checklist de coherencia
+## 14. Checklist de coherencia
 - [ ] Nombres de campos consistentes con [[GLOSSARY]]
 - [ ] Inventario de pantallas (§5) agregado en [[FEATURES_INDEX]] catálogo de pantallas
-- [ ] Mapeo de acciones a endpoints (§6) coherente con [[01-api/API_CONTRACT]]
+- [ ] Modelo de datos (§6): cada campo declara **Valor o Referencia**; las entidades nuevas respetan las convenciones de [[01-api/API_DATABASE]] y no duplican un concepto ya existente
+- [ ] Mapeo de acciones a endpoints (§7) coherente con [[01-api/API_CONTRACT]]
 - [ ] Códigos de error nuevos agregados a [[01-api/API_CONTRACT]] §"Códigos de Error Completos"
 - [ ] Cada proyecto afectado tiene una sesión planeada en su `*_IMPLEMENTATION_PLAN.md`
 - [ ] Si la feature requiere identidad visual compartida, se revisó con
       cada `*_DESIGN_SYSTEM.md` afectado
 
-## 14. Checklist de creación (completar al crear este archivo)
+## 15. Checklist de creación (completar al crear este archivo)
 - [ ] Fila agregada en [[FEATURES_INDEX]] tabla de estado
 - [ ] Entrada abierta en [[CHANGES_LOG]] con estado "Propuesto"
 - [ ] Web: creados `<NOMBRE>_SPEC.md` y `<NOMBRE>_UI.md` en `02-web/features/` (si aplica)

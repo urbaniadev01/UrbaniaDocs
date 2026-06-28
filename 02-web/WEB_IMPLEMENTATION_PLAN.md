@@ -4,7 +4,7 @@ type: plan
 tags: [urbania-web, sesiones, plan, fuente-unica]
 status: vigente
 fuente_unica: true
-ultima_revision: 2026-06-17
+ultima_revision: 2026-06-27
 ---
 
 # 📅 WEB_IMPLEMENTATION_PLAN
@@ -97,7 +97,7 @@ Sesión 8: Registro de Ingresos + Chat + Polish + CI/CD
 - [x] MSW handlers para auth (login, refresh, me, logout, MFA verify, MFA backup)
 - [x] Tests de componentes: `LoginForm` (3 tests)
 - [x] Tests unitarios: `auth.store` (2 tests), `validators` (6 tests)
-- [ ] Tests e2e: login exitoso, login fallido, MFA, logout — Sesión 2
+- [ ] Tests e2e: 4/7 implementados en S1 (login válido/inválido, ruta protegida, sesión expirada); faltan logout, role=user, MFA — Sesión 2
 
 ### Entregable
 - [x] Admin inicia sesión, pasa MFA, ve dashboard placeholder, cierra sesión

@@ -3,7 +3,7 @@ type: meta
 status: active
 priority: P0
 tags: [planning, sessions]
-updated: 2026-06-20
+updated: 2026-06-27
 ---
 
 # IMPLEMENTATION_PLAN
@@ -55,6 +55,8 @@ Sesion 6: Seguridad Avanzada (MFA, Device Fingerprint, Sesiones, Rotacion)
 Sesion 7: Password Management + Perfil (Forgot, Reset, Change, Update, Verify)
     |
 Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
+    |
+Sesion 9: CORS global (transversal — posterior al cierre del modulo Auth)
 ```
 
 ---
@@ -120,15 +122,15 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - [[API_TESTING]] (Sec 3.1 Architecture Tests, Sec 3.2 Unit Tests, Sec 6 Reglas de escritura)
 
 ### Tareas
-- [ ] `Shared/Domain/`: `DomainException` (abstracta), `Uuid` VO, `Email` VO
-- [ ] `Auth/Domain/Entities/`: `UserEntity`, `RefreshTokenEntity`
-- [ ] `Auth/Domain/ValueObjects/`: `Password`, `UserRole` (enum), `UserStatus` (enum), `DeviceFingerprint`, `JwtToken`, `SessionId`
-- [ ] `Auth/Domain/Exceptions/`: `InvalidCredentialsException`, `TokenExpiredException`, `TokenInvalidException`, `UserNotFoundException`, `UserLockedException`, `MfaRequiredException`, `MfaInvalidCodeException`, `DeviceNotRecognizedException`, `SessionNotFoundException`, `PasswordReusedException`, `EmailAlreadyExistsException`
-- [ ] `Auth/Domain/Events/`: `UserLoggedIn`, `UserRegistered`, `UserLoggedOut`, `PasswordChanged`, `MfaEnabled`, `MfaDisabled`, `SuspiciousActivityDetected`
-- [ ] `Auth/Domain/Repositories/`: `UserRepositoryInterface` (findByEmail, findById, save, update, delete, existsByEmail), `RefreshTokenRepositoryInterface` (findByHash, save, revoke, revokeAllByUser, findActiveByUser, existsByHash)
-- [ ] Architecture tests: Domain no depende de Illuminate, Laravel, otras capas, ni otros bounded contexts
-- [ ] Unit tests: cobertura 95%+ de Domain (entities, VO, exceptions, events)
-- [ ] Verificar: `pest --filter=Unit` pasa, `phpstan` pasa, `pint` sin cambios
+- [x] `Shared/Domain/`: `DomainException` (abstracta), `Uuid` VO, `Email` VO
+- [x] `Auth/Domain/Entities/`: `UserEntity`, `RefreshTokenEntity`
+- [x] `Auth/Domain/ValueObjects/`: `Password`, `UserRole` (enum), `UserStatus` (enum), `DeviceFingerprint`, `JwtToken`, `SessionId`
+- [x] `Auth/Domain/Exceptions/`: `InvalidCredentialsException`, `TokenExpiredException`, `TokenInvalidException`, `UserNotFoundException`, `UserLockedException`, `MfaRequiredException`, `MfaInvalidCodeException`, `DeviceNotRecognizedException`, `SessionNotFoundException`, `PasswordReusedException`, `EmailAlreadyExistsException`
+- [x] `Auth/Domain/Events/`: `UserLoggedIn`, `UserRegistered`, `UserLoggedOut`, `PasswordChanged`, `MfaEnabled`, `MfaDisabled`, `SuspiciousActivityDetected`
+- [x] `Auth/Domain/Repositories/`: `UserRepositoryInterface` (findByEmail, findById, save, update, delete, existsByEmail), `RefreshTokenRepositoryInterface` (findByHash, save, revoke, revokeAllByUser, findActiveByUser, existsByHash)
+- [x] Architecture tests: Domain no depende de Illuminate, Laravel, otras capas, ni otros bounded contexts
+- [x] Unit tests: cobertura 95%+ de Domain (entities, VO, exceptions, events)
+- [x] Verificar: `pest --filter=Unit` pasa, `phpstan` pasa, `pint` sin cambios
 
 ### Entregable
 - Capa Domain completa, pura, sin dependencias externas
@@ -137,11 +139,11 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - PHPStan nivel 10 sin errores
 
 ### Checklist de cierre
-- [ ] Ningun archivo en `src/*/Domain/` importa `Illuminate\` o `Laravel\`
-- [ ] Todos los VO son inmutables (readonly donde aplique)
-- [ ] Todas las excepciones extienden `DomainException`
-- [ ] Repositories son interfaces, no implementaciones
-- [ ] Eventos son objetos inmutables con datos de dominio
+- [x] Ningun archivo en `src/*/Domain/` importa `Illuminate\` o `Laravel\`
+- [x] Todos los VO son inmutables (readonly donde aplique)
+- [x] Todas las excepciones extienden `DomainException`
+- [x] Repositories son interfaces, no implementaciones
+- [x] Eventos son objetos inmutables con datos de dominio
 
 ---
 
@@ -314,7 +316,7 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 
 ---
 
-## Sesion 7: Password Management + Perfil
+## Sesion 7: Password Management + Perfil ✅ COMPLETADA (2026-06-20)
 
 **Objetivo**: Flujo completo de gestion de contrasenas y perfil de usuario.
 **Prioridad**: P0 — Funcionalidad esencial.
@@ -375,7 +377,7 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 - [x] Cobertura de tests:
   - Domain 99.25%, Application 96.54%, Infrastructure 91.41%, Presentation 93.18%
   - Security 100%, Architecture 100%
-  - Global 94.4%
+  - Global 94.1%
 - [x] GitHub Actions: `.github/workflows/quality.yml`
   - Jobs: lint (Pint), stan (PHPStan), test (Pest con coverage), scribe
   - Servicios: PostgreSQL, Redis
@@ -388,14 +390,14 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 ### Entregable
 - Pipeline CI/CD configurado en `.github/workflows/quality.yml`
 - Documentacion de API generada y accesible en `/docs`
-- 252 tests pasan con cobertura global 94.4 %
+- 253 tests pasan con cobertura global 94.1 %
 - Codigo formateado y sin errores de analisis estatico
 - Modulo Auth marcado como completado
 
 ### Checklist de cierre
 - [x] `composer ci` ejecuta sin errores localmente
 - [x] GitHub Actions configurado para push/PR
-- [x] Cobertura global >=80% (94.4 %)
+- [x] Cobertura global >=80% (94.1 %)
 - [x] Scribe genera docs
 - [x] ADRs creados y completos
 - [x] No hay dependencias circulares entre capas (architecture tests verdes)
@@ -404,6 +406,29 @@ Sesion 8: Polish + CI/CD + Documentacion (Scribe, PHPStan, Pint, Pipeline)
 > Las interfaces de Domain/Application definidas en las sesiones 2-3 no deben
 > modificarse sin actualizar todos los consumidores. El trabajo posterior debe
 > iniciar un nuevo modulo de negocio siguiendo el mismo ritual de sesiones.
+
+---
+
+## Sesion 9: CORS global para API ✅ COMPLETADA (2026-06-26)
+
+> [!note] Cambio transversal posterior al cierre del modulo Auth
+> No forma parte del arco original de 8 sesiones del modulo Auth. Se anadio para
+> habilitar peticiones del frontend web (`http://localhost:5173`).
+
+**Objetivo**: CORS permanente con manejo de preflight OPTIONS.
+**Prioridad**: P0 — Bloqueante para la integracion Web ↔ API.
+
+### Tareas
+- [x] `src/Shared/Infrastructure/Middleware/CorsMiddleware.php` (preflight OPTIONS 204 + headers en todas las respuestas)
+- [x] `config/cors.php` centralizado
+- [x] Registrar como middleware global *prepend* en `bootstrap/app.php`; deshabilitar `HandleCors` por defecto
+- [x] `CORS_ALLOWED_ORIGINS` en `.env.example`, `.env.ci`, `.env.docker`
+- [x] Tests unitarios y feature del middleware
+- [x] `composer ci` verde
+
+### Entregable
+- 259 tests pasan (968 assertions), PHPStan nivel 10 limpio, Pint sin diferencias.
+- Detalle en [[docs/log/sesiones/sesion-09.md]].
 
 ---
 

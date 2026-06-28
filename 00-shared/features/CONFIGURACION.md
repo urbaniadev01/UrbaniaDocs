@@ -99,6 +99,4 @@ Después de AUTH (sesión 2). API ya implementado.
 
 ## 11. Documentos de implementación
 
-| Proyecto | Spec técnico | Docs de pantallas |
-|---|---|---|
-| Web | [[02-web/features/configuracion/CONFIGURACION_SPEC]] | [[02-web/features/configuracion/CONFIGURACION_UI_perfil]], [[02-web/features/configuracion/CONFIGURACION_UI_seguridad]], [[02-web/features/configuracion/CONFIGURACION_UI_cambiar-contrasena]], [[02-web/features/configuracion/CONFIGURACION_UI_setup-mfa]], [[02-web/features/configuracion/CONFIGURACION_UI_sesiones]] |
+> Se enlazarán aquí cuando el feature se diseñe e implemente (uno a la vez).
