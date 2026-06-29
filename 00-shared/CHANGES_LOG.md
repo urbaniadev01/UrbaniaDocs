@@ -92,7 +92,7 @@ updated: 2026-06-28
 - Fecha de apertura: 2026-06-27
 - Afecta a: API / Web / App
 - Estado API: ✅ Implementado (migraciones + seed, catálogos, torres, propiedades, documentos; tests pasando)
-- Estado Web: ⏸ Pendiente (specs y UI por diseñar)
+- Estado Web: ✅ Implementado (Sesión 4 — types, services, hooks, 8 componentes, 3 páginas; build + lint + type-check en verde; 13/13 tests pasan)
 - Estado App: ⏸ Pendiente (specs y UI por diseñar)
 - Documento de referencia: [[00-shared/features/PROPIEDADES]]
 - Notas:
@@ -106,7 +106,8 @@ updated: 2026-06-28
   - Se agregó `allows_residents` a `property_statuses` para proteger la consistencia: si un estado no admite residentes, el sistema rechaza asignaciones
   - Total: 8 tablas nuevas (`condominiums`, `towers`, `property_types`, `property_statuses`, `properties`, `property_status_log`, `property_document_types`, `property_documents`)
   - API completada en Sesión 14 (ver [[API_SESSION_MANIFEST]]). Documentos de endpoints creados: `CONDOMINIUMS.md`, `TOWERS.md`, `PROPERTY_CATALOGS.md`, `PROPIEDADES.md`.
-  - Pendiente: diseño e implementación Web y App.
+  - Web completada en Sesión 4 (ver [[WEB_SESSION_MANIFEST]]). Implementadas 3 rutas (`/properties`, `/properties/towers`, `/properties/catalogs`), sidebar con submenú, drawer de detalle, modales de crear/editar/cambiar estado, upload de documentos con drag & drop, validación inline de coeficientes, todas las reglas de negocio del spec (piso 0 = sótano, full_designation, motivo obligatorio en cambio de estado, advertencia de allows_residents, etc.).
+  - Pendiente: App (Flutter) — pantalla de solo lectura para residentes.
 
 ---
 
@@ -130,6 +131,48 @@ updated: 2026-06-28
   - **API implementada:** migraciones, Domain (Entities, VOs, Exceptions, Repositories), Application (DTOs, UseCases), Infrastructure (Models, Mappers, Repositories), Presentation (Controllers, Middleware role), 8 tests pasando.
   - **Web implementada:** types, service API, hooks TanStack Query, 5 componentes (ContactTable, ContactForm, OccupantLinkForm, UnitOccupantList, OccupantHistory), 3 páginas (DirectorioPage, ContactoDetailPage, UnitOccupantsPage), router + sidebar, 13 tests unitarios OK, build OK.
   - **Pendiente:** App (Flutter), actualizar API_CONTRACT con códigos de error, agregar catálogo de pantallas en FEATURES_INDEX.
+
+---
+
+## CAMBIO-006 — Fundación multi-tenant (organizations) + RBAC + deprecación de users.unit [ABIERTO]
+
+- Fecha de apertura: 2026-06-28
+- Afecta a: API / Web / App
+- Estado API: 🔵 En progreso — Sesión 3 completada (actor canónico + `users.unit` eliminado)
+- Estado Web: 🔵 Plan definido — pendiente de implementar (depende del API)
+- Estado App: 🔵 Plan definido — pendiente de implementar (depende del API)
+- Documento de referencia: [[00-shared/docs/adr/ADR-001]] — Decisión de arquitectura completa; [[SYSTEM_CONTRACT]] §3 Regla de actor y party
+- Plan de implementación: [[00-shared/plans/PLAN_CAMBIO_006]] — 5 sesiones detalladas
+- Notas:
+  - Este cambio agrupa 4 hallazgos de la auditoría de integridad (2026-06-28) resueltos en ADR-001 y planificados en 5 sesiones secuenciales.
+  - **Principio rector**: no reescribir Auth. Extender con tenant + montar autorización encima.
+  - **Secuencia obligada**: Sesión 1 (docs) → 2 (tenancy) → 3 (actor/users.unit) → 4 (RBAC) → 5 (cierre).
+  - **Punto de partida verificado**: Auth + Propiedades + Directorio implementados (17 tablas); ADR-001 Accepted; sin código de tenancy/RBAC; `users.unit` y `users.role` (enum binario) aún vivos.
+  - **Sesión 3 completada (API, 2026-06-29)**:
+    - Migraciones: `backfill_contacts_from_users`, `migrate_users_unit_to_occupants`, `drop_unit_from_users`.
+    - Invariante user⇄contact: todo usuario activo tiene su contact asociado; contacts faltantes creados por backfill.
+    - `users.unit` eliminada; los valores migrables pasaron a `property_occupants` (tipo `residente`, primary). Los no-match quedaron en `reconciliation_users_unit`.
+    - Regla actor/party documentada en [[SYSTEM_CONTRACT]] §3 y términos `Party`/`Actor` agregados a [[GLOSSARY]].
+    - Código de Auth limpiado: `unit` removido de `UserEntity`, DTOs, UseCases, Controller, Request, Resource y tests.
+    - Suite API: 325 tests pasan; 3 fallos preexistentes (rate limit flaky + 2 CORS origen 5174). PHPStan: 6 errores preexistentes en `AppServiceProvider`.
+  - **Premisas transversales**:
+    - Migraciones reversibles (down() real). PK UUID v7, FK {tabla_singular}_id, timestamps, dinero NUMERIC(15,2).
+    - Scope-lock por sesión: una sesión = un entregable corrible + tests + docs actualizadas.
+    - Al cerrar cada sesión: actualizar API_DATABASE.md, DB_SCHEMA_OVERVIEW.md, GLOSSARY.md, estado de CAMBIO-006 y GLOBAL_STATUS de _Home.md.
+  - **Riesgos clave**:
+    - Backfills: `organizations` antes de NOT NULL; contacts antes de borrar `users.unit`; roles de sistema sembrados antes de migrar `users.role`.
+    - JWT: cada cambio de claim obliga a ajustar tests de Auth — mantenerlos verdes es DoD.
+    - RLS: decisión abierta entre activarla en Sesión 2 o como fast-follow (recomendado pronto; retrofittearla después es propenso a errores).
+
+### Sesiones planificadas
+
+| Sesión | Objetivo | DoD |
+|--------|----------|-----|
+| **1** (docs) | Sincronizar esquema canónico: volcar las 11 tablas ya implementadas a API_DATABASE.md desde migraciones reales. Confirmar DB_SCHEMA_OVERVIEW. Correr `migrate:fresh + pest` para baseline. | API_DATABASE.md con 17 tablas; baseline verde anotado; CAMBIO-006 → "En progreso" |
+| **2** (tenancy) | Multi-tenancy: migraciones organizations + organization_id en users/condominiums/contacts. Backfill org por defecto. Middleware de tenant + global scope Eloquent. JWT claim org_id. RLS (opcional, fast-follow). | organizations existe; columnas NOT NULL; aislamiento probado; suite verde |
+| **3** (actor) | Actor canónico: backfill contacts faltantes. Migrar users.unit → property_occupants. Drop columna. Regla party/actor documentada. | Invariante user⇄contact; users.unit eliminado; regla en SYSTEM_CONTRACT |
+| **4** (RBAC) | Módulo src/Authorization: tablas roles/permissions/role_assignments. Seed de 14 roles + permisos. Resolver server-side con cache Redis. Migrar users.role. Gate can(). | RBAC operativo; users.role ya no autoriza; suite verde |
+| **5** (cierre) | Cablear middlewares en pipeline HTTP. Suite completa + PHPStan 10. Cerrar CAMBIO-006. Resolver hallazgos de auditoría. Actualizar todos los docs. | CAMBIO-006 Sincronizado; auditoría 06-28 resuelta; docs al día |
 
 ---
 

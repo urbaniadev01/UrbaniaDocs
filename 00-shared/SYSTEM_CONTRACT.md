@@ -4,7 +4,7 @@ status: active
 priority: P0
 module: shared
 tags: [contract, cross-project, shared]
-updated: 2026-06-18
+updated: 2026-06-28
 ---
 
 # 📜 SYSTEM_CONTRACT
@@ -42,3 +42,37 @@ updated: 2026-06-18
 | [[CROSS_PROJECT_CHANGES]] | Cómo se propone y sincroniza un cambio a este contrato |
 | [[CHANGES_LOG]] | Registro de cambios cross-project en curso |
 | [[GLOSSARY]] | Vocabulario referenciado en §1 |
+
+---
+
+## 2. Decisiones de Arquitectura Cross-Project
+
+| ADR | Título | Estado |
+|-----|--------|--------|
+| [[00-shared/docs/adr/ADR-001\|ADR-001]] | Fundación multi-tenant + RBAC + actor canónico para Urbania SaaS | ✅ Accepted |
+
+## 3. Regla de actor y party (actor canónico)
+
+> [!info] Aprobada en ADR-001 / implementada en CAMBIO-006 Sesión 3
+> Separar estrictamente la **identidad de cuenta** del **rol de pertenencia a unidad**.
+
+| Concepto | Representación técnica | Cuándo se usa |
+|----------|------------------------|---------------|
+| **Actor** | `user_id` (tabla `users`) | Autoría y autorización: quién ejecutó una acción (created_by, aprobó un pago, registró un cambio de estado). |
+| **Party** | `contact_id` (tabla `contacts`) + `property_id` vía `property_occupants` | Pertenencia a un conjunto/unidad: dueño de cuenta, residente de una reserva, radicante de una PQRS, copropietario en libro de propietarios. |
+
+### Invariantes
+
+1. Todo `user` activo tiene **al menos un** `contact` asociado (`contacts.user_id` es UNIQUE y NOT NULL para usuarios autenticados). El backfill de Sesión 3 crea contacts faltantes copiando nombre/email/teléfono del usuario.
+2. La asociación de una persona a una unidad pasa obligatoriamente por `property_occupants` (contact + property + occupant_type). La columna `users.unit` fue eliminada.
+3. Un `contact` puede existir sin `user` (persona en directorio sin cuenta de sistema); un `user` no puede existir sin `contact`.
+
+### Implicaciones para nuevos features
+
+- Los endpoints de **autenticación/perfil** usan `user_id`.
+- Los endpoints de **residentes, propietarios, PQRS, reservas, visitas, cobranza** usan `contact_id`/`property_id` para identificar al party afectado.
+- El `created_by` de cualquier registro de negocio usa `user_id` (actor), no `contact_id`.
+
+## 4. Documentos Relacionados
+
+> Los ADRs cross-project documentan decisiones que afectan el contrato entre dos o más proyectos y deben ser consultados antes de implementar cambios en las interfaces compartidas.

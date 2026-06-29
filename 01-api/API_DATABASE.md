@@ -1,9 +1,9 @@
 ---
 type: reference
 status: active
-module: auth
+module: auth, propiedades, directorio
 tags: [postgresql, schema, migrations]
-updated: 2026-06-23
+updated: 2026-06-28
 ---
 
 # 🗄️ DATABASE_SCHEMA
@@ -62,8 +62,8 @@ Almacena la información de autenticación principal de cada usuario.
 | `email` | VARCHAR(255) | UNIQUE, NOT NULL | Correo electrónico (identificador de login) |
 | `name` | VARCHAR(255) | NOT NULL | Nombre completo del usuario |
 | `phone` | VARCHAR(20) | NULLABLE | Teléfono de contacto |
-| `unit` | VARCHAR(50) | NULLABLE | Unidad/Apartamento asignado (ej: "Apto 101") |
 | `avatar_url` | VARCHAR(500) | NULLABLE | URL del avatar del usuario |
+| `organization_id` | UUID v7 | FK → organizations.id, NOT NULL | Tenant/organización a la que pertenece el usuario |
 | `password_hash` | VARCHAR(255) | NOT NULL | Hash de contraseña (Argon2id) |
 | `email_verified_at` | TIMESTAMP | NULLABLE | Fecha de verificación de email |
 | `mfa_secret` | VARCHAR(32) | NULLABLE | Secreto TOTP para MFA (encriptado con AES-256-GCM) |
@@ -114,6 +114,12 @@ Almacena la información de autenticación principal de cada usuario.
 > protected string $authPasswordName = 'password_hash';
 > ```
 > O sobrescribir el método `getAuthPassword()` en el modelo User.
+
+> [!danger] Deprecación de `users.unit`
+> La columna `unit` fue eliminada de `users` en CAMBIO-006 Sesión 3. La asociación persona-unidad es ahora canónica via `contacts` + `property_occupants`. Ver regla actor/party en [[SYSTEM_CONTRACT]].
+
+> [!note] Invariante usuario-contacto
+> Todo usuario activo debe tener un `contact` asociado (`contacts.user_id` UNIQUE). La migración `2026_06_28_000004_backfill_contacts_from_users` crea contacts faltantes al desplegar.
 
 **Sintaxis ENUM PostgreSQL:**
 ```sql
@@ -282,6 +288,247 @@ Almacena tokens para recuperación de contraseña.
 > No requieren tabla de roles/permisos separada para el MVP — el enum `UserRole { ADMIN, USER }` de [[API_ARCHITECTURE]] mapea 1:1 con los valores de esta columna.
 > El claim `role` del JWT se deriva directamente de `users.role` al emitir el token.
 > Ejemplo: `admin` → acceso de lectura/escritura completo, `user` → acceso limitado a sus propios recursos.
+
+---
+
+## 3. Directorio (3 tablas)
+
+### 3.1 Tabla: `occupant_types`
+Catálogo configurable de tipos de ocupante de una unidad (propietario, residente, inquilino, familiar, contacto_emergencia, empleado).
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único |
+| `code` | VARCHAR(20) | UNIQUE, NOT NULL | Código interno del tipo (ej: `owner`, `renter`, `family`) |
+| `name` | VARCHAR(100) | NOT NULL | Nombre legible del tipo |
+| `description` | TEXT | NULLABLE | Descripción opcional |
+| `sort_order` | INTEGER | DEFAULT 0 | Orden de visualización |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Si está activo para nuevo uso |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de última actualización |
+
+### 3.2 Tabla: `contacts`
+Personas en el directorio del conjunto (con o sin usuario del sistema). Reemplaza `users.unit` como forma canónica de asociar personas a unidades. Regida por Ley 675 de 2001 (libro de propietarios).
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único del contacto |
+| `user_id` | UUID v7 | FK → users.id, ON DELETE SET NULL, UNIQUE, NULLABLE | Usuario del sistema vinculado (opcional) |
+| `document_type` | VARCHAR(20) | NOT NULL | Tipo de documento (CC, NIT, CE, PA) |
+| `document_number` | VARCHAR(30) | NOT NULL | Número de documento |
+| `full_name` | VARCHAR(255) | NOT NULL | Nombre completo |
+| `email` | VARCHAR(255) | NULLABLE | Correo electrónico |
+| `phone` | VARCHAR(20) | NULLABLE | Teléfono de contacto |
+| `emergency_contact_name` | VARCHAR(255) | NULLABLE | Contacto de emergencia — nombre |
+| `emergency_contact_phone` | VARCHAR(20) | NULLABLE | Contacto de emergencia — teléfono |
+| `notes` | TEXT | NULLABLE | Notas adicionales |
+| `organization_id` | UUID v7 | FK → organizations.id, NOT NULL | Tenant/organización a la que pertenece el contacto |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+| `deleted_at` | TIMESTAMP | NULLABLE | Soft delete |
+
+**Índices:**
+- `UNIQUE` parcial en `(document_type, document_number)` WHERE `deleted_at IS NULL`
+- `INDEX` en `user_id`
+
+### 3.3 Tabla: `property_occupants`
+Vincula un contacto a una unidad con un rol específico (tipo de ocupante), fechas de mudanza y flag de ocupante principal. Tabla central del Directorio.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único |
+| `property_id` | UUID v7 | INDEX, FK → properties.id | Unidad ocupada |
+| `contact_id` | UUID v7 | FK → contacts.id, ON DELETE RESTRICT | Contacto ocupante |
+| `occupant_type_id` | UUID v7 | FK → occupant_types.id, ON DELETE RESTRICT | Tipo de ocupante |
+| `is_primary` | BOOLEAN | DEFAULT FALSE | Si es el ocupante principal (contacto oficial) |
+| `move_in_date` | DATE | NULLABLE | Fecha de mudanza/ingreso |
+| `move_out_date` | DATE | NULLABLE | Fecha de mudanza/salida |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Si la ocupación está activa |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+| `deleted_at` | TIMESTAMP | NULLABLE | Soft delete |
+
+**Índices:**
+- `UNIQUE` parcial en `(property_id, contact_id, occupant_type_id)` WHERE `deleted_at IS NULL`
+- `INDEX` en `property_id`
+- `INDEX` en `contact_id`
+- `INDEX` en `occupant_type_id`
+
+### 3.4 Tabla: `reconciliation_users_unit` (tabla de migración)
+Tabla temporal de reconciliación generada durante CAMBIO-006 Sesión 3. Guarda los valores de `users.unit` que no hicieron match con ninguna `properties.unit_number` para revisión manual antes de descartar la información.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador del registro |
+| `user_id` | UUID v7 | NOT NULL | Usuario origen cuyo `unit` no pudo migrarse |
+| `unit` | VARCHAR(50) | NOT NULL | Valor original de `users.unit` |
+| `organization_id` | UUID v7 | NULLABLE | Organización del usuario origen |
+| `reason` | TEXT | NULLABLE | Motivo del no-match |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de generación del reporte |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+
+> [!note] Nota
+> Esta tabla no es parte del modelo de negocio permanente; se crea y limpia con la migración `2026_06_28_000005_migrate_users_unit_to_occupants`. Su `down()` la elimina. Sirve como punto de partida para la reconciliación manual de datos históricos de la era Auth.
+
+---
+
+## 4. Propiedades (8 tablas)
+
+### 4.1 Tabla: `condominiums`
+Conjunto residencial / propiedad horizontal. Raíz del inventario de propiedades. Cada condominio es un cliente/tenant del sistema SaaS. Contiene validación de coeficientes totales.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único del conjunto |
+| `name` | VARCHAR(255) | NOT NULL | Nombre del conjunto residencial |
+| `address` | TEXT | NULLABLE | Dirección física |
+| `city` | VARCHAR(100) | NULLABLE | Ciudad |
+| `department` | VARCHAR(100) | NULLABLE | Departamento/Estado |
+| `country` | VARCHAR(100) | DEFAULT 'Colombia' | País |
+| `nit` | VARCHAR(20) | UNIQUE, NULLABLE | NIT (identificación tributaria colombiana) |
+| `phone` | VARCHAR(20) | NULLABLE | Teléfono del conjunto |
+| `email` | VARCHAR(255) | NULLABLE | Correo electrónico oficial |
+| `legal_representative` | VARCHAR(255) | NULLABLE | Representante legal (administrador) |
+| `total_coefficient` | NUMERIC(7,6) | DEFAULT 1.000000 | Suma de coeficientes de copropiedad (debe ser 1.000000) |
+| `logo_url` | VARCHAR(500) | NULLABLE | URL del logo del conjunto |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Si el conjunto está activo en el sistema |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+| `deleted_at` | TIMESTAMP | NULLABLE | Soft delete |
+
+### 4.2 Tabla: `towers`
+Torre, bloque o sección dentro de un conjunto residencial. Entidad jerárquica entre condominium y property.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único de la torre |
+| `condominium_id` | UUID v7 | FK → condominiums.id, CASCADE DELETE | Conjunto al que pertenece |
+| `name` | VARCHAR(100) | NOT NULL | Nombre de la torre (ej: "Torre A", "Bloque 3") |
+| `code` | VARCHAR(20) | NULLABLE | Código corto opcional |
+| `floor_count` | SMALLINT | DEFAULT 1, CHECK > 0 | Cantidad de pisos |
+| `has_elevator` | BOOLEAN | DEFAULT FALSE | Si tiene ascensor |
+| `description` | TEXT | NULLABLE | Descripción opcional |
+| `sort_order` | INTEGER | DEFAULT 0 | Orden de visualización |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+| `deleted_at` | TIMESTAMP | NULLABLE | Soft delete |
+
+**Índices:**
+- `UNIQUE` en `(condominium_id, name)` — no pueden existir dos torres con el mismo nombre en el mismo conjunto
+- `CHECK` `floor_count > 0`
+
+### 4.3 Tabla: `property_types`
+Catálogo configurable de tipos de unidad. El administrador puede agregar nuevos tipos sin deploy (apartamento, local, parqueadero, depósito, oficina, etc.).
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único |
+| `code` | VARCHAR(20) | UNIQUE, NOT NULL | Código interno (ej: `apartment`, `commercial`, `parking`) |
+| `name` | VARCHAR(100) | NOT NULL | Nombre legible |
+| `description` | TEXT | NULLABLE | Descripción opcional |
+| `sort_order` | INTEGER | DEFAULT 0 | Orden de visualización |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Si está activo |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+
+### 4.4 Tabla: `property_statuses`
+Catálogo configurable de estados de unidad. Incluye `allows_residents` para proteger consistencia: si un estado no admite residentes, el sistema rechaza asignaciones.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único |
+| `code` | VARCHAR(20) | UNIQUE, NOT NULL | Código interno (ej: `occupied`, `vacant`, `for_sale`, `renovation`) |
+| `name` | VARCHAR(100) | NOT NULL | Nombre legible |
+| `description` | TEXT | NULLABLE | Descripción opcional |
+| `allows_residents` | BOOLEAN | DEFAULT TRUE | Si permite asignar residentes en este estado |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Si está activo |
+| `sort_order` | INTEGER | DEFAULT 0 | Orden de visualización |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+
+### 4.5 Tabla: `property_document_types`
+Catálogo configurable de tipos de documento que se pueden adjuntar a una unidad (escritura, plano, certificado de libertad, recibo de pago, contrato, etc.).
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único |
+| `code` | VARCHAR(20) | UNIQUE, NOT NULL | Código interno (ej: `deed`, `blueprint`, `freedom_cert`) |
+| `name` | VARCHAR(100) | NOT NULL | Nombre legible |
+| `description` | TEXT | NULLABLE | Descripción opcional |
+| `sort_order` | INTEGER | DEFAULT 0 | Orden de visualización |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Si está activo |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+
+### 4.6 Tabla: `properties`
+**Tabla central del módulo Propiedades.** Cada unidad individual dentro de un conjunto. Contiene datos catastrales, área, coeficiente de copropiedad y ubicación dentro de la torre.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único de la unidad |
+| `condominium_id` | UUID v7 | FK → condominiums.id, CASCADE DELETE | Conjunto al que pertenece |
+| `tower_id` | UUID v7 | FK → towers.id, CASCADE DELETE | Torre/bloque al que pertenece |
+| `property_type_id` | UUID v7 | FK → property_types.id, CASCADE DELETE | Tipo de unidad |
+| `property_status_id` | UUID v7 | FK → property_statuses.id, CASCADE DELETE | Estado actual de la unidad |
+| `floor` | SMALLINT | NOT NULL, CHECK ≥ 0 | Piso donde se ubica (0 = sótano) |
+| `unit_number` | VARCHAR(20) | NOT NULL | Número o identificación de la unidad (ej: "101", "A-201") |
+| `area_m2` | NUMERIC(8,2) | NOT NULL, CHECK > 0 | Área en metros cuadrados |
+| `coefficient` | NUMERIC(7,6) | NOT NULL, CHECK > 0 | Coeficiente de copropiedad (fracción) |
+| `bedrooms` | SMALLINT | NULLABLE | Cantidad de habitaciones |
+| `bathrooms` | SMALLINT | NULLABLE | Cantidad de baños |
+| `has_parking` | BOOLEAN | DEFAULT FALSE | Si incluye parqueadero |
+| `parking_lot` | VARCHAR(20) | NULLABLE | Identificador del parqueadero (ej: "Sótano 1 - Puesto 12") |
+| `notes` | TEXT | NULLABLE | Notas adicionales |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+| `deleted_at` | TIMESTAMP | NULLABLE | Soft delete |
+
+**Índices:**
+- `UNIQUE` parcial en `(tower_id, floor, unit_number)` WHERE `deleted_at IS NULL`
+- `INDEX` en `(condominium_id, tower_id)`
+- `INDEX` en `(condominium_id, property_type_id)`
+- `INDEX` en `(condominium_id, property_status_id)`
+- `INDEX` en `coefficient`
+- `INDEX` en `deleted_at`
+- `CHECK` `floor >= 0`
+- `CHECK` `area_m2 > 0`
+- `CHECK` `coefficient > 0`
+
+### 4.7 Tabla: `property_status_log`
+Auditoría de cambios de estado por unidad. Registro obligatorio con motivo, origen y destino, para cumplimiento normativo.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único del registro |
+| `property_id` | UUID v7 | FK → properties.id, CASCADE DELETE | Unidad cuyo estado cambió |
+| `from_status_id` | UUID v7 | FK → property_statuses.id, CASCADE DELETE, NULLABLE | Estado anterior (NULL = primera vez) |
+| `to_status_id` | UUID v7 | FK → property_statuses.id, CASCADE DELETE, NOT NULL | Nuevo estado |
+| `changed_by_user_id` | UUID v7 | FK → users.id, CASCADE DELETE | Usuario que realizó el cambio |
+| `reason` | TEXT | NOT NULL | Motivo del cambio (obligatorio por normativa) |
+| `created_at` | TIMESTAMP | NOT NULL | Fecha del cambio |
+
+**Índices:**
+- `INDEX` en `(property_id, created_at)`
+
+### 4.8 Tabla: `property_documents`
+Documentos adjuntos por unidad (escrituras, planos, certificados, recibos). Archivos referenciados por URL con metadatos.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único del documento |
+| `property_id` | UUID v7 | FK → properties.id, CASCADE DELETE | Unidad asociada |
+| `property_document_type_id` | UUID v7 | FK → property_document_types.id, CASCADE DELETE | Tipo de documento |
+| `name` | VARCHAR(255) | NOT NULL | Nombre del archivo |
+| `file_url` | VARCHAR(500) | NOT NULL | URL de almacenamiento del archivo |
+| `file_size_bytes` | INTEGER | NULLABLE | Tamaño del archivo en bytes |
+| `mime_type` | VARCHAR(100) | NULLABLE | Tipo MIME del archivo |
+| `notes` | TEXT | NULLABLE | Notas adicionales |
+| `uploaded_by_user_id` | UUID v7 | FK → users.id, CASCADE DELETE | Usuario que subió el documento |
+| `created_at` | TIMESTAMP | NOT NULL | Fecha de subida |
+| `deleted_at` | TIMESTAMP | NULLABLE | Soft delete |
+
+**Índices:**
+- `INDEX` en `(property_id, created_at)`
 
 ---
 

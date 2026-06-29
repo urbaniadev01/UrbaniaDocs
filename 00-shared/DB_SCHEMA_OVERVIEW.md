@@ -4,7 +4,7 @@ status: active
 priority: P1
 module: shared
 tags: [database, schema, shared, reference]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # 🗄️ DB_SCHEMA_OVERVIEW
@@ -15,8 +15,9 @@ updated: 2026-06-27
 > **La fuente de verdad detallada** (columnas, tipos, índices, constraints) está en `01-api/API_DATABASE.md`.
 > Este documento debe mantenerse sincronizado con ese archivo.
 
-> [!note] Estado actual (2026-06-27)
-> **Auth** (6 tablas) implementado con código. **Propiedades** (8 tablas) diseñado en [[00-shared/features/PROPIEDADES]], pendiente de implementar.
+> [!note] Estado actual (2026-06-29)
+> **Auth** (6 tablas), **Propiedades** (8 tablas) y **Directorio** (3 tablas) — **17 tablas implementadas** con migraciones, modelos y tests.
+> La columna `users.unit` fue eliminada; la relación persona-unidad es ahora canónica via `contacts` + `property_occupants`.
 > El esquema **crece a medida que se rediseña cada feature**: la sección §6 "Modelo de datos" de cada
 > panorama (ver [[FEATURE_PLANNING_TEMPLATE]]) define sus tablas, que al implementarse pasan a
 > `01-api/API_DATABASE.md` y se reflejan aquí.
@@ -49,7 +50,7 @@ updated: 2026-06-27
                                 │ changed_by_user_id (FK)
                                 ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│  PROPIEDADES (8 tablas) — diseñado, pendiente de implementar         │
+│  PROPIEDADES (8 tablas) — implementado                                │
 │                                                                      │
 │  ┌────────────────────────────────────────────────────────────────┐  │
 │  │  CONDOMINIUMS ──< TOWERS ──< PROPERTIES ──< PROPERTY_STATUS_LOG│  │
@@ -68,6 +69,19 @@ updated: 2026-06-27
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
+┌──────────────────────────────────────────────────────────────────────┐
+│  DIRECTORIO (3 tablas) — implementado                                 │
+│                                                                      │
+│  USERS ──< contacts (opcional, user_id FK nullable)                  │
+│  PROPERTIES ──< property_occupants ──> CONTACTS                      │
+│  OCCUPANT_TYPES ──< property_occupants (tipo configurable)           │
+│                                                                      │
+│  contacts: personas en el directorio (con o sin usuario del sistema) │
+│  occupant_types: catálogo configurable de roles                      │
+│  property_occupants: vincula contactos a unidades con rol y fechas   │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## Tablas por Módulo
@@ -76,14 +90,14 @@ updated: 2026-06-27
 
 | Tabla | Descripción | FK principales |
 |---|---|---|
-| `users` | Usuarios del sistema (admin/residente). Login, MFA, roles | — |
+| `users` | Usuarios del sistema (autenticación, MFA, actor). Todo usuario activo tiene un `contact` asociado | `organization_id → organizations` |
 | `refresh_tokens` | Tokens refresh con rotación y device fingerprint | `user_id → users` |
 | `password_history` | Últimas 12 contraseñas (evita reutilización) | `user_id → users` |
 | `login_attempts` | Auditoría de intentos de login | `user_id → users` (NULLABLE) |
 | `security_events` | Eventos de seguridad (login, MFA, bloqueos) | `user_id → users` (NULLABLE) |
 | `password_reset_tokens` | Tokens de recuperación de contraseña (TTL 60 min) | PK: `email` |
 
-### Propiedades (Diseñado — ver [[00-shared/features/PROPIEDADES]])
+### Propiedades (Implementado)
 
 | Tabla | Descripción | FK principales |
 |---|---|---|
@@ -98,14 +112,25 @@ updated: 2026-06-27
 
 > El diccionario de campos completo de las 8 tablas está en [[00-shared/features/PROPIEDADES]] §6.
 
+### Directorio (Implementado)
+
+| Tabla | Descripción | FK principales |
+|---|---|---|
+| `contacts` | Personas en el directorio (con o sin usuario del sistema). Reemplaza `users.unit` como forma de asociar personas a unidades | `user_id → users` (NULLABLE, opcional) |
+| `occupant_types` | **Catálogo configurable** de tipos de ocupante (propietario, residente, inquilino, familiar, contacto_emergencia, empleado) | — |
+| `property_occupants` | **Tabla central.** Vincula un contacto a una unidad con un rol específico, fechas de mudanza y flag primary | `property_id → properties`, `contact_id → contacts`, `occupant_type_id → occupant_types` |
+
 ---
 
-## Tablas Implementadas vs. Diseñadas
+## Tablas Implementadas
 
-| Estado | Tablas |
+| Módulo | Tablas |
 |---|---|
-| ✅ Implementadas | `users`, `refresh_tokens`, `password_history`, `login_attempts`, `security_events`, `password_reset_tokens` |
-| 📐 Diseñadas (pendientes de implementar) | `condominiums`, `towers`, `property_types`, `property_statuses`, `property_document_types`, `properties`, `property_status_log`, `property_documents` |
+| Auth | `users`, `refresh_tokens`, `password_history`, `login_attempts`, `security_events`, `password_reset_tokens` |
+| Propiedades | `condominiums`, `towers`, `property_types`, `property_statuses`, `property_document_types`, `properties`, `property_status_log`, `property_documents` |
+| Directorio | `contacts`, `occupant_types`, `property_occupants` |
+
+**Total: 17 tablas implementadas**
 
 > La fuente de verdad detallada con columnas, tipos, índices y ENUMs está en [[01-api/API_DATABASE]].
 

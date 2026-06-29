@@ -3,7 +3,7 @@ type: meta
 status: active
 priority: P0
 tags: [state, sessions]
-updated: 2026-06-28
+updated: 2026-06-29
 ---
 
 # SESSION_MANIFEST
@@ -28,39 +28,48 @@ updated: 2026-06-28
 
 | Campo            | Valor                          |
 | ---------------- | ------------------------------ |
-| **Numero**       | 14                             |
-| **Nombre**       | Propiedades y Unidades — Paso 3, 4 y 5: Torres, Propiedades y Documentos |
+| **Numero**       | 14.2                           |
+| **Nombre**       | CAMBIO-006 Sesion 3 — H1: Actor canonico + deprecar users.unit |
 | **Estado**       | ✅ Completado con observaciones |
-| **Fecha inicio** | 2026-06-28                     |
-| **Fecha fin**    | 2026-06-28                     |
+| **Nota**         | Migraciones de backfill y deprecacion aplicadas; codigo de Auth limpiado de `unit`; docs actualizadas |
+| **Fecha inicio** | 2026-06-29                     |
+| **Fecha fin**    | 2026-06-29                     |
 | **Agente**       | opencode                       |
 
 ---
 
 ## Resumen Ejecutivo
 
-La Sesion 14 implementa los Pasos 3, 4 y 5 del feature "Propiedades y Unidades":
-CRUD de torres (`/towers`), CRUD de unidades (`/properties`), cambio de estado
-con auditoria (`/properties/{id}/status`), historial de estados
-(`/properties/{id}/status-log`), CRUD de tipos de documento
-(`/property-document-types`) y gestion de documentos adjuntos
-(`/properties/{id}/documents`). Se completaron las entidades de dominio
-(Condominium, Tower, Property, PropertyStatusLog, PropertyDocument,
-PropertyDocumentType), excepciones tipificadas, repositorios, mappers, DTOs,
-casos de uso, servicios (generacion de `full_designation`), controllers,
-requests, resources, routes y bindings del service provider.
+Sesion de CAMBIO-006 Sesion 3 enfocada en el actor canonico y la deprecacion de
+`users.unit`. Se crearon tres migraciones PostgreSQL: backfill de contacts faltantes
+(`2026_06_28_000004_backfill_contacts_from_users`), migracion de `users.unit` a
+`property_occupants` con tabla de reconciliacion para no-matches
+(`2026_06_28_000005_migrate_users_unit_to_occupants`) y eliminacion reversible de
+la columna `users.unit` (`2026_06_28_000006_drop_unit_from_users`).
 
-Tambien se actualizaron los endpoints de condominios para listar, obtener
-detalle, actualizar y validar coeficientes (`/condominiums/{id}/coefficient-validation`).
+Se limpio el modulo Auth de toda referencia al campo `unit`: `UserEntity`,
+`UserMapper`, DTOs (`UserResponseDto`, `RegisterResponseDto`, `RegisterRequestDto`),
+UseCases (`Register`, `Login`, `GetCurrentUser`, `UpdateProfile`, `MfaVerify`,
+`MfaVerifyBackup`), `AuthController`, `RegisterRequest`, `UserResource` y tests
+afines. Esto fue necesario porque, una vez eliminada la columna, los updates de
+Eloquent fallaban al incluir `unit` en el array de persistencia.
 
-`composer test` reporta 314 tests pasados. Los unicos fallos globales son los
-3 preexistentes (rate limiting flaky y 2 tests de CORS con origen
-`localhost:5174` en lugar de `5173`). `composer stan` reporta solo los 6 errores
-preexistentes en `app/Providers/AppServiceProvider.php`; el codigo nuevo de
-Propiedades es PHPStan nivel 10 limpio.
+Se documento la regla actor/party en `00-shared/SYSTEM_CONTRACT.md` §3 y se
+agregaron/actualizaron los terminos `Party`, `Actor`, `Residente` y `Contacto` en
+`00-shared/GLOSSARY.md`. Se sincronizo `01-api/API_DATABASE.md` y
+`00-shared/DB_SCHEMA_OVERVIEW.md` con el nuevo esquema (users sin `unit`, con
+`organization_id`; contacts con `organization_id`; tabla `reconciliation_users_unit`).
 
-Se mantiene vigente el problema operativo documentado: `composer dump-autoload`
-requiere timeout extendido / `--no-scripts` para completar.
+`composer test` reporta 325 tests pasados. Los unicos fallos globales son los 3
+preexistentes (rate limiting flaky y 2 tests de CORS con origen `localhost:5174`
+en lugar de `5173`). `composer stan` reporta solo los 6 errores preexistentes en
+`app/Providers/AppServiceProvider.php`; el codigo nuevo es PHPStan nivel 10 limpio.
+
+No se pudo ejecutar `php artisan migrate` sobre la base de desarrollo porque el
+entorno apunta al host Docker `db` no disponible en esta maquina; las migraciones
+se aplicaron exitosamente sobre `urbania_test` (localhost:5433) usando variables de
+entorno de prueba. `php artisan migrate:status` y rollback/migrate quedan pendientes
+de verificacion cuando el contenedor Docker este disponible.
 
 ---
 
@@ -68,15 +77,17 @@ requiere timeout extendido / `--no-scripts` para completar.
 
 | Campo | Valor |
 |-------|-------|
-| **Modulo** | Propiedades y Unidades |
+| **Modulo** | CAMBIO-006 — Fundacion multi-tenant + RBAC + actor canonico (Sesion 3) |
 | **Prioridad** | P0 |
-| **Estado** | ✅ Completado en API (Pasos 1-5 terminados) |
-| **Sesion de inicio** | Sesion 12 |
+| **Estado** | ✅ Completado en API (Sesion 3 de 5) |
+| **Sesion de inicio** | Sesion 14.2 |
 
 > [!info] Nota de alcance
-> El modulo Auth y el modulo Directorio se mantienen congelados. El modulo
-> Propiedades inicia en la Sesion 12 con el Paso 1 (migraciones y seed) y
-> continuara con endpoints de catalogos, torres, propiedades y documentos.
+> Esta sesion cubre el H1 (actor canonico + deprecacion de `users.unit`) del plan
+> CAMBIO-006. El modulo Auth fue extendido/limpiado para soportar la eliminacion de
+> `users.unit`; el modulo Directorio se mantuvo congelado; el modulo Propiedades se
+> mantuvo congelado. Las sesiones 4 (RBAC) y 5 (cierre) de CAMBIO-006 quedan
+> pendientes.
 
 ---
 
@@ -84,7 +95,7 @@ requiere timeout extendido / `--no-scripts` para completar.
 
 | Metrica | Valor actual | Umbral | Estado |
 |---------|--------------|--------|--------|
-| Tests totales | 314 pasados, 3 fallos preexistentes (rate limiting flaky + 2 CORS origen 5174) | >0 | ⚠️ |
+| Tests totales | 325 pasados, 3 fallos preexistentes (rate limiting flaky + 2 CORS origen 5174) | >0 | ⚠️ |
 | Cobertura Domain | No re-midida | >=95% | ⚠️ |
 | Cobertura Application | No re-midida | >=90% | ⚠️ |
 | Cobertura Infrastructure | No re-midida | >=85% | ⚠️ |
@@ -99,76 +110,51 @@ requiere timeout extendido / `--no-scripts` para completar.
 
 ## Archivos Creados y Modificados
 
-### Nuevos archivos (Sesión 14)
+### Archivos creados (Sesión 14.2)
 
-**Capa Domain DDD (`Urbania\Propiedades\`)**
-- `src/Propiedades/Domain/Entities/CondominiumEntity.php`
-- `src/Propiedades/Domain/Entities/TowerEntity.php`
-- `src/Propiedades/Domain/Entities/PropertyEntity.php`
-- `src/Propiedades/Domain/Entities/PropertyStatusLogEntity.php`
-- `src/Propiedades/Domain/Entities/PropertyDocumentEntity.php`
-- `src/Propiedades/Domain/Entities/PropertyDocumentTypeEntity.php`
-- `src/Propiedades/Domain/Exceptions/CondominiumNotFoundException.php`
-- `src/Propiedades/Domain/Exceptions/TowerNotFoundException.php`
-- `src/Propiedades/Domain/Exceptions/TowerNameAlreadyExistsException.php`
-- `src/Propiedades/Domain/Exceptions/TowerHasPropertiesException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyNotFoundException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyDuplicateUnitException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyHasDependenciesException.php`
-- `src/Propiedades/Domain/Exceptions/SameStatusException.php`
-- `src/Propiedades/Domain/Exceptions/StatusHasActiveResidentsException.php`
-- `src/Propiedades/Domain/Exceptions/StatusReasonRequiredException.php`
-- `src/Propiedades/Domain/Exceptions/FloorExceedsTowerLimitException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyDocumentNotFoundException.php`
-- `src/Propiedades/Domain/Exceptions/DocumentTooLargeException.php`
-- `src/Propiedades/Domain/Exceptions/DocumentInvalidTypeException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyDocumentTypeNotFoundException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyDocumentTypeCodeAlreadyExistsException.php`
-- `src/Propiedades/Domain/Exceptions/PropertyDocumentTypeInUseException.php`
-- `src/Propiedades/Domain/Repositories/CondominiumRepositoryInterface.php`
-- `src/Propiedades/Domain/Repositories/TowerRepositoryInterface.php`
-- `src/Propiedades/Domain/Repositories/PropertyRepositoryInterface.php`
-- `src/Propiedades/Domain/Repositories/PropertyStatusLogRepositoryInterface.php`
-- `src/Propiedades/Domain/Repositories/PropertyDocumentRepositoryInterface.php`
-- `src/Propiedades/Domain/Repositories/PropertyDocumentTypeRepositoryInterface.php`
+- `database/migrations/2026_06_28_000004_backfill_contacts_from_users.php`
+- `database/migrations/2026_06_28_000005_migrate_users_unit_to_occupants.php`
+- `database/migrations/2026_06_28_000006_drop_unit_from_users.php`
+- `01-api/docs/log/sesiones/sesion-14-2.md`
 
-**Capa Application (`Urbania\Propiedades\`)**
-- DTOs y UseCases de Condominiums: list, get, update, coefficient-validation
-- DTOs y UseCases de Towers: list, create, get, update, delete
-- DTOs y UseCases de Properties: list, create, get, update, delete, change-status, status-log
-- DTOs y UseCases de PropertyDocumentTypes: list, create, update, delete
-- DTOs y UseCases de PropertyDocuments: list, upload, delete
-- `src/Propiedades/Application/Services/GenerateFullDesignationService.php`
+### Archivos modificados (Sesión 14.2)
 
-**Capa Infrastructure (`Urbania\Propiedades\`)**
-- Mappers: `CondominiumMapper`, `TowerMapper`, `PropertyMapper`, `PropertyStatusLogMapper`, `PropertyDocumentMapper`, `PropertyDocumentTypeMapper`
-- Repositorios Eloquent: `EloquentCondominiumRepository`, `EloquentTowerRepository`, `EloquentPropertyRepository`, `EloquentPropertyStatusLogRepository`, `EloquentPropertyDocumentRepository`, `EloquentPropertyDocumentTypeRepository`
-- Controllers: `CondominiumController`, `TowerController`, `PropertyController`, `PropertyDocumentTypeController`, `PropertyDocumentController`
-- FormRequests y Resources/Collections para los nuevos endpoints
+**Código**
+- `app/Models/User.php` — quitado `unit` de `$fillable`.
+- `src/Auth/Domain/Entities/UserEntity.php` — eliminado campo `unit`.
+- `src/Auth/Infrastructure/Mappers/UserMapper.php` — eliminado mapeo de `unit`.
+- `src/Auth/Application/DTOs/UserResponseDto.php` — eliminado campo `unit`.
+- `src/Auth/Application/DTOs/RegisterResponseDto.php` — eliminado campo `unit`.
+- `src/Auth/Application/DTOs/RegisterRequestDto.php` — eliminado campo `unit`.
+- `src/Auth/Application/UseCases/RegisterUseCase.php` — eliminado `unit`.
+- `src/Auth/Application/UseCases/LoginUseCase.php` — eliminado `unit` del DTO.
+- `src/Auth/Application/UseCases/GetCurrentUserUseCase.php` — eliminado `unit` del DTO.
+- `src/Auth/Application/UseCases/UpdateProfileUseCase.php` — eliminado `unit` del DTO.
+- `src/Auth/Application/UseCases/MfaVerifyUseCase.php` — eliminado `unit`; corregido `phone`.
+- `src/Auth/Application/UseCases/MfaVerifyBackupUseCase.php` — eliminado `unit`; corregido `phone`.
+- `src/Auth/Infrastructure/Http/Controllers/AuthController.php` — eliminado `unit` del registro.
+- `src/Auth/Infrastructure/Http/Requests/RegisterRequest.php` — eliminada regla `unit`.
+- `src/Auth/Infrastructure/Http/Resources/UserResource.php` — eliminado campo `unit`.
 
 **Tests**
-- `tests/Feature/Propiedades/CondominiumControllerTest.php`
-- `tests/Feature/Propiedades/TowerControllerTest.php`
-- `tests/Feature/Propiedades/PropertyControllerTest.php`
-- `tests/Feature/Propiedades/PropertyDocumentTypeControllerTest.php`
-- `tests/Feature/Propiedades/PropertyDocumentControllerTest.php`
+- `tests/Unit/Auth/Domain/Entities/UserEntityTest.php`
+- `tests/Unit/Auth/Infrastructure/Http/Resources/UserResourceTest.php`
+- `tests/Unit/Auth/Infrastructure/Http/Requests/RegisterRequestTest.php`
+- `tests/Feature/Auth/Http/AuthControllerTest.php`
 
-### Archivos modificados (Sesión 14)
+**Documentación compartida**
+- `00-shared/SYSTEM_CONTRACT.md` — nueva §3 Regla de actor y party.
+- `00-shared/GLOSSARY.md` — términos Party/Actor; actualizados Residente/Contacto.
+- `00-shared/DB_SCHEMA_OVERVIEW.md` — refleja eliminación de `users.unit`.
+- `00-shared/CHANGES_LOG.md` — CAMBIO-006 actualizado.
+- `_Home.md` — `GLOBAL_STATUS` actualizado.
 
-- `src/Propiedades/Presentation/UrbaniaPropiedadesServiceProvider.php` — bindings de todos los nuevos repositorios.
-- `src/Propiedades/Presentation/routes.php` — rutas de condominiums, towers, properties, documentos y property-document-types bajo `api/v1`.
-- `bootstrap/app.php` — manejo de `PropertyHasDependenciesException` con campo `details`.
-- `01-api/endpoints/CONDOMINIUMS.md` — marcado como Implementado.
-- `01-api/endpoints/TOWERS.md` — marcado como Implementado.
-- `01-api/endpoints/PROPIEDADES.md` — marcado como Implementado.
-- `01-api/endpoints/PROPERTY_CATALOGS.md` — agregados endpoints de property-document-types.
-- `01-api/API_CONTRACT.md` — estados de §2, §3, §4.9-§4.12 y §5 a Implementado; códigos de error nuevos.
-- `00-shared/features/PROPIEDADES.md` — estado de API y checklists actualizados.
-- `00-shared/FEATURES_INDEX.md` — estado de API del feature a "Implementado".
-- `00-shared/CHANGES_LOG.md` — entrada CAMBIO-004 actualizada.
+**Documentación API**
+- `01-api/API_DATABASE.md` — `users` sin `unit` y con `organization_id`; `contacts` con `organization_id`; tabla `reconciliation_users_unit`.
 
 > [!note] Nota
-> Ya no se acumulan en tablas manuales aqui — desde la adopcion del vault de Obsidian, cada sesion registra sus propios archivos creados/modificados en su nota individual (`docs/log/sesiones/`, plantilla `_templates/nueva-sesion.md`). Ver la lista de sesiones en [[_Home]].
+> El detalle completo de archivos y tareas se encuentra en la nota atomica de sesion
+> `01-api/docs/log/sesiones/sesion-14-2.md`.
 
 ---
 
@@ -201,16 +187,19 @@ SORT severity DESC
 
 ## Proxima Sesion
 
-**Proxima Sesion**: Sesion 15 — Cierre del modulo Propiedades y Unidades en API / sincronizacion con Web y App
-**Objetivo**:
-1. Ejecutar `composer pint` y resolver formato si es necesario (sin tocar AppServiceProvider).
-2. Revisar cobertura de tests del modulo Propiedades; agregar tests unitarios de Domain si faltan.
-3. Generar documentacion Scribe (`php artisan scribe:generate`) y verificar que los endpoints nuevos aparecen.
-4. Sincronizar con orquestador para delegar implementacion Web/App o cerrar CAMBIO-004.
-5. Actualizar `API_IMPLEMENTATION_PLAN.md` con sesiones futuras del modulo siguiente.
+**Proxima Sesion**: Sesion 15 — Continuar CAMBIO-006 Sesion 4 (RBAC con scope + reemplazo del claim role) o cierre del modulo Propiedades segun prioridad del orquestador.
+**Objetivo** (si RBAC):
+1. Crear modulo `src/Authorization` (Domain/Application/Infrastructure): Role, Permission, RoleAssignment.
+2. Migraciones: permissions, roles, role_permissions, role_assignments, permission_audit_log.
+3. Seeders de permisos y 14 roles de sistema.
+4. Resolver permisos efectivos por user + scope con cache Redis.
+5. Gate/middleware `can('recurso.accion', $scope)`; reemplazar uso de `users.role`.
+6. Migrar datos de `users.role` a role_assignments.
+7. Tests: resolucion por scope, segregacion, invalidacion de cache, role binario ya no autoriza.
 
 **Documentos a consultar**: [[API_AGENTS]], [[API_ARCHITECTURE]], [[API_CONTRACT]],
-[[API_TESTING]], [[00-shared/features/PROPIEDADES]], [[00-shared/CHANGES_LOG]]
+[[API_TESTING]], [[00-shared/plans/PLAN_CAMBIO_006]], [[00-shared/CHANGES_LOG]],
+[[00-shared/docs/adr/ADR-001]]
 **Estado**: 🚧 Pendiente
 
 ---

@@ -4,7 +4,7 @@ status: active
 priority: P0
 module: global
 tags: [home, dashboard, global]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # 🏠 Urbania — Dashboard Global
@@ -60,8 +60,8 @@ LIMIT 40
 
 | Proyecto | Sesión | Estado | Siguiente tarea |
 |----------|--------|--------|-----------------|
-| API      | 9      | ✅ Completada | Auth (8 sesiones) + CORS global — 259 tests, PHPStan level 10 |
-| Web      | 1      | ✅ Completada | Setup + Auth — 13 tests, 8 módulos planificados |
+| API      | 14.2   | ✅ Completada | CAMBIO-006 Sesión 3: actor canónico + `users.unit` eliminado; invariante user-contact; 325 tests pasan (3 fallos preexistentes), PHPStan 6 errores preexistentes |
+| Web      | 4      | ✅ Completada | Setup + Auth + Propiedades + Directorio — tests pasando |
 | App      | 0      | ⏸ No iniciada | Pendiente de kickoff — sesión 1 por planificar |
 
 > [!info] Este bloque se actualiza automáticamente al cerrar cada sesión de desarrollo mediante las skills `close-session`. Si ves datos desactualizados, ejecutá `@test-runner` para verificar el estado real.
