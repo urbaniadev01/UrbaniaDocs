@@ -4,7 +4,7 @@ status: active
 priority: P0
 module: shared
 tags: [features, index, shared]
-updated: 2026-06-28
+updated: 2026-06-29
 ---
 
 # FEATURES_INDEX
@@ -47,10 +47,10 @@ El orden refleja la secuencia lógica de desarrollo (dependencias primero).
 | #   | Feature                            | Estado      | Nivel    | API                   | Web       | App       | Panorama                              |
 | --- | ---------------------------------- | ----------- | -------- | --------------------- | --------- | --------- | ------------------------------------- |
 | 1   | Auth                               | Completado  | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/AUTH]]           |
-| 2   | Propiedades y unidades             | En progreso | core     | Implementado          | Pendiente | Pendiente | [[00-shared/features/PROPIEDADES]]    |
+| 2   | Propiedades y unidades             | En progreso | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/PROPIEDADES]]    |
 | 3   | Configuración (Perfil y Seguridad) | En progreso | core     | Implementado vía AUTH | Pendiente | N/A       | [[00-shared/features/CONFIGURACION]]  |
 | 4   | Directorio (Residentes y Propietarios) | En progreso | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/DIRECTORIO]]     |
-| 5   | Roles y Permisos                   | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 5   | Roles y Permisos                   | En progreso | core     | Implementado          | Pendiente | Pendiente | —                                     |
 | 6   | Comunicaciones                     | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
 | 7   | Cobranza (Gastos Comunes)          | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
 | 8   | Pagos Online (PSE + tarjeta)       | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
@@ -95,6 +95,89 @@ El orden refleja la secuencia lógica de desarrollo (dependencias primero).
 
 ---
 
+## Catálogo de pantallas por feature
+
+> Subregistros de pantallas por feature. Cada feature enlaza a su doc en `00-shared/features/`. Mientras una feature no esté diseñada, el detalle de sus pantallas (tipo, descripción, benchmarking, modelo de datos) vive en [[_RESEARCH_pantallas-mvp]] y [[_RESEARCH_modelo-datos]]; al diseñarla, se completa su §5 y el enlace resuelve.
+
+### Núcleo MVP (features 1–16)
+
+- **1 · Auth** — [[00-shared/features/AUTH]]
+    - Web: Login · Verificación MFA · Recuperar contraseña · Resetear contraseña
+    - App: flujo nativo
+- **2 · Propiedades y unidades** — [[00-shared/features/PROPIEDADES]]
+    - Web: Dashboard del conjunto · Lista de propiedades · Detalle de unidad · Crear/editar unidad · Cambiar estado · Eliminar unidad · Gestionar torres · Gestionar tipos · Gestionar estados · Documentos de unidad · Mapa del conjunto *(post-MVP)*
+    - App: Lista de unidades · Detalle de unidad
+- **3 · Configuración (Perfil y Seguridad)** — [[00-shared/features/CONFIGURACION]]
+    - Web: Perfil · Seguridad · Cambiar contraseña · Setup MFA · Sesiones activas
+    - App: N/A
+- **4 · Directorio** — [[00-shared/features/DIRECTORIO]]
+    - Web: Directorio general · Detalle de contacto · Crear/editar contacto · Vincular contacto a unidad · Vista por unidad · Historial de ocupantes · Gestionar tipos de ocupante · Importar directorio *(post-MVP)* · Migrar *(post-MVP)*
+    - App: Mi unidad — Ocupantes · Mi perfil de contacto · Contacto de emergencia
+- **5 · Roles y Permisos** — [[00-shared/features/ROLES_PERMISOS|ROLES_PERMISOS]] *(por crear)*
+    - Web: Lista de roles · Crear/editar rol · Matriz de permisos · Reglas de aprobación · Usuarios del panel · Invitar usuario · Detalle de usuario · Delegación temporal · Alertas de conflicto · Catálogo de recursos · Auditoría de permisos
+    - App: N/A
+- **6 · Comunicaciones** — [[00-shared/features/COMUNICACIONES|COMUNICACIONES]] *(por crear)*
+    - Web: Bandeja de comunicados · Redactar comunicado · Detalle de comunicado · Cartelera/muro · Plantillas · Encuestas · Resultados de encuesta · Configurar canales
+    - App: Muro/Avisos · Detalle de aviso · Encuestas · Preferencias de notificación
+- **7 · Cobranza (Gastos Comunes)** — [[00-shared/features/COBRANZA|COBRANZA]] *(por crear)*
+    - Web: Panel de cartera · Generar facturación · Lista de cuentas de cobro · Detalle de cuenta · Configurar conceptos · Registrar pago/abono · Generar paz y salvo · Acuerdos de pago · Cartera por edades
+    - App: Mi estado de cuenta · Detalle de cuenta · Mi paz y salvo
+- **8 · Pagos Online (PSE + tarjeta)** — [[00-shared/features/PAGOS|PAGOS]] *(por crear)*
+    - Web: Configurar pasarela · Transacciones · Detalle de transacción · Conciliación · Reembolsos
+    - App: Checkout/pagar · Selección de banco PSE · Resultado del pago · Métodos guardados · Historial de pagos
+- **9 · Solicitudes de Mantenimiento** — [[00-shared/features/MANTENIMIENTO|MANTENIMIENTO]] *(por crear)*
+    - Web: Tablero de solicitudes · Detalle/orden de trabajo · Crear orden · Asignar técnico/proveedor · Plan preventivo · Activos/equipos · Categorías y SLA
+    - App: Reportar daño · Mis solicitudes · Detalle de solicitud
+- **10 · Reserva de Amenidades** — [[00-shared/features/RESERVAS|RESERVAS]] *(por crear)*
+    - Web: Calendario de reservas · Gestionar zonas comunes · Detalle de zona · Solicitudes por aprobar · Detalle de reserva · Bloqueos
+    - App: Explorar amenidades · Disponibilidad · Nueva reserva · Mis reservas · Detalle de reserva
+- **11 · Proveedores y Contratistas** — [[00-shared/features/PROVEEDORES|PROVEEDORES]] *(por crear)*
+    - Web: Directorio de proveedores · Ficha de proveedor · Crear/editar proveedor · Documentos y vencimientos · Contratos · Detalle de contrato · Evaluar proveedor
+    - App: N/A (ver Portal del Proveedor en clientes)
+- **12 · Control de Acceso / Portería** — [[00-shared/features/PORTERIA|PORTERIA]] *(por crear)*
+    - Web: Tablero de portería · Registro de visitantes (minuta) · Registrar ingreso/salida · Validar QR · Correspondencia · Registrar paquete · Minuta de turno · Parqueo de visitantes · Listas de acceso
+    - App: Autorizar visita · Mis visitas · Minuta de mi unidad · Mi correspondencia · Citofonía virtual · Botón de pánico
+- **13 · Portal Residente** — [[00-shared/features/PORTAL_RESIDENTE|PORTAL_RESIDENTE]] *(por crear)*
+    - Web: Inicio del residente · Mi unidad · Mi cuenta · Documentos del conjunto · Mi perfil
+    - App: Home/dashboard · Menú principal · Centro de notificaciones · Mi perfil
+- **14 · Incidencias / Cumplimiento** — [[00-shared/features/CUMPLIMIENTO|CUMPLIMIENTO]] *(por crear)*
+    - Web: Tablero de PQRS · Detalle de PQRS · Tablero de infracciones · Detalle de caso (debido proceso) · Registrar infracción · Catálogo de faltas · Comité de convivencia
+    - App: Crear PQRS · Mis PQRS · Mis llamados de atención · Presentar descargos
+- **15 · Archivo Documental** — [[00-shared/features/ARCHIVO|ARCHIVO]] *(por crear)*
+    - Web: Biblioteca de documentos · Subir documento · Visor de documento · Gestionar carpetas · Libro de actas · Repositorio legal
+    - App: Documentos · Visor de documento · Buscar documento
+- **16 · Reportes Básicos** — [[00-shared/features/REPORTES|REPORTES]] *(por crear)*
+    - Web: Dashboard general · Reporte de cartera · Reporte financiero · Reporte de operaciones · Informe de gestión · Exportar/programar · Constructor de reportes *(post-MVP)*
+    - App: Mi resumen
+
+### Capa SaaS (propuesta — ver [[_RESEARCH_pantallas-mvp]] §3)
+
+- **S1 · Operador SaaS** — [[00-shared/features/SAAS_OPERADOR|SAAS_OPERADOR]] *(por crear)*
+    - Web: Dashboard del operador · Tenants/organizaciones · Detalle de tenant · Planes y precios · Módulos por plan · Suscripciones y facturación · Provisionar tenant · Soporte/tickets · Config multi-país · Auditoría global
+- **S2 · Portafolio multi-conjunto** — [[00-shared/features/PORTAFOLIO|PORTAFOLIO]] *(por crear)*
+    - Web: Portafolio de copropiedades · Selector de conjunto · Dashboard consolidado · Cartera consolidada · Equipo y asignaciones · Reportes multi-conjunto · Configuración de la empresa
+    - App: Selector de conjunto
+
+### Clientes especializados por rol (propuesta — ver [[_RESEARCH_pantallas-mvp]] §6)
+
+- **Vigilante (portería + rondas)** — extiende [[00-shared/features/PORTERIA]]
+    - App: Inicio/cierre de turno · Registrar visitante/validar QR · Correspondencia · Minuta (DAR) · Control de rondas · Escanear punto · Reportar incidente · Pánico/SOS · Directorio de emergencia
+    - Web (supervisor): Configurar rondas · Monitoreo en vivo · Programación de turnos · Reportes DAR
+- **Mantenimiento (técnico)** — extiende [[00-shared/features/MANTENIMIENTO]]
+    - App: Mis órdenes · Detalle + checklist · Actualizar estado · Preventivos del día · Reportar hallazgo · Consumo de materiales
+- **Aseo / Servicios** — extiende [[00-shared/features/MANTENIMIENTO]]
+    - App: Rutinas del día · Checklist de zona · Confirmar finalización · Reportar faltante · Inventario de insumos
+- **Contabilidad (contador)** — [[00-shared/features/CONTABILIDAD|CONTABILIDAD]] *(por crear)*
+    - Web: PUC · Terceros · Comprobantes · Registrar comprobante · Libro auxiliar · Conciliación bancaria · Estados financieros · Ejecución presupuestal · Fondo de imprevistos · Cierre de periodo · Exportar revisor fiscal
+- **Consejo de administración** — [[00-shared/features/CONSEJO|CONSEJO]] *(por crear)*
+    - Web: Tablero del consejo · Aprobaciones · Documentos de sesión · Decisiones/actas · Reportes ejecutivos
+    - App: Aprobaciones (opcional)
+- **Revisor fiscal** — [[00-shared/features/REVISOR_FISCAL|REVISOR_FISCAL]] *(por crear)*
+    - Web: Acceso de auditoría · Libros y auxiliares · Estados financieros · Observaciones/dictamen
+- **Proveedor (portal externo)** — extiende [[00-shared/features/PROVEEDORES]]
+    - Web: Mis órdenes · Actualizar avance · Mis documentos · Mis facturas/pagos
+
+---
 ## Docs por feature
 
 Cada feature, **cuando está en implementación activa**, genera los siguientes documentos:

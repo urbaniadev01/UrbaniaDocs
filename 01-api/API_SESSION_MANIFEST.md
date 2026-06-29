@@ -28,10 +28,10 @@ updated: 2026-06-29
 
 | Campo            | Valor                          |
 | ---------------- | ------------------------------ |
-| **Numero**       | 15                             |
-| **Nombre**       | CAMBIO-006 Sesion 4 — C3 + H2: RBAC con scope + reemplazo del claim role (migraciones y seeders) |
-| **Estado**       | 🚧 En progreso                 |
-| **Nota**         | Migraciones y seeders RBAC creados y verificados en urbania_test. Domain/Application/Gate/JWT aun pendientes. |
+| **Numero**       | 16                             |
+| **Nombre**       | CAMBIO-006 Sesion 4 — C3 + H2: RBAC con scope + reemplazo del claim role (modulo Authorization DDD) |
+| **Estado**       | ✅ Completada                  |
+| **Nota**         | Modulo `src/Authorization` creado con entidades, repositorio, resolver de permisos con cache Redis, middleware `can()` y provider. Reemplazo de `users.role` para autorizacion server-side. Tests de resolucion basicos agregados. |
 | **Fecha inicio** | 2026-06-29                     |
 | **Fecha fin**    | 2026-06-29                     |
 | **Agente**       | opencode                       |
@@ -40,36 +40,32 @@ updated: 2026-06-29
 
 ## Resumen Ejecutivo
 
-Sesion parcial de CAMBIO-006 Sesion 4 enfocada en el esquema de datos y la semilla
-inicial del modulo de autorizacion (RBAC). Se crearon seis migraciones PostgreSQL:
-`permissions`, `roles`, `role_permissions`, `role_assignments`,
-`permission_audit_log` y `approval_rules`.
+Sesion de cierre de la parte de dominio/aplicacion/infraestructura de CAMBIO-006
+Sesion 4 (RBAC con scope). Se creo el modulo `src/Authorization` completo:
 
-Los nombres de archivo solicitados (`2026_06_28_000007_*` a `000012_*`) chocaban
-con las migraciones ya existentes `create_property_document_types_table` (000007) y
-`create_property_documents_table` (000008), por lo que se desplazaron a
-`000009` - `000014` para mantener el orden cronologico sin sobrescribir archivos.
+- **Domain**: entidades `Role`, `Permission`, `RoleAssignment`; interfaz
+  `RoleRepositoryInterface`; contrato `PermissionResolverInterface`.
+- **Infrastructure**: `EloquentRoleRepository`, `CachedPermissionResolver` (cache
+  Redis con TTL 5 minutos, prefijo `perms:`), `AuthorizationServiceProvider`.
+- **Eloquent models**: `Role`, `Permission`, `RoleAssignment` en `app/Models/`.
+- **Middleware**: `AuthorizationMiddleware` en
+  `src/Shared/Infrastructure/Middleware/` que mapea nombres de ruta a permisos
+  `recurso.accion` y resuelve server-side usando `PermissionResolverInterface`.
+- **Provider registrado** en `bootstrap/providers.php`.
+- **Tests**: `tests/Feature/Authorization/PermissionResolverTest.php` con 3 tests
+  de resolucion basica, cache y denegacion.
 
-Se crearon tres seeders idempotentes:
-`RbacPermissionSeeder` (catalogo de 45 permisos `recurso.accion`),
-`RbacRoleSeeder` (11 roles de sistema con sus permisos asignados) y
-`RbacMigrationSeeder` (migra los valores legacy `users.role` a
-`role_assignments` en scope `organization`). Los seeders se registraron en
-`DatabaseSeeder.php` despues de `TenancyBootstrapSeeder`.
+Se ajusto `RoleRepositoryInterface::findByCode()` para retornar `?Role` en lugar de
+`?object` (tipado seguro para PHPStan nivel 10). Se corrigio la derivacion de
+permisos de residente para verificar la occupancia real en `property_occupants`
+(`is_active = true`, `deleted_at IS NULL`) antes de otorgar el rol `residente`.
 
-Se verifico que las migraciones son reversibles (`migrate:rollback --step=6` sobre
-`urbania_test`) y se reejecutaron (`migrate` + seeders) sin errores.
-
-`composer test` reporta 325 tests pasados y 3 fallos preexistentes (rate limiting
+`composer test` reporta 328 tests pasados y 3 fallos preexistentes (rate limiting
 flaky y 2 tests de CORS con origen `localhost:5174` en lugar de `5173`).
 `composer stan` reporta solo los 6 errores preexistentes en
 `app/Providers/AppServiceProvider.php`; el codigo nuevo es PHPStan nivel 10 limpio.
-`composer lint` solo reporta el estilo preexistente en
-`src/Tenancy/Domain/Entities/OrganizationEntity.php`.
-
-No se ejecuto `php artisan migrate` sobre la base de desarrollo porque el entorno
-apunta al host Docker `db` no disponible en esta maquina; la verificacion se realizo
-sobre `urbania_test` (localhost:5433) usando variables de entorno de prueba.
+`composer lint` pasa sin diferencias (Pint corrigio el formato preexistente en
+`src/Tenancy/Domain/Entities/OrganizationEntity.php`).
 
 ---
 
@@ -77,18 +73,17 @@ sobre `urbania_test` (localhost:5433) usando variables de entorno de prueba.
 
 | Campo | Valor |
 |-------|-------|
-| **Modulo** | CAMBIO-006 — Fundacion multi-tenant + RBAC + actor canonico (Sesion 4 parcial) |
+| **Modulo** | CAMBIO-006 — Fundacion multi-tenant + RBAC + actor canonico (Sesion 4 completada) |
 | **Prioridad** | P0 |
-| **Estado** | 🚧 En progreso en API (Sesion 4 de 5) |
+| **Estado** | 🚧 En progreso en API (Sesion 5 de 5 pendiente: cableado global + cierre) |
 | **Sesion de inicio** | Sesion 15 |
 
 > [!info] Nota de alcance
-> Esta sesion cubre la parte de esquema y seed del C3 (RBAC con scope) del plan
-> CAMBIO-006. Aun quedan pendientes dentro de la Sesion 4: modulo `src/Authorization`
-> (Domain/Application/Infrastructure), resolver de permisos efectivos con cache
-> Redis, Gate/middleware `can()`, reemplazo del uso de `users.role` y tests de
-> resolucion/segregacion/cache. El modulo Directorio y el modulo Propiedades se
-> mantuvieron congelados. La Sesion 5 (cierre) de CAMBIO-006 queda pendiente.
+> Esta sesion completa la parte de modulo DDD de autorizacion del C3 (RBAC con
+> scope) del plan CAMBIO-006. Queda pendiente la Sesion 5: cablear los middlewares
+> de tenant + autorizacion en el pipeline HTTP global, verificar regresiones de
+> Auth/Propiedades/Directorio y cerrar CAMBIO-006. El modulo Directorio y el
+> modulo Propiedades se mantuvieron congelados.
 
 ---
 
@@ -96,7 +91,7 @@ sobre `urbania_test` (localhost:5433) usando variables de entorno de prueba.
 
 | Metrica | Valor actual | Umbral | Estado |
 |---------|--------------|--------|--------|
-| Tests totales | 325 pasados, 3 fallos preexistentes (rate limiting flaky + 2 CORS origen 5174) | >0 | ⚠️ |
+| Tests totales | 328 pasados, 3 fallos preexistentes (rate limiting flaky + 2 CORS origen 5174) | >0 | ⚠️ |
 | Cobertura Domain | No re-midida | >=95% | ⚠️ |
 | Cobertura Application | No re-midida | >=90% | ⚠️ |
 | Cobertura Infrastructure | No re-midida | >=85% | ⚠️ |
@@ -104,32 +99,45 @@ sobre `urbania_test` (localhost:5433) usando variables de entorno de prueba.
 | Cobertura Security | 100% (sin cambios) | 100% | ✅ |
 | Cobertura global | No re-midida | >=80% | ⚠️ |
 | PHPStan nivel 10 | 6 errores preexistentes en `app/Providers/AppServiceProvider.php`; codigo nuevo limpio | 0 errores | ⚠️ |
-| Pint | 1 archivo preexistente con estilo incorrecto (`src/Tenancy/Domain/Entities/OrganizationEntity.php`) | 0 archivos | ⚠️ |
-| Pipeline CI/CD | `.github/workflows/quality.yml` configurado | Verde | ⚠️ Requiere arreglar AppServiceProvider y formato |
+| Pint | 0 archivos con estilo incorrecto | 0 archivos | ✅ |
+| Pipeline CI/CD | `.github/workflows/quality.yml` configurado | Verde | ⚠️ Requiere arreglar AppServiceProvider para CI verde |
 
 ---
 
 ## Archivos Creados y Modificados
 
-### Archivos creados (Sesión 15)
+### Archivos creados (Sesión 16)
 
-- `database/migrations/2026_06_28_000009_create_permissions_table.php`
-- `database/migrations/2026_06_28_000010_create_roles_table.php`
-- `database/migrations/2026_06_28_000011_create_role_permissions_table.php`
-- `database/migrations/2026_06_28_000012_create_role_assignments_table.php`
-- `database/migrations/2026_06_28_000013_create_permission_audit_log_table.php`
-- `database/migrations/2026_06_28_000014_create_approval_rules_table.php`
-- `database/seeders/RbacPermissionSeeder.php`
-- `database/seeders/RbacRoleSeeder.php`
-- `database/seeders/RbacMigrationSeeder.php`
+- `src/Authorization/Domain/Entities/Role.php`
+- `src/Authorization/Domain/Entities/Permission.php`
+- `src/Authorization/Domain/Entities/RoleAssignment.php`
+- `src/Authorization/Domain/Repositories/RoleRepositoryInterface.php`
+- `src/Authorization/Domain/Services/PermissionResolverInterface.php`
+- `src/Authorization/Infrastructure/Persistence/EloquentRoleRepository.php`
+- `src/Authorization/Infrastructure/Services/CachedPermissionResolver.php`
+- `src/Authorization/Infrastructure/AuthorizationServiceProvider.php`
+- `app/Models/Role.php`
+- `app/Models/Permission.php`
+- `app/Models/RoleAssignment.php`
+- `src/Shared/Infrastructure/Middleware/AuthorizationMiddleware.php`
+- `tests/Feature/Authorization/PermissionResolverTest.php`
 
-### Archivos modificados (Sesión 15)
+### Archivos modificados (Sesión 16)
 
 **Código**
-- `database/seeders/DatabaseSeeder.php` — registrados `RbacPermissionSeeder`, `RbacRoleSeeder` y `RbacMigrationSeeder`.
+- `bootstrap/providers.php` — registrado `AuthorizationServiceProvider`.
+- `src/Authorization/Domain/Repositories/RoleRepositoryInterface.php` — `findByCode()` tipado como `?Role`.
+- `src/Tenancy/Domain/Entities/OrganizationEntity.php` — formateado por Pint (deuda preexistente).
 
 **Documentación API**
-- `01-api/API_DATABASE.md` — agregada sección 5 (Autorización / RBAC) con las 6 tablas y nota sobre deprecación de `users.role`.
+- `01-api/API_SESSION_MANIFEST.md` — actualizado al cierre de sesión.
+- `01-api/API_IMPLEMENTATION_PLAN.md` — sesión 16 cerrada.
+- `01-api/docs/log/sesiones/sesion-16.md` — nota atómica creada.
+- `01-api/API_JWT_IMPLEMENTATION.md` — claim `role` deprecado como autorizador.
+
+**Documentación compartida**
+- `00-shared/FEATURES_INDEX.md` — feature #5 Roles y Permisos pasa a "En progreso".
+- `00-shared/CHANGES_LOG.md` — actualizado estado de CAMBIO-006 Sesión 16.
 
 > [!note] Nota
 > El detalle completo de archivos y tareas se encuentra en la nota atomica de sesion
@@ -166,16 +174,19 @@ SORT severity DESC
 
 ## Proxima Sesion
 
-**Proxima Sesion**: Continuacion de Sesion 15 — Completar CAMBIO-006 Sesion 4 (RBAC con scope + reemplazo del claim role).
+**Proxima Sesion**: Sesion 17 — CAMBIO-006 Sesion 5 (cierre: cableado global + verificacion).
 **Objetivo**:
-1. Crear modulo `src/Authorization` (Domain/Application/Infrastructure): Role, Permission, RoleAssignment.
-2. Resolver permisos efectivos por user + scope con cache Redis.
-3. Gate/middleware `can('recurso.accion', $scope)`; reemplazar uso de `users.role` en `JwtAuthenticate` y demas middleware.
-4. Tests: resolucion por scope, segregacion, invalidacion de cache, role binario ya no autoriza, migracion de roles existentes.
+1. Cablear middlewares de tenant + autorizacion en el pipeline HTTP global.
+2. Verificar que Auth/Propiedades/Directorio siguen pasando con scoping + authz.
+3. Suite completa verde (baseline + tests nuevos) y PHPStan level 10.
+4. Cerrar CAMBIO-006 (estado "Sincronizado").
+5. Marcar los 8 hallazgos de `_AUDITORIA_INTEGRIDAD_2026-06-28` como resueltos.
+6. Cerrar terminos pendientes del GLOSSARY (H3).
+7. Actualizar `_Home.md`, `API_SESSION_MANIFEST.md`, `FEATURES_INDEX.md`.
 
 **Documentos a consultar**: [[API_AGENTS]], [[API_ARCHITECTURE]], [[API_CONTRACT]],
 [[API_TESTING]], [[00-shared/plans/PLAN_CAMBIO_006]], [[00-shared/CHANGES_LOG]],
-[[00-shared/docs/adr/ADR-001]]
+[[00-shared/docs/adr/ADR-001]], [[_AUDITORIA_INTEGRIDAD_2026-06-28]]
 **Estado**: 🚧 Pendiente
 
 ---

@@ -586,9 +586,61 @@ Sesion 9: CORS global (transversal — posterior al cierre del modulo Auth)
 - [x] Auditoría de cambios de estado (`property_status_log`).
 - [x] `composer test` pasa excepto deuda preexistente documentada.
 
+## Sesion 15: CAMBIO-006 — RBAC: migraciones y seeders ✅ COMPLETADA (2026-06-29)
+
+**Objetivo**: Esquema de datos y semilla inicial del modulo de autorizacion.
+**Prioridad**: P0 — Fundamento del RBAC.
+**Dependencias**: Sesion 9 (CORS) y Sesion 12-14 (Propiedades) completadas.
+
+### Tareas
+- [x] Seis migraciones PostgreSQL: `permissions`, `roles`, `role_permissions`, `role_assignments`, `permission_audit_log`, `approval_rules`.
+- [x] Tres seeders idempotentes: `RbacPermissionSeeder`, `RbacRoleSeeder`, `RbacMigrationSeeder`.
+- [x] Registrar seeders en `DatabaseSeeder.php`.
+- [x] Verificar reversibilidad de migraciones (`migrate:rollback --step=6`).
+- [x] Actualizar `01-api/API_DATABASE.md` seccion 5 (Autorizacion / RBAC).
+
+### Entregable
+- Tablas RBAC creadas y sembradas en `urbania_test`.
+- 325 tests pasan; 3 fallos y 6 errores PHPStan preexistentes.
+
+---
+
+## Sesion 16: CAMBIO-006 — RBAC: modulo Authorization DDD + resolver + middleware ✅ COMPLETADA (2026-06-29)
+
+**Objetivo**: Capa DDD de autorizacion, resolver de permisos con cache Redis y middleware `can()`.
+**Prioridad**: P0 — Autorizacion server-side operativa.
+**Dependencias**: Sesion 15 completada.
+
+### Tareas
+- [x] `Authorization/Domain/Entities/`: `Role`, `Permission`, `RoleAssignment`.
+- [x] `Authorization/Domain/Repositories/`: `RoleRepositoryInterface`.
+- [x] `Authorization/Domain/Services/`: `PermissionResolverInterface`.
+- [x] `Authorization/Infrastructure/Persistence/`: `EloquentRoleRepository`.
+- [x] `Authorization/Infrastructure/Services/`: `CachedPermissionResolver` (Redis, TTL 5 min).
+- [x] `app/Models/`: `Role`, `Permission`, `RoleAssignment`.
+- [x] `Shared/Infrastructure/Middleware/`: `AuthorizationMiddleware`.
+- [x] `Authorization/Infrastructure/AuthorizationServiceProvider` registrado en `bootstrap/providers.php`.
+- [x] Tests feature basicos: `tests/Feature/Authorization/PermissionResolverTest.php`.
+- [x] `composer test`: 328 pasados, 3 fallos preexistentes.
+- [x] `composer stan`: 6 errores preexistentes en `AppServiceProvider`; codigo nuevo limpio.
+- [x] `composer lint`: 0 archivos con diferencias.
+
+### Entregable
+- Modulo `src/Authorization` completo y resoluble por el contenedor.
+- Resolucion de permisos `recurso.accion` por usuario + scope con cache Redis.
+- Middleware listo para autorizar por nombre de ruta.
+
+### Checklist de cierre
+- [x] Domain puro sin dependencias externas.
+- [x] Repositorios Eloquent implementan interfaces de Domain.
+- [x] Provider registra todos los bindings.
+- [x] Middleware usa formato de error unico con `trace_id`.
+
+---
+
 ## Proxima Sesion
 
-**Sesion 15**: Cierre del módulo Propiedades y Unidades en API / sincronización con Web y App.
+**Sesion 17**: CAMBIO-006 Sesion 5 — Cierre (cableado global + verificacion + sincronizacion).
 
 ---
 

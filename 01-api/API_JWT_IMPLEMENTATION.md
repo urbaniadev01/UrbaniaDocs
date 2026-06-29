@@ -4,7 +4,7 @@ status: active
 module: auth
 scope: cross-project
 tags: [security, jwt, mfa, cross-project]
-updated: 2026-06-18
+updated: 2026-06-29
 ---
 
 # Especificación Técnica: Implementación de Seguridad JWT para API REST
@@ -121,14 +121,24 @@ sequenceDiagram
   "role": "admin",
   "mfa_verified": true,
   "session_id": "uuid-v7-de-la-sesion",
-  "device_fp": "hash-del-fingerprint"
+  "device_fp": "hash-del-fingerprint",
+  "org_id": "uuid-v7-de-la-organizacion"
 }
 ```
 
-> [!note] Nota sobre autorización (MVP)
-> - Los permisos se derivan del `role` (enum UserRole: `admin` o `user`), almacenado en `users.role` (ver [[API_DATABASE]] §2.1).
-> - **NO** se implementa el claim `scope` de OAuth2 en el MVP — el token no incluye ese campo.
-> - Para autorización granular en el futuro (ej: permisos de solo lectura sobre un recurso específico), se evaluará la necesidad de una tabla `permissions` post-MVP.
+> [!warning] Claim `role` deprecado como fuente de autorización
+> A partir de CAMBIO-006 el claim `role` se mantiene **solo como metadata informativa**.
+> La autorización real se resuelve **server-side** a través del módulo `src/Authorization`
+> (`role_assignments` + `permissions`), cacheada en Redis. El token no debe usarse para
+> tomar decisiones de permisos en el cliente.
+>
+> - `users.role` (enum binario `admin`/`user`) sigue existiendo como columna legacy/informativa.
+> - Los permisos efectivos se calculan por request usando `PermissionResolverInterface`.
+> - Ver [[00-shared/plans/PLAN_CAMBIO_006]] Sesión 4 y [[00-shared/docs/adr/ADR-001]].
+
+> [!note] Nota sobre `scope`
+> El claim opcional `scope` se conserva para casos puntuales (tokens de cambio de contraseña,
+> tokens limitados). No reemplaza el RBAC server-side.
 
 | Claim | Descripción | Validación Obligatoria |
 |-------|-------------|----------------------|
@@ -139,10 +149,11 @@ sequenceDiagram
 | `iat` (Issued At) | Timestamp de emisión | No aceptar tokens con `iat` en el futuro (tolerancia: 30 segundos de drift) |
 | `nbf` (Not Before) | Timestamp de inicio de validez | No procesar antes de este tiempo |
 | `exp` (Expiration) | Timestamp de expiración | Rechazar si `exp < now()` |
-| `role` | Rol del usuario (`admin`/`user`) | Usar para autorización de alto nivel |
+| `role` | Rol legacy (`admin`/`user`) | **Deprecado como autorizador**. Se mantiene como metadata informativa |
 | `mfa_verified` | Indica si MFA fue validado | Si `mfa_enabled=true` en usuario, este claim debe ser `true` |
 | `session_id` | ID de la sesión | Vincular con refresh token family |
 | `device_fp` | Fingerprint del dispositivo | Comparar con request actual (alertar si difiere significativamente) |
+| `org_id` | UUID v7 de la organización (tenant) | Propagar el contexto de tenant; usado por `TenantMiddleware` |
 
 ### 3.3 Parámetros Temporales
 
@@ -177,6 +188,7 @@ sequenceDiagram
 | `rate:login:{ip}` | Contador | 15 min | Rate limiting de login por IP |
 | `rate:login:{email}` | Contador | 15 min | Rate limiting de login por email |
 | `mfa:pending:{user_id}` | Token temporal MFA | 5 min | Estado de MFA pendiente |
+| `perms:{user_id}:{scope_type}:{scope_id}` | JSON array de strings `recurso.accion` | 5 min | Cache de permisos efectivos por usuario/scope |
 
 ---
 
@@ -246,7 +258,7 @@ device_fingerprint = hash('sha256', implode('|', [
 | Habilitar/deshabilitar MFA | Todos los tokens del usuario | Requerir re-login |
 | Suspensión de cuenta | Todos los tokens del usuario | Registrar evento `account_locked` |
 | Detección de rotación ilegítima | Toda la `token_family` | Forzar re-autenticación completa |
-| Rol modificado por admin | Todos los tokens del usuario | Próximo request obtendrá error 403, re-login para nuevo token |
+| Rol/asignación de permisos modificado por admin | Todos los tokens del usuario | Próximo request obtendrá error 403; la cache de permisos (`perms:*`) debe invalidarse al cambiar roles/asignaciones |
 
 ---
 

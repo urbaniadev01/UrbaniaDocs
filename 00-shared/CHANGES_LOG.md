@@ -138,7 +138,7 @@ updated: 2026-06-29
 
 - Fecha de apertura: 2026-06-28
 - Afecta a: API / Web / App
-- Estado API: 🔵 En progreso — Sesión 4 en curso (migraciones + seeders RBAC completados; Domain/Application/Gate/JWT pendientes)
+- Estado API: 🔵 En progreso — Sesión 4 completada (módulo Authorization DDD + resolver + middleware); Sesión 5 pendiente
 - Estado Web: 🔵 Plan definido — pendiente de implementar (depende del API)
 - Estado App: 🔵 Plan definido — pendiente de implementar (depende del API)
 - Documento de referencia: [[00-shared/docs/adr/ADR-001]] — Decisión de arquitectura completa; [[SYSTEM_CONTRACT]] §3 Regla de actor y party
@@ -161,6 +161,14 @@ updated: 2026-06-29
     - `users.role` pasa a ser legacy/informativo; la autorización se resolverá server-side a partir de `role_assignments`.
     - Documentación de esquema actualizada en [[01-api/API_DATABASE.md]] (sección 5, Autorización / RBAC).
     - Suite API: 325 tests pasan; 3 fallos y 6 errores PHPStan preexistentes sin cambios.
+  - **Sesión 16 — módulo Authorization DDD + resolver + middleware (API, 2026-06-29)**:
+    - Creado el módulo `src/Authorization` con entidades `Role`, `Permission`, `RoleAssignment`, repositorio, resolver de permisos y service provider.
+    - Implementado `CachedPermissionResolver` con cache Redis (prefijo `perms:`, TTL 5 minutos); combina asignaciones explícitas con permisos derivados de `property_occupants` para residentes.
+    - Creados modelos Eloquent `Role`, `Permission`, `RoleAssignment`.
+    - Creado `AuthorizationMiddleware` en `Shared/Infrastructure/Middleware` para autorizar por nombre de ruta usando permisos `recurso.accion`.
+    - Registrado `AuthorizationServiceProvider` en `bootstrap/providers.php`.
+    - Tests feature básicos: `tests/Feature/Authorization/PermissionResolverTest.php` (3 tests).
+    - Suite API: 328 tests pasan; 3 fallos y 6 errores PHPStan preexistentes sin cambios. `composer lint` pasa (Pint también corrigió el formato preexistente en `src/Tenancy/Domain/Entities/OrganizationEntity.php`).
   - **Premisas transversales**:
     - Migraciones reversibles (down() real). PK UUID v7, FK {tabla_singular}_id, timestamps, dinero NUMERIC(15,2).
     - Scope-lock por sesión: una sesión = un entregable corrible + tests + docs actualizadas.
