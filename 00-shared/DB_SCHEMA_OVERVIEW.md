@@ -97,7 +97,6 @@ updated: 2026-06-29
 │  permission_audit_log: auditoría de granted/denied                   │
 │  approval_rules: reglas de aprobación por org/recurso/accion         │
 └──────────────────────────────────────────────────────────────────────┘
-```
 
 ---
 
