@@ -28,10 +28,10 @@ updated: 2026-06-29
 
 | Campo            | Valor                          |
 | ---------------- | ------------------------------ |
-| **Numero**       | 14.2                           |
-| **Nombre**       | CAMBIO-006 Sesion 3 — H1: Actor canonico + deprecar users.unit |
-| **Estado**       | ✅ Completado con observaciones |
-| **Nota**         | Migraciones de backfill y deprecacion aplicadas; codigo de Auth limpiado de `unit`; docs actualizadas |
+| **Numero**       | 15                             |
+| **Nombre**       | CAMBIO-006 Sesion 4 — C3 + H2: RBAC con scope + reemplazo del claim role (migraciones y seeders) |
+| **Estado**       | 🚧 En progreso                 |
+| **Nota**         | Migraciones y seeders RBAC creados y verificados en urbania_test. Domain/Application/Gate/JWT aun pendientes. |
 | **Fecha inicio** | 2026-06-29                     |
 | **Fecha fin**    | 2026-06-29                     |
 | **Agente**       | opencode                       |
@@ -40,36 +40,36 @@ updated: 2026-06-29
 
 ## Resumen Ejecutivo
 
-Sesion de CAMBIO-006 Sesion 3 enfocada en el actor canonico y la deprecacion de
-`users.unit`. Se crearon tres migraciones PostgreSQL: backfill de contacts faltantes
-(`2026_06_28_000004_backfill_contacts_from_users`), migracion de `users.unit` a
-`property_occupants` con tabla de reconciliacion para no-matches
-(`2026_06_28_000005_migrate_users_unit_to_occupants`) y eliminacion reversible de
-la columna `users.unit` (`2026_06_28_000006_drop_unit_from_users`).
+Sesion parcial de CAMBIO-006 Sesion 4 enfocada en el esquema de datos y la semilla
+inicial del modulo de autorizacion (RBAC). Se crearon seis migraciones PostgreSQL:
+`permissions`, `roles`, `role_permissions`, `role_assignments`,
+`permission_audit_log` y `approval_rules`.
 
-Se limpio el modulo Auth de toda referencia al campo `unit`: `UserEntity`,
-`UserMapper`, DTOs (`UserResponseDto`, `RegisterResponseDto`, `RegisterRequestDto`),
-UseCases (`Register`, `Login`, `GetCurrentUser`, `UpdateProfile`, `MfaVerify`,
-`MfaVerifyBackup`), `AuthController`, `RegisterRequest`, `UserResource` y tests
-afines. Esto fue necesario porque, una vez eliminada la columna, los updates de
-Eloquent fallaban al incluir `unit` en el array de persistencia.
+Los nombres de archivo solicitados (`2026_06_28_000007_*` a `000012_*`) chocaban
+con las migraciones ya existentes `create_property_document_types_table` (000007) y
+`create_property_documents_table` (000008), por lo que se desplazaron a
+`000009` - `000014` para mantener el orden cronologico sin sobrescribir archivos.
 
-Se documento la regla actor/party en `00-shared/SYSTEM_CONTRACT.md` §3 y se
-agregaron/actualizaron los terminos `Party`, `Actor`, `Residente` y `Contacto` en
-`00-shared/GLOSSARY.md`. Se sincronizo `01-api/API_DATABASE.md` y
-`00-shared/DB_SCHEMA_OVERVIEW.md` con el nuevo esquema (users sin `unit`, con
-`organization_id`; contacts con `organization_id`; tabla `reconciliation_users_unit`).
+Se crearon tres seeders idempotentes:
+`RbacPermissionSeeder` (catalogo de 45 permisos `recurso.accion`),
+`RbacRoleSeeder` (11 roles de sistema con sus permisos asignados) y
+`RbacMigrationSeeder` (migra los valores legacy `users.role` a
+`role_assignments` en scope `organization`). Los seeders se registraron en
+`DatabaseSeeder.php` despues de `TenancyBootstrapSeeder`.
 
-`composer test` reporta 325 tests pasados. Los unicos fallos globales son los 3
-preexistentes (rate limiting flaky y 2 tests de CORS con origen `localhost:5174`
-en lugar de `5173`). `composer stan` reporta solo los 6 errores preexistentes en
+Se verifico que las migraciones son reversibles (`migrate:rollback --step=6` sobre
+`urbania_test`) y se reejecutaron (`migrate` + seeders) sin errores.
+
+`composer test` reporta 325 tests pasados y 3 fallos preexistentes (rate limiting
+flaky y 2 tests de CORS con origen `localhost:5174` en lugar de `5173`).
+`composer stan` reporta solo los 6 errores preexistentes en
 `app/Providers/AppServiceProvider.php`; el codigo nuevo es PHPStan nivel 10 limpio.
+`composer lint` solo reporta el estilo preexistente en
+`src/Tenancy/Domain/Entities/OrganizationEntity.php`.
 
-No se pudo ejecutar `php artisan migrate` sobre la base de desarrollo porque el
-entorno apunta al host Docker `db` no disponible en esta maquina; las migraciones
-se aplicaron exitosamente sobre `urbania_test` (localhost:5433) usando variables de
-entorno de prueba. `php artisan migrate:status` y rollback/migrate quedan pendientes
-de verificacion cuando el contenedor Docker este disponible.
+No se ejecuto `php artisan migrate` sobre la base de desarrollo porque el entorno
+apunta al host Docker `db` no disponible en esta maquina; la verificacion se realizo
+sobre `urbania_test` (localhost:5433) usando variables de entorno de prueba.
 
 ---
 
@@ -77,17 +77,18 @@ de verificacion cuando el contenedor Docker este disponible.
 
 | Campo | Valor |
 |-------|-------|
-| **Modulo** | CAMBIO-006 — Fundacion multi-tenant + RBAC + actor canonico (Sesion 3) |
+| **Modulo** | CAMBIO-006 — Fundacion multi-tenant + RBAC + actor canonico (Sesion 4 parcial) |
 | **Prioridad** | P0 |
-| **Estado** | ✅ Completado en API (Sesion 3 de 5) |
-| **Sesion de inicio** | Sesion 14.2 |
+| **Estado** | 🚧 En progreso en API (Sesion 4 de 5) |
+| **Sesion de inicio** | Sesion 15 |
 
 > [!info] Nota de alcance
-> Esta sesion cubre el H1 (actor canonico + deprecacion de `users.unit`) del plan
-> CAMBIO-006. El modulo Auth fue extendido/limpiado para soportar la eliminacion de
-> `users.unit`; el modulo Directorio se mantuvo congelado; el modulo Propiedades se
-> mantuvo congelado. Las sesiones 4 (RBAC) y 5 (cierre) de CAMBIO-006 quedan
-> pendientes.
+> Esta sesion cubre la parte de esquema y seed del C3 (RBAC con scope) del plan
+> CAMBIO-006. Aun quedan pendientes dentro de la Sesion 4: modulo `src/Authorization`
+> (Domain/Application/Infrastructure), resolver de permisos efectivos con cache
+> Redis, Gate/middleware `can()`, reemplazo del uso de `users.role` y tests de
+> resolucion/segregacion/cache. El modulo Directorio y el modulo Propiedades se
+> mantuvieron congelados. La Sesion 5 (cierre) de CAMBIO-006 queda pendiente.
 
 ---
 
@@ -103,58 +104,36 @@ de verificacion cuando el contenedor Docker este disponible.
 | Cobertura Security | 100% (sin cambios) | 100% | ✅ |
 | Cobertura global | No re-midida | >=80% | ⚠️ |
 | PHPStan nivel 10 | 6 errores preexistentes en `app/Providers/AppServiceProvider.php`; codigo nuevo limpio | 0 errores | ⚠️ |
-| Pint | No re-ejecutado en esta sesion | 0 archivos | ⚠️ |
+| Pint | 1 archivo preexistente con estilo incorrecto (`src/Tenancy/Domain/Entities/OrganizationEntity.php`) | 0 archivos | ⚠️ |
 | Pipeline CI/CD | `.github/workflows/quality.yml` configurado | Verde | ⚠️ Requiere arreglar AppServiceProvider y formato |
 
 ---
 
 ## Archivos Creados y Modificados
 
-### Archivos creados (Sesión 14.2)
+### Archivos creados (Sesión 15)
 
-- `database/migrations/2026_06_28_000004_backfill_contacts_from_users.php`
-- `database/migrations/2026_06_28_000005_migrate_users_unit_to_occupants.php`
-- `database/migrations/2026_06_28_000006_drop_unit_from_users.php`
-- `01-api/docs/log/sesiones/sesion-14-2.md`
+- `database/migrations/2026_06_28_000009_create_permissions_table.php`
+- `database/migrations/2026_06_28_000010_create_roles_table.php`
+- `database/migrations/2026_06_28_000011_create_role_permissions_table.php`
+- `database/migrations/2026_06_28_000012_create_role_assignments_table.php`
+- `database/migrations/2026_06_28_000013_create_permission_audit_log_table.php`
+- `database/migrations/2026_06_28_000014_create_approval_rules_table.php`
+- `database/seeders/RbacPermissionSeeder.php`
+- `database/seeders/RbacRoleSeeder.php`
+- `database/seeders/RbacMigrationSeeder.php`
 
-### Archivos modificados (Sesión 14.2)
+### Archivos modificados (Sesión 15)
 
 **Código**
-- `app/Models/User.php` — quitado `unit` de `$fillable`.
-- `src/Auth/Domain/Entities/UserEntity.php` — eliminado campo `unit`.
-- `src/Auth/Infrastructure/Mappers/UserMapper.php` — eliminado mapeo de `unit`.
-- `src/Auth/Application/DTOs/UserResponseDto.php` — eliminado campo `unit`.
-- `src/Auth/Application/DTOs/RegisterResponseDto.php` — eliminado campo `unit`.
-- `src/Auth/Application/DTOs/RegisterRequestDto.php` — eliminado campo `unit`.
-- `src/Auth/Application/UseCases/RegisterUseCase.php` — eliminado `unit`.
-- `src/Auth/Application/UseCases/LoginUseCase.php` — eliminado `unit` del DTO.
-- `src/Auth/Application/UseCases/GetCurrentUserUseCase.php` — eliminado `unit` del DTO.
-- `src/Auth/Application/UseCases/UpdateProfileUseCase.php` — eliminado `unit` del DTO.
-- `src/Auth/Application/UseCases/MfaVerifyUseCase.php` — eliminado `unit`; corregido `phone`.
-- `src/Auth/Application/UseCases/MfaVerifyBackupUseCase.php` — eliminado `unit`; corregido `phone`.
-- `src/Auth/Infrastructure/Http/Controllers/AuthController.php` — eliminado `unit` del registro.
-- `src/Auth/Infrastructure/Http/Requests/RegisterRequest.php` — eliminada regla `unit`.
-- `src/Auth/Infrastructure/Http/Resources/UserResource.php` — eliminado campo `unit`.
-
-**Tests**
-- `tests/Unit/Auth/Domain/Entities/UserEntityTest.php`
-- `tests/Unit/Auth/Infrastructure/Http/Resources/UserResourceTest.php`
-- `tests/Unit/Auth/Infrastructure/Http/Requests/RegisterRequestTest.php`
-- `tests/Feature/Auth/Http/AuthControllerTest.php`
-
-**Documentación compartida**
-- `00-shared/SYSTEM_CONTRACT.md` — nueva §3 Regla de actor y party.
-- `00-shared/GLOSSARY.md` — términos Party/Actor; actualizados Residente/Contacto.
-- `00-shared/DB_SCHEMA_OVERVIEW.md` — refleja eliminación de `users.unit`.
-- `00-shared/CHANGES_LOG.md` — CAMBIO-006 actualizado.
-- `_Home.md` — `GLOBAL_STATUS` actualizado.
+- `database/seeders/DatabaseSeeder.php` — registrados `RbacPermissionSeeder`, `RbacRoleSeeder` y `RbacMigrationSeeder`.
 
 **Documentación API**
-- `01-api/API_DATABASE.md` — `users` sin `unit` y con `organization_id`; `contacts` con `organization_id`; tabla `reconciliation_users_unit`.
+- `01-api/API_DATABASE.md` — agregada sección 5 (Autorización / RBAC) con las 6 tablas y nota sobre deprecación de `users.role`.
 
 > [!note] Nota
 > El detalle completo de archivos y tareas se encuentra en la nota atomica de sesion
-> `01-api/docs/log/sesiones/sesion-14-2.md`.
+> `01-api/docs/log/sesiones/sesion-15.md`.
 
 ---
 
@@ -187,15 +166,12 @@ SORT severity DESC
 
 ## Proxima Sesion
 
-**Proxima Sesion**: Sesion 15 — Continuar CAMBIO-006 Sesion 4 (RBAC con scope + reemplazo del claim role) o cierre del modulo Propiedades segun prioridad del orquestador.
-**Objetivo** (si RBAC):
+**Proxima Sesion**: Continuacion de Sesion 15 — Completar CAMBIO-006 Sesion 4 (RBAC con scope + reemplazo del claim role).
+**Objetivo**:
 1. Crear modulo `src/Authorization` (Domain/Application/Infrastructure): Role, Permission, RoleAssignment.
-2. Migraciones: permissions, roles, role_permissions, role_assignments, permission_audit_log.
-3. Seeders de permisos y 14 roles de sistema.
-4. Resolver permisos efectivos por user + scope con cache Redis.
-5. Gate/middleware `can('recurso.accion', $scope)`; reemplazar uso de `users.role`.
-6. Migrar datos de `users.role` a role_assignments.
-7. Tests: resolucion por scope, segregacion, invalidacion de cache, role binario ya no autoriza.
+2. Resolver permisos efectivos por user + scope con cache Redis.
+3. Gate/middleware `can('recurso.accion', $scope)`; reemplazar uso de `users.role` en `JwtAuthenticate` y demas middleware.
+4. Tests: resolucion por scope, segregacion, invalidacion de cache, role binario ya no autoriza, migracion de roles existentes.
 
 **Documentos a consultar**: [[API_AGENTS]], [[API_ARCHITECTURE]], [[API_CONTRACT]],
 [[API_TESTING]], [[00-shared/plans/PLAN_CAMBIO_006]], [[00-shared/CHANGES_LOG]],

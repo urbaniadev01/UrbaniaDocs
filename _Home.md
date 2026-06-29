@@ -4,7 +4,7 @@ status: active
 priority: P0
 module: global
 tags: [home, dashboard, global]
-updated: 2026-06-28
+updated: 2026-06-29
 ---
 
 # 🏠 Urbania — Dashboard Global
@@ -60,7 +60,7 @@ LIMIT 40
 
 | Proyecto | Sesión | Estado | Siguiente tarea |
 |----------|--------|--------|-----------------|
-| API      | 14.2   | ✅ Completada | CAMBIO-006 Sesión 3: actor canónico + `users.unit` eliminado; invariante user-contact; 325 tests pasan (3 fallos preexistentes), PHPStan 6 errores preexistentes |
+| API      | 15     | 🚧 En progreso | CAMBIO-006 Sesión 4: RBAC — migraciones + seeders completados; pendientes Domain/Application/Gate/JWT y tests de resolución de permisos. 325 tests pasan (3 fallos preexistentes), PHPStan 6 errores preexistentes |
 | Web      | 4      | ✅ Completada | Setup + Auth + Propiedades + Directorio — tests pasando |
 | App      | 0      | ⏸ No iniciada | Pendiente de kickoff — sesión 1 por planificar |
 

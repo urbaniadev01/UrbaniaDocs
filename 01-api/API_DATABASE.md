@@ -1,9 +1,9 @@
 ---
 type: reference
 status: active
-module: auth, propiedades, directorio
+module: auth, propiedades, directorio, authorization
 tags: [postgresql, schema, migrations]
-updated: 2026-06-28
+updated: 2026-06-29
 ---
 
 # 🗄️ DATABASE_SCHEMA
@@ -284,10 +284,11 @@ Almacena tokens para recuperación de contraseña.
 **TTL**: Tokens expiran después de 60 minutos (limpieza por cron o verificación en código).
 
 > [!note] Nota sobre roles
-> Los roles se almacenan en la columna `users.role` (ENUM `admin`/`user`, DEFAULT `user`).
-> No requieren tabla de roles/permisos separada para el MVP — el enum `UserRole { ADMIN, USER }` de [[API_ARCHITECTURE]] mapea 1:1 con los valores de esta columna.
-> El claim `role` del JWT se deriva directamente de `users.role` al emitir el token.
-> Ejemplo: `admin` → acceso de lectura/escritura completo, `user` → acceso limitado a sus propios recursos.
+> La columna `users.role` (ENUM `admin`/`user`, DEFAULT `user`) queda como campo **legacy/informativo** a partir de CAMBIO-006 Sesión 4.
+> La autorización se resuelve server-side mediante las tablas de RBAC (`roles`, `permissions`, `role_permissions`, `role_assignments`).
+> El claim `role` del JWT se mantiene solo como metadato informativo; ya no autoriza por sí solo.
+> `RbacMigrationSeeder` migra los valores existentes (`admin` → rol "Administrador" en su organización; `user` → rol "Residente").
+> La eliminación física de `users.role` está programada como follow-up de CAMBIO-006.
 
 ---
 
@@ -529,6 +530,126 @@ Documentos adjuntos por unidad (escrituras, planos, certificados, recibos). Arch
 
 **Índices:**
 - `INDEX` en `(property_id, created_at)`
+
+---
+
+## 5. Autorización / RBAC (6 tablas)
+
+Modelo de control de acceso basado en roles con alcance (`scope`). Reemplaza progresivamente el enum binario `users.role` por asignaciones explícitas de permisos `recurso.accion` sobre un `scope_type` + `scope_id`.
+
+### 5.1 Tabla: `permissions`
+Catálogo fijo de permisos del sistema. El vocabulario `recurso.accion` se sembra por sistema; los usuarios administradores solo asignan roles, no editan permisos.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único del permiso |
+| `resource` | VARCHAR(50) | NOT NULL | Recurso (ej: `pagos`, `propiedades`, `directorio`) |
+| `action` | VARCHAR(50) | NOT NULL | Acción (ej: `ver`, `crear`, `editar`, `aprobar`) |
+| `name` | VARCHAR(100) | NOT NULL | Nombre legible (ej: "Ver pagos") |
+| `description` | TEXT | NULLABLE | Descripción opcional |
+| `is_system` | BOOLEAN | DEFAULT TRUE | Indica que es un permiso de catálogo de sistema |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+
+**Índices:**
+- `UNIQUE` en `(resource, action)`
+- `INDEX` en `resource`
+
+### 5.2 Tabla: `roles`
+Roles de sistema y roles personalizados por organización.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único del rol |
+| `name` | VARCHAR(100) | NOT NULL | Nombre legible del rol |
+| `code` | VARCHAR(50) | UNIQUE, NOT NULL | Código interno (ej: `admin`, `admin_conjunto`, `residente`) |
+| `description` | TEXT | NULLABLE | Descripción opcional |
+| `organization_id` | UUID v7 | FK → organizations.id, CASCADE DELETE, NULLABLE | Organización propietaria; NULL = rol de sistema |
+| `level` | VARCHAR(20) | DEFAULT 'condominium' | Nivel de alcance: `organization`, `condominium`, `tower`, `unit` |
+| `is_system` | BOOLEAN | DEFAULT FALSE | Indica que es un rol de catálogo de sistema |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Si el rol está activo |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+| `deleted_at` | TIMESTAMP | NULLABLE | Soft delete |
+
+**Índices:**
+- `UNIQUE` en `code`
+- `INDEX` en `organization_id`
+- `INDEX` en `code`
+
+### 5.3 Tabla: `role_permissions`
+Relación muchos-a-muchos entre roles y permisos.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único de la asignación |
+| `role_id` | UUID v7 | FK → roles.id, CASCADE DELETE | Rol |
+| `permission_id` | UUID v7 | FK → permissions.id, CASCADE DELETE | Permiso |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+
+**Índices:**
+- `UNIQUE` en `(role_id, permission_id)`
+
+### 5.4 Tabla: `role_assignments`
+**Tabla central del RBAC.** Asigna un rol a un usuario con alcance y vigencia.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único de la asignación |
+| `user_id` | UUID v7 | FK → users.id, CASCADE DELETE | Usuario |
+| `role_id` | UUID v7 | FK → roles.id, CASCADE DELETE | Rol asignado |
+| `scope_type` | VARCHAR(20) | NOT NULL | Tipo de alcance: `organization`, `condominium`, `tower`, `unit` |
+| `scope_id` | UUID v7 | NOT NULL | ID del objeto de alcance |
+| `starts_at` | TIMESTAMP | NULLABLE | Inicio de vigencia |
+| `ends_at` | TIMESTAMP | NULLABLE | Fin de vigencia |
+| `assigned_by_user_id` | UUID v7 | FK → users.id, NULL ON DELETE | Usuario que otorgó la asignación |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+| `deleted_at` | TIMESTAMP | NULLABLE | Soft delete |
+
+**Índices:**
+- `INDEX` en `(user_id, role_id)`
+- `INDEX` en `(scope_type, scope_id)`
+- `INDEX` en `deleted_at`
+
+> [!note] Resolución de permisos efectivos
+> Los permisos efectivos de un usuario para un `scope` se resuelen server-side a partir de sus `role_assignments` activas + permisos derivados de `property_occupants` (residente). El claim `role` del JWT se mantiene solo como metadato informativo; la autorización ya no depende de él.
+
+### 5.5 Tabla: `permission_audit_log`
+Auditoría de uso de permisos: quién, cuándo, qué recurso y resultado.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único del registro |
+| `user_id` | UUID v7 | NULLABLE, FK → users.id | Usuario que ejecutó la acción |
+| `action` | VARCHAR(50) | NOT NULL | Tipo de acción auditada: `check`, `grant`, `revoke` |
+| `resource` | VARCHAR(50) | NULLABLE | Recurso evaluado |
+| `result` | VARCHAR(20) | NOT NULL | Resultado: `granted`, `denied` |
+| `context` | JSONB | NULLABLE | Datos adicionales estructurados |
+| `created_at` | TIMESTAMP | NOT NULL | Fecha del evento |
+
+**Índices:**
+- `INDEX` en `(user_id, created_at)`
+- `INDEX` en `(resource, created_at)`
+
+### 5.6 Tabla: `approval_rules`
+Reglas de aprobación para acciones críticas (opcional en esta fase). Permite definir umbrales y roles aprobadores por organización.
+
+| Columna | Tipo | Restricciones | Descripción |
+|---------|------|---------------|-------------|
+| `id` | UUID v7 | PK | Identificador único de la regla |
+| `resource` | VARCHAR(50) | NOT NULL | Recurso al que aplica |
+| `action` | VARCHAR(50) | NOT NULL | Acción que requiere aprobación |
+| `organization_id` | UUID v7 | FK → organizations.id, CASCADE DELETE | Organización |
+| `threshold` | NUMERIC(15,2) | NULLABLE | Umbral monetario que dispara la regla |
+| `approver_role_id` | UUID v7 | FK → roles.id, CASCADE DELETE | Rol que puede aprobar |
+| `requires_second_approval` | BOOLEAN | DEFAULT FALSE | Si requiere segunda aprobación |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Fecha de creación |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Fecha de actualización |
+
+**Índices:**
+- `INDEX` en `(organization_id, resource, action)`
 
 ---
 

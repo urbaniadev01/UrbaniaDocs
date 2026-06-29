@@ -4,7 +4,7 @@ status: active
 priority: P0
 module: shared
 tags: [log, cross-project, traceability, shared]
-updated: 2026-06-28
+updated: 2026-06-29
 ---
 
 # 📊 CHANGES_LOG
@@ -138,7 +138,7 @@ updated: 2026-06-28
 
 - Fecha de apertura: 2026-06-28
 - Afecta a: API / Web / App
-- Estado API: 🔵 En progreso — Sesión 3 completada (actor canónico + `users.unit` eliminado)
+- Estado API: 🔵 En progreso — Sesión 4 en curso (migraciones + seeders RBAC completados; Domain/Application/Gate/JWT pendientes)
 - Estado Web: 🔵 Plan definido — pendiente de implementar (depende del API)
 - Estado App: 🔵 Plan definido — pendiente de implementar (depende del API)
 - Documento de referencia: [[00-shared/docs/adr/ADR-001]] — Decisión de arquitectura completa; [[SYSTEM_CONTRACT]] §3 Regla de actor y party
@@ -155,6 +155,12 @@ updated: 2026-06-28
     - Regla actor/party documentada en [[SYSTEM_CONTRACT]] §3 y términos `Party`/`Actor` agregados a [[GLOSSARY]].
     - Código de Auth limpiado: `unit` removido de `UserEntity`, DTOs, UseCases, Controller, Request, Resource y tests.
     - Suite API: 325 tests pasan; 3 fallos preexistentes (rate limit flaky + 2 CORS origen 5174). PHPStan: 6 errores preexistentes en `AppServiceProvider`.
+  - **Sesión 4 — migraciones y seeders RBAC (API, 2026-06-29)**:
+    - Tablas creadas: `permissions`, `roles`, `role_permissions`, `role_assignments`, `permission_audit_log`, `approval_rules`.
+    - Seeders idempotentes: 45 permisos `recurso.accion`, 11 roles de sistema con permisos asignados, migración de `users.role` a `role_assignments`.
+    - `users.role` pasa a ser legacy/informativo; la autorización se resolverá server-side a partir de `role_assignments`.
+    - Documentación de esquema actualizada en [[01-api/API_DATABASE.md]] (sección 5, Autorización / RBAC).
+    - Suite API: 325 tests pasan; 3 fallos y 6 errores PHPStan preexistentes sin cambios.
   - **Premisas transversales**:
     - Migraciones reversibles (down() real). PK UUID v7, FK {tabla_singular}_id, timestamps, dinero NUMERIC(15,2).
     - Scope-lock por sesión: una sesión = un entregable corrible + tests + docs actualizadas.

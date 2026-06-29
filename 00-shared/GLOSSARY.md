@@ -4,7 +4,7 @@ status: active
 priority: P1
 module: shared
 tags: [glossary, domain, shared]
-updated: 2026-06-28
+updated: 2026-06-29
 ---
 
 # 📖 GLOSSARY
@@ -39,6 +39,11 @@ updated: 2026-06-28
 | Tipo de ocupante | Catálogo configurable de roles dentro de una unidad (propietario, residente, inquilino, etc.). Tabla `occupant_types`. | API, Web |
 | Party | Concepto de pertenencia: la persona (`contact_id`) vinculada a una unidad (`property_id`) para efectos de derechos, obligaciones o trámites (dueño de cuenta, residente de reserva, radicante de PQRS). | API, Web, App |
 | Actor | Concepto de autoría: el usuario (`user_id`) que ejecuta una acción o crea un registro (created_by, aprobó pago, cambió estado). Distinto de party. | API, Web, App |
+| Organización (Organization) | Tenant raíz del sistema SaaS. Agrupa usuarios, condominios y contactos. Tabla `organizations`. | API, Web, App |
+| Permiso (Permission) | Acción permitida sobre un recurso, expresada como `recurso.accion` (ej: `pagos.ver`). Catálogo fijo en tabla `permissions`. | API |
+| Rol (Role) | Conjunto de permisos asignable a usuarios. Puede ser de sistema (`is_system = true`) o personalizado por organización. Tabla `roles`. | API, Web, App |
+| Alcance / Scope | Nivel y objeto sobre el que aplica una asignación de rol: `organization`, `condominium`, `tower` o `unit`. Tabla `role_assignments` (`scope_type` + `scope_id`). | API |
+| Asignación de rol (Role assignment) | Vínculo entre un usuario, un rol y un scope con vigencia opcional. Tabla `role_assignments`. | API |
 
 ## Términos Pendientes de Confirmar
 
@@ -47,7 +52,7 @@ updated: 2026-06-28
 | ~~Residente~~ → Cerrado | Resuelto: todos los proyectos usan **"Residente"** para el usuario final que habita una unidad. Web usará "Residente" en toda la interfaz de administración. | API, Web, App |
 | ~~Chat / Mensajería~~ → Cerrado | Resuelto: el módulo se llama **"Comunicaciones"** (ver feature #6). El canal interno es "Mensajería". "Chat" se reserva para integración con WhatsApp. | App |
 | ~~Sesión activa~~ → Cerrado | Resuelto: Web refleja el estado del token JWT (access_token vigente). No tiene sesión server-side propia más allá del refresh token. | Web |
-| Organization / Tenant | ¿El tenant raíz es "organization" o "condominium" directamente? Pendiente de definir en la capa multi-tenant (CAMBIO-006) | API, Web |
+| ~~Organization / Tenant~~ → Cerrado | Resuelto: el tenant raíz es `organization`; `condominium` es la entidad de inventario dentro de la organización. Ver CAMBIO-006 Sesión 2. | API, Web |
 | Contact / Vendor / Third Party | ¿Cómo se relacionan `contact`, `vendor` (proveedor) y `third_party` (tercero contable)? ¿Son tablas separadas o una sola con tipo? Pendiente de definir en Contabilidad | API |
 | Condominium vs Propiedad Horizontal | ¿Se usa "Condominium" en código (inglés) y "Propiedad Horizontal" / "Conjunto" en UI? Confirmar con el equipo de producto | API, Web, App |
 

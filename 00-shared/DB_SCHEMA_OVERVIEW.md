@@ -4,7 +4,7 @@ status: active
 priority: P1
 module: shared
 tags: [database, schema, shared, reference]
-updated: 2026-06-28
+updated: 2026-06-29
 ---
 
 # 🗄️ DB_SCHEMA_OVERVIEW
@@ -16,8 +16,9 @@ updated: 2026-06-28
 > Este documento debe mantenerse sincronizado con ese archivo.
 
 > [!note] Estado actual (2026-06-29)
-> **Auth** (6 tablas), **Propiedades** (8 tablas) y **Directorio** (3 tablas) — **17 tablas implementadas** con migraciones, modelos y tests.
+> **Auth** (6 tablas), **Propiedades** (8 tablas), **Directorio** (3 tablas) y **Autorización** (6 tablas) — **23 tablas implementadas** con migraciones, modelos y tests.
 > La columna `users.unit` fue eliminada; la relación persona-unidad es ahora canónica via `contacts` + `property_occupants`.
+> El RBAC (permissions, roles, role_permissions, role_assignments, permission_audit_log, approval_rules) quedó a nivel de esquema y seeders; el dominio/aplicación aun está pendiente.
 > El esquema **crece a medida que se rediseña cada feature**: la sección §6 "Modelo de datos" de cada
 > panorama (ver [[FEATURE_PLANNING_TEMPLATE]]) define sus tablas, que al implementarse pasan a
 > `01-api/API_DATABASE.md` y se reflejan aquí.
@@ -80,6 +81,22 @@ updated: 2026-06-28
 │  occupant_types: catálogo configurable de roles                      │
 │  property_occupants: vincula contactos a unidades con rol y fechas   │
 └──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  AUTORIZACIÓN / RBAC (6 tablas) — esquema + seeders implementados     │
+│                                                                      │
+│  ROLES ──< ROLE_PERMISSIONS ──> PERMISSIONS                          │
+│  USERS ──< ROLE_ASSIGNMENTS ──> ROLES                                │
+│  ORGANIZATIONS ──< APPROVAL_RULES ──> ROLES                          │
+│  USERS ──< PERMISSION_AUDIT_LOG                                       │
+│                                                                      │
+│  permissions: catálogo fijo de permisos recurso.accion               │
+│  roles: roles de sistema y personalizados por organización           │
+│  role_permissions: permisos asignados a cada rol                     │
+│  role_assignments: asigna rol + scope a un usuario                   │
+│  permission_audit_log: auditoría de granted/denied                   │
+│  approval_rules: reglas de aprobación por org/recurso/accion         │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -120,6 +137,17 @@ updated: 2026-06-28
 | `occupant_types` | **Catálogo configurable** de tipos de ocupante (propietario, residente, inquilino, familiar, contacto_emergencia, empleado) | — |
 | `property_occupants` | **Tabla central.** Vincula un contacto a una unidad con un rol específico, fechas de mudanza y flag primary | `property_id → properties`, `contact_id → contacts`, `occupant_type_id → occupant_types` |
 
+### Autorización / RBAC (Esquema + seeders implementados)
+
+| Tabla | Descripción | FK principales |
+|---|---|---|
+| `permissions` | Catálogo fijo de permisos `recurso.accion` | — |
+| `roles` | Roles de sistema y personalizados por organización | `organization_id → organizations` (NULLABLE) |
+| `role_permissions` | Relación roles ↔ permisos | `role_id → roles`, `permission_id → permissions` |
+| `role_assignments` | **Tabla central.** Asigna un rol a un usuario con alcance y vigencia | `user_id → users`, `role_id → roles`, `assigned_by_user_id → users` (NULLABLE) |
+| `permission_audit_log` | Auditoría de uso de permisos (granted/denied) | `user_id → users` (NULLABLE) |
+| `approval_rules` | Reglas de aprobación por organización, recurso y acción | `organization_id → organizations`, `approver_role_id → roles` |
+
 ---
 
 ## Tablas Implementadas
@@ -129,8 +157,9 @@ updated: 2026-06-28
 | Auth | `users`, `refresh_tokens`, `password_history`, `login_attempts`, `security_events`, `password_reset_tokens` |
 | Propiedades | `condominiums`, `towers`, `property_types`, `property_statuses`, `property_document_types`, `properties`, `property_status_log`, `property_documents` |
 | Directorio | `contacts`, `occupant_types`, `property_occupants` |
+| Autorización | `permissions`, `roles`, `role_permissions`, `role_assignments`, `permission_audit_log`, `approval_rules` |
 
-**Total: 17 tablas implementadas**
+**Total: 23 tablas implementadas**
 
 > La fuente de verdad detallada con columnas, tipos, índices y ENUMs está en [[01-api/API_DATABASE]].
 
