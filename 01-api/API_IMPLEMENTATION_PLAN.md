@@ -638,9 +638,54 @@ Sesion 9: CORS global (transversal — posterior al cierre del modulo Auth)
 
 ---
 
+## Sesion 18: Feature #5 — Endpoints HTTP de gestion de Roles y Permisos ✅ COMPLETADA (2026-06-29)
+
+**Objetivo**: Completar los endpoints HTTP de gestion de roles, permisos, asignaciones,
+reglas de aprobacion y bitacora bajo `api/v1/authorization`.
+
+### Tareas
+- [x] Agregar permisos `roles.*` y `usuarios.*` a los seeders.
+- [x] Crear modelos Eloquent `ApprovalRule` y `PermissionAuditLog`.
+- [x] Crear DTOs y UseCases en `src/Authorization/Application/`.
+- [x] Crear Form Requests, Resources y Controllers.
+- [x] Crear rutas y provider de presentacion.
+- [x] Actualizar `AuthorizationMiddleware` con mapeos de rutas y soporte JWT.
+- [x] Tests feature para los nuevos endpoints.
+- [x] `composer test`: 338 pasados, 3 fallos preexistentes.
+- [x] `composer stan`: 6 errores preexistentes.
+- [x] `composer lint`: 0 archivos con diferencias.
+
+### Entregable
+- Endpoints de roles, permisos, assignments, approval rules y audit operativos.
+- Autorizacion granular activada por ruta.
+
 ## Proxima Sesion
 
-**Sesion 17**: CAMBIO-006 Sesion 5 — Cierre (cableado global + verificacion + sincronizacion).
+**Siguiente**: Por definir — a la espera del orquestador para continuar Feature #5 en Web/App o siguiente tarea.
+
+## Sesion 19: Ejecucion de migraciones RBAC pendientes y despliegue Docker ✅ COMPLETADA (2026-06-29)
+
+**Objetivo**: Ejecutar las 6 migraciones de Feature #5 que estaban como archivos sin aplicar en BD, y poner Docker Compose operativo.
+**Prioridad**: P0 — Sin migraciones, el RBAC no esta completo.
+**Dependencias**: Sesion 18 completada.
+
+### Tareas
+- [x] Corregir `.env`: `DB_HOST=db`, `DB_PORT=5432` para conectividad interna de Docker.
+- [x] Ejecutar `php artisan migrate --force`: 9 migraciones pendientes aplicadas (6 RBAC + 3 housekeeping).
+- [x] Verificar tablas creadas: `permissions`, `roles`, `role_permissions`, `role_assignments`, `permission_audit_log`, `approval_rules`.
+- [x] `docker compose up -d`: 5 contenedores healthy (app, nginx, db, redis, mailhog).
+- [x] Verificar que las migraciones se ejecutan correctamente dentro del contenedor (`INFO Nothing to migrate`).
+- [x] API sirviendo en `http://localhost:8080`.
+
+### Entregable
+- Base de datos con las 6 tablas RBAC creadas y schema verificado.
+- Docker Compose operativo con todos los servicios healthy.
+
+### Checklist de cierre
+- [x] Todas las tablas RBAC existen en PostgreSQL.
+- [x] Docker Compose levanta sin errores.
+- [x] Entrypoint del contenedor ejecuta migraciones automaticamente.
+- [x] `.env` configurado para Docker (no localhost).
 
 ---
 
