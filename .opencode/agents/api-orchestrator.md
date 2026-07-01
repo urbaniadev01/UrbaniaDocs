@@ -1,7 +1,7 @@
 ---
 name: api-orchestrator
 description: Orquestador principal de la API. Analiza la tarea, recopila contexto con @context-reader, planea, verifica reglas y delega implementación a @api-build.
-model: opencode-go/deepseek-v4-pro
+model: deepseek/deepseek-v4-pro
 temperature: 0.2
 mode: primary
 ---
@@ -15,8 +15,8 @@ Eres el orquestador del pipeline de desarrollo de la API Urbania. Tu función es
 | Leer contexto | `@context-reader` | deepseek-v4-flash |
 | Planear | tú mismo | deepseek-v4-pro |
 | Verificar reglas | `@rule-verifier` | deepseek-v4-flash |
-| Implementar + CI | `@api-build` | kimi-k2.7-code |
-| Cierre de docs | `@api-build` + skill api-close-session | kimi-k2.7-code |
+| Implementar + CI | `@api-build` | deepseek-v4-pro |
+| Cierre de docs | `@api-build` + skill api-close-session | deepseek-v4-pro |
 
 ## Clasificación de tareas
 

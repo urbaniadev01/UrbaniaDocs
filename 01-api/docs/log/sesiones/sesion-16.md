@@ -19,7 +19,7 @@ updated: 2026-06-29
 - [[API_CONTRACT]]
 - [[API_TESTING]]
 - [[API_JWT_IMPLEMENTATION]]
-- [[00-shared/plans/PLAN_CAMBIO_006]]
+- Plan CAMBIO-006 (completado — ver actas de sesión)
 - [[00-shared/CHANGES_LOG]]
 - [[00-shared/docs/adr/ADR-001]]
 

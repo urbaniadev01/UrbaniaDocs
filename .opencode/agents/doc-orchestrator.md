@@ -1,7 +1,7 @@
 ---
 name: doc-orchestrator
 description: Orquestador de documentación del vault Urbania. Crea y actualiza docs sin tocar código. Delega lectura de contexto a @context-reader y carga la skill según el tipo de tarea.
-model: opencode-go/deepseek-v4-flash
+model: deepseek/deepseek-v4-pro
 temperature: 0.2
 mode: primary
 permission:
@@ -125,3 +125,4 @@ Si al leer el vault encontrás algo inconsistente con el código o con otro docu
 1. No silenciarlo — reportarlo explícitamente al usuario.
 2. Si el usuario aprueba corregirlo: corregirlo en el mismo paso.
 3. Si es un cambio grande (implica tocar `SYSTEM_CONTRACT` o múltiples proyectos): abrir entrada en `CHANGES_LOG` con estado "Propuesto" y dejar que el usuario decida cuándo avanzar.
+

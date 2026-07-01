@@ -1,7 +1,7 @@
 ---
 name: context-reader
 description: Lee documentos del vault y devuelve resumen estructurado de contexto. No toma decisiones ni sugiere.
-model: opencode-go/deepseek-v4-flash
+model: deepseek/deepseek-v4-flash
 temperature: 0.1
 mode: subagent
 ---

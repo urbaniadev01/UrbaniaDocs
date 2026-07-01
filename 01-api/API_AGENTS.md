@@ -322,7 +322,7 @@ git pull   # en API/ → snapshot del grafo actualizado
 | 10 | **Tests antes de commit** | Unit + Integration + Feature |
 | 11 | **Actualizar [[API_SESSION_MANIFEST]] al final de cada sesion** | Estado guardado entre sesiones |
 | 12 | **NO duplicar informacion entre documentos** | Cada pieza de informacion en UN SOLO documento. Usar referencias cruzadas |
-| 13 | **La memoria (agentmemory) es contexto de calentamiento, no fuente de verdad** — si agentmemory dice X y [[API_SESSION_MANIFEST]] dice Y, gana el manifest. Siempre. | Decisiones incorrectas basadas en estado de memoria obsoleto |
+| 13 | **[[API_SESSION_MANIFEST]] es la única fuente de verdad del estado de sesión** — cualquier otra referencia de estado debe considerarse desactualizada hasta confirmarse contra el manifest. | Decisiones incorrectas basadas en estado obsoleto |
 
 ---
 
@@ -358,7 +358,6 @@ Si continuas una sesion anterior:
 - [ ] Rate limiting configurado
 - [ ] Eventos de seguridad loggeados
 - [ ] [[API_SESSION_MANIFEST]] actualizado
-- [ ] Si agentmemory registró nuevos patrones: `git add 00-shared/.agent-memory/ && git commit -m "memory: <descripción>" && git push` (desde el vault)
 - [ ] Si el grafo cambió: `git add .codebase-memory/ && git commit -m "chore: update graph snapshot"` (desde `API/`)
 
 ---

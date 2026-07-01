@@ -44,36 +44,36 @@ El orden refleja la secuencia lógica de desarrollo (dependencias primero).
 > - **App**: ✓ Completado (código implementado) / Pendiente / N/A.
 > - **Panorama**: enlace a `00-shared/features/<NOMBRE>.md`. "—" significa panorama aún no creado.
 
-| #   | Feature                            | Estado      | Nivel    | API                   | Web       | App       | Panorama                              |
-| --- | ---------------------------------- | ----------- | -------- | --------------------- | --------- | --------- | ------------------------------------- |
-| 1   | Auth                               | Completado  | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/AUTH]]           |
-| 2   | Propiedades y unidades             | En progreso | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/PROPIEDADES]]    |
-| 3   | Configuración (Perfil y Seguridad) | En progreso | core     | Implementado vía AUTH | Pendiente | N/A       | [[00-shared/features/CONFIGURACION]]  |
+| #   | Feature                                | Estado      | Nivel    | API                   | Web       | App       | Panorama                              |
+| --- | -------------------------------------- | ----------- | -------- | --------------------- | --------- | --------- | ------------------------------------- |
+| 1   | Auth                                   | Completado  | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/AUTH]]           |
+| 2   | Propiedades y unidades                 | En progreso | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/PROPIEDADES]]    |
+| 3   | Configuración (Perfil y Seguridad)     | Completado  | core     | Implementado vía AUTH | ✓         | N/A       | [[00-shared/features/CONFIGURACION]]  |
 | 4   | Directorio (Residentes y Propietarios) | En progreso | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/DIRECTORIO]]     |
-| 5   | Roles y Permisos                   | En progreso | core     | Implementado          | Pendiente | Pendiente | —                                     |
-| 6   | Comunicaciones                     | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 7   | Cobranza (Gastos Comunes)          | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 8   | Pagos Online (PSE + tarjeta)       | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 9   | Solicitudes de Mantenimiento       | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 10  | Reserva de Amenidades              | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 11  | Proveedores y Contratistas         | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 12  | Control de Acceso / Portería       | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 13  | Portal Residente (web + app)       | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 14  | Incidencias / Cumplimiento         | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 15  | Archivo Documental                 | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 16  | Reportes Básicos (dashboard)       | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
-| 17  | Contabilidad                       | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 18  | Presupuestos                       | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 19  | Asambleas y Votaciones             | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 20  | Órdenes de Compra                  | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 21  | Inspecciones                       | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 22  | Administración de Llaves           | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 23  | Portal Propietario                 | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 24  | Seguros                            | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 25  | Onboarding / Migración             | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 26  | Rentas / Alquileres                | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 27  | Chatbot / AI Asistente             | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
-| 28  | Marketplace / Integraciones        | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 5   | Roles y Permisos                       | En progreso | core     | Implementado          | ✓         | Pendiente | [[00-shared/features/ROLES_PERMISOS]] |
+| 6   | Comunicaciones                         | Completado  | core     | Implementado          | Implementado | Pendiente | [[00-shared/features/COMUNICACIONES]] |
+| 7   | Cobranza (Gastos Comunes)              | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 8   | Pagos Online (PSE + tarjeta)           | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 9   | Solicitudes de Mantenimiento           | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 10  | Reserva de Amenidades                  | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 11  | Proveedores y Contratistas             | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 12  | Control de Acceso / Portería           | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 13  | Portal Residente (web + app)           | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 14  | Incidencias / Cumplimiento             | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 15  | Archivo Documental                     | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 16  | Reportes Básicos (dashboard)           | Propuesto   | core     | Pendiente             | Pendiente | Pendiente | —                                     |
+| 17  | Contabilidad                           | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 18  | Presupuestos                           | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 19  | Asambleas y Votaciones                 | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 20  | Órdenes de Compra                      | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 21  | Inspecciones                           | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 22  | Administración de Llaves               | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 23  | Portal Propietario                     | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 24  | Seguros                                | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 25  | Onboarding / Migración                 | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 26  | Rentas / Alquileres                    | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 27  | Chatbot / AI Asistente                 | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
+| 28  | Marketplace / Integraciones            | Propuesto   | extended | Pendiente             | Pendiente | Pendiente | —                                     |
 
 ### Leyenda
 
@@ -116,7 +116,7 @@ El orden refleja la secuencia lógica de desarrollo (dependencias primero).
 - **5 · Roles y Permisos** — [[00-shared/features/ROLES_PERMISOS|ROLES_PERMISOS]] *(por crear)*
     - Web: Lista de roles · Crear/editar rol · Matriz de permisos · Reglas de aprobación · Usuarios del panel · Invitar usuario · Detalle de usuario · Delegación temporal · Alertas de conflicto · Catálogo de recursos · Auditoría de permisos
     - App: N/A
-- **6 · Comunicaciones** — [[00-shared/features/COMUNICACIONES|COMUNICACIONES]] *(por crear)*
+- **6 · Comunicaciones** — [[00-shared/features/COMUNICACIONES]]
     - Web: Bandeja de comunicados · Redactar comunicado · Detalle de comunicado · Cartelera/muro · Plantillas · Encuestas · Resultados de encuesta · Configurar canales
     - App: Muro/Avisos · Detalle de aviso · Encuestas · Preferencias de notificación
 - **7 · Cobranza (Gastos Comunes)** — [[00-shared/features/COBRANZA|COBRANZA]] *(por crear)*

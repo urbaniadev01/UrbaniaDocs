@@ -134,7 +134,7 @@ sequenceDiagram
 >
 > - `users.role` (enum binario `admin`/`user`) sigue existiendo como columna legacy/informativa.
 > - Los permisos efectivos se calculan por request usando `PermissionResolverInterface`.
-> - Ver [[00-shared/plans/PLAN_CAMBIO_006]] Sesión 4 y [[00-shared/docs/adr/ADR-001]].
+> - Ver [[00-shared/docs/adr/ADR-001]] (Sesión 4 del plan de implementación).
 
 > [!note] Nota sobre `scope`
 > El claim opcional `scope` se conserva para casos puntuales (tokens de cambio de contraseña,

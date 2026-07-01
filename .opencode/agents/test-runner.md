@@ -1,7 +1,7 @@
 ---
 name: test-runner
 description: Ejecuta y analiza pruebas en los 3 proyectos (API, Web, App). Solo lectura + ejecución de tests. Reporta cobertura, fallos y métricas de calidad.
-model: opencode-go/deepseek-v4-flash
+model: deepseek/deepseek-v4-flash
 temperature: 0.1
 mode: primary
 permission:

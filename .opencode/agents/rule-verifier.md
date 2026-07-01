@@ -1,7 +1,7 @@
 ---
 name: rule-verifier
 description: Verifica que un plan de implementación no viola las reglas del proyecto. Devuelve APROBADO o RECHAZADO con lista de violaciones.
-model: opencode-go/deepseek-v4-flash
+model: deepseek/deepseek-v4-flash
 temperature: 0.1
 mode: subagent
 ---

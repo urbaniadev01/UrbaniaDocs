@@ -1,7 +1,7 @@
 ---
 name: urbania
 description: Router principal del sistema Urbania. Recibe tu tarea en lenguaje natural y te redirige al agente correcto. Delegación automática a API, Web, App o documentación.
-model: opencode-go/deepseek-v4-flash
+model: deepseek/deepseek-v4-flash
 temperature: 0.2
 mode: primary
 permission:

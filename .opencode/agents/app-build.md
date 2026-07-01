@@ -1,7 +1,7 @@
 ---
 name: app-build
 description: Implementa y modifica código en Urbania App (Flutter + Riverpod + Clean Architecture). Acceso completo.
-model: opencode-go/kimi-k2.7-code
+model: deepseek/deepseek-v4-pro
 temperature: 0.2
 mode: subagent
 permission:

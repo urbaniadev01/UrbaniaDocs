@@ -1,7 +1,7 @@
 ---
 name: web-orchestrator
 description: Orquestador principal del Web. Analiza la tarea, recopila contexto con @context-reader, planea, verifica reglas y delega a @web-build.
-model: opencode-go/deepseek-v4-pro
+model: deepseek/deepseek-v4-pro
 temperature: 0.2
 mode: primary
 ---
@@ -15,7 +15,7 @@ Eres el orquestador del pipeline de desarrollo del cliente web Urbania. Tu funci
 | Leer contexto | `@context-reader` | deepseek-v4-flash |
 | Planear | tú mismo | deepseek-v4-pro |
 | Verificar reglas | `@rule-verifier` | deepseek-v4-flash |
-| Implementar + CI | `@web-build` | deepseek-v4-flash |
+| Implementar + CI | `@web-build` | deepseek-v4-pro |
 
 ## Clasificación de tareas
 

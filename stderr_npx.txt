@@ -1,0 +1,50 @@
+[INFO] Initializing postgresql database...
+[INFO] Host: localhost, Database: urbania
+[INFO] Connecting to PostgreSQL: localhost, Database: urbania
+[DEBUG] Connection details: {
+  host: 'localhost',
+  database: 'urbania',
+  port: 5433,
+  user: 'urbania',
+  connectionTimeoutMillis: 30000,
+  ssl: false
+}
+[INFO] PostgreSQL connection established successfully
+[INFO] Connected to PostgreSQL database
+[INFO] Starting MCP server...
+[INFO] Server running. Press Ctrl+C to exit.
+[ERROR] Uncaught exception: error: terminating connection due to administrator command
+    at parseErrorMessage (C:\Users\laman\AppData\Local\npm-cache\_npx\0a405bf06814f506\node_modules\pg-protocol\dist\parser.js:305:11)
+    at Parser.handlePacket (C:\Users\laman\AppData\Local\npm-cache\_npx\0a405bf06814f506\node_modules\pg-protocol\dist\parser.js:143:27)
+    at Parser.parse (C:\Users\laman\AppData\Local\npm-cache\_npx\0a405bf06814f506\node_modules\pg-protocol\dist\parser.js:37:38)
+    at Socket.<anonymous> (C:\Users\laman\AppData\Local\npm-cache\_npx\0a405bf06814f506\node_modules\pg-protocol\dist\index.js:12:42)
+    at Socket.emit (node:events:509:20)
+    at addChunk (node:internal/streams/readable:564:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:515:3)
+    at Readable.push (node:internal/streams/readable:395:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 116,
+  severity: 'FATAL',
+  code: '57P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'postgres.c',
+  line: '3354',
+  routine: 'ProcessInterrupts'
+}
+[ERROR] Uncaught exception: Error: Connection terminated unexpectedly
+    at Connection.<anonymous> (C:\Users\laman\AppData\Local\npm-cache\_npx\0a405bf06814f506\node_modules\pg\lib\client.js:199:73)
+    at Object.onceWrapper (node:events:630:28)
+    at Connection.emit (node:events:509:20)
+    at Socket.<anonymous> (C:\Users\laman\AppData\Local\npm-cache\_npx\0a405bf06814f506\node_modules\pg\lib\connection.js:63:12)
+    at Socket.emit (node:events:509:20)
+    at TCP.<anonymous> (node:net:350:12)

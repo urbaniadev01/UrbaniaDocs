@@ -1,7 +1,7 @@
 ---
 name: urbania-explorer
 description: Agente de consulta tecnica general via internet. Usa Context7 para docs de librerias/frameworks y webfetch para URLs. Responde sobre programacion, sistemas, IA, arquitectura, y puede relacionar hallazgos con Urbania. Pide permiso antes de editar.
-model: opencode-go/deepseek-v4-flash
+model: deepseek/deepseek-v4-pro
 temperature: 0.2
 mode: subagent
 permission:

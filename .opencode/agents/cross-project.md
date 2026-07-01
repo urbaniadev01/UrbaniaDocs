@@ -1,7 +1,7 @@
 ---
 name: cross-project
 description: Coordina cambios que afectan más de un proyecto (API + Web + App). Invocar con @cross-project cuando un cambio cruza proyectos.
-model: opencode-go/deepseek-v4-pro
+model: deepseek/deepseek-v4-pro
 mode: subagent
 permission:
   edit: ask

@@ -60,7 +60,7 @@ LIMIT 40
 
 | Proyecto | Sesión | Estado | Siguiente tarea |
 |----------|--------|--------|-----------------|
-| API      | 15     | 🚧 En progreso | CAMBIO-006 Sesión 4: RBAC — migraciones + seeders completados; pendientes Domain/Application/Gate/JWT y tests de resolución de permisos. 325 tests pasan (3 fallos preexistentes), PHPStan 6 errores preexistentes |
+| API      | 17     | ✅ Completada | CAMBIO-006 cerrado — multi-tenant + RBAC + actor canónico integrados. 328 tests pasan (3 fallos preexistentes), PHPStan 6 errores preexistentes. Pendiente: cablear AuthorizationMiddleware por ruta al implementar cada feature. |
 | Web      | 4      | ✅ Completada | Setup + Auth + Propiedades + Directorio — tests pasando |
 | App      | 0      | ⏸ No iniciada | Pendiente de kickoff — sesión 1 por planificar |
 

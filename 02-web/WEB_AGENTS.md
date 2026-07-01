@@ -295,7 +295,7 @@ git pull   # en WEB/ → snapshot del grafo actualizado
 | 13 | **El interceptor Axios excluye `/auth/refresh`** | Bucle infinito de refresh |
 | 14 | **Echo reconfigura token tras silent refresh** | Headers de WebSocket con token expirado |
 | 15 | **Ninguna feature importa archivos internos de otra feature** | Acoplamiento accidental, rompe el modelo feature-based |
-| 16 | **La memoria (agentmemory) es contexto de calentamiento, no fuente de verdad** — si agentmemory dice X y [[WEB_SESSION_MANIFEST]] dice Y, gana el manifest. Siempre. | Decisiones incorrectas basadas en estado de memoria obsoleto |
+| 16 | **[[WEB_SESSION_MANIFEST]] es la única fuente de verdad del estado de sesión** — cualquier otra referencia de estado debe considerarse desactualizada hasta confirmarse contra el manifest. | Decisiones incorrectas basadas en estado obsoleto |
 
 ---
 
@@ -330,7 +330,6 @@ Si `pnpm ci` falla al cerrar una sesión:
 - [ ] Rutas protegidas verifican autenticación y rol `admin`
 - [ ] [[WEB_SESSION_MANIFEST]] actualizado
 - [ ] [[WEB_FEATURES_INDEX]] actualizado
-- [ ] Si agentmemory registró nuevos patrones: `git add 00-shared/.agent-memory/ && git commit -m "memory: <descripción>" && git push` (desde el vault)
 - [ ] Si el grafo cambió: `git add .codebase-memory/ && git commit -m "chore: update graph snapshot"` (desde `WEB/`)
 
 ---

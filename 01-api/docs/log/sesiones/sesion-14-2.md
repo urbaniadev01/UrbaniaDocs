@@ -15,7 +15,7 @@ updated: 2026-06-29
 ## Documentos consultados
 - [[API_AGENTS]]
 - [[API_IMPLEMENTATION_PLAN]]
-- [[00-shared/plans/PLAN_CAMBIO_006]]
+- Plan CAMBIO-006 (completado — ver actas de sesión)
 - [[00-shared/docs/adr/ADR-001]]
 - [[00-shared/SYSTEM_CONTRACT]]
 - [[00-shared/GLOSSARY]]

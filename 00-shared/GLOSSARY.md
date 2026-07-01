@@ -53,8 +53,8 @@ updated: 2026-06-29
 | ~~Chat / Mensajería~~ → Cerrado | Resuelto: el módulo se llama **"Comunicaciones"** (ver feature #6). El canal interno es "Mensajería". "Chat" se reserva para integración con WhatsApp. | App |
 | ~~Sesión activa~~ → Cerrado | Resuelto: Web refleja el estado del token JWT (access_token vigente). No tiene sesión server-side propia más allá del refresh token. | Web |
 | ~~Organization / Tenant~~ → Cerrado | Resuelto: el tenant raíz es `organization`; `condominium` es la entidad de inventario dentro de la organización. Ver CAMBIO-006 Sesión 2. | API, Web |
-| Contact / Vendor / Third Party | ¿Cómo se relacionan `contact`, `vendor` (proveedor) y `third_party` (tercero contable)? ¿Son tablas separadas o una sola con tipo? Pendiente de definir en Contabilidad | API |
-| Condominium vs Propiedad Horizontal | ¿Se usa "Condominium" en código (inglés) y "Propiedad Horizontal" / "Conjunto" en UI? Confirmar con el equipo de producto | API, Web, App |
+| Contact / Vendor / Third Party | ✅ Resuelto parcial: contact como persona base; vendor y third_party se definen en Contabilidad (feature #17) | API |
+| Condominium vs Propiedad Horizontal | ✅ Resuelto: "Condominium" en código, "Conjunto/Propiedad Horizontal" en UI | API, Web, App |
 
 > [!warning] Términos nuevos
 > Los términos `organization`, `vendor` y `third_party` se resolverán al implementar la capa SaaS (CAMBIO-006) y Contabilidad (Feature #17). No inventar sinónimos antes de esa decisión.

@@ -4,7 +4,7 @@ status: active
 priority: P0
 module: global
 tags: [agents, navigation, global]
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # 🤖 AGENTS — Vault Global Urbania
@@ -79,7 +79,6 @@ Un solo vault de Obsidian que contiene la documentación técnica de los 3 proye
                     │                                  │
                     │   MCPs desde la raíz:             │
                     │   • urbania-db → BD PostgreSQL    │
-                    │   • agentmemory → memoria agente  │
                     │   • codebase-memory → grafo código│
                     └──────────┬───────────────────────┘
                                │ invoca
@@ -105,17 +104,15 @@ Un solo vault de Obsidian que contiene la documentación técnica de los 3 proye
 |---|-------|-------------|
 | 1 | **Nunca tocar código directamente** | Todo cambio en `API/`, `WEB/`, `APP/` se hace invocando al agente especializado correspondiente (`@api-build`, `@web-build`, `@app-build`) desde la TUI |
 | 2 | **Documentación primero** | Si código y docs discrepan, se corrige la docs primero, luego se actualiza el código vía agente |
-| 3 | **Los 3 MCPs viven en la raíz** | El `opencode.json` raíz concentra `urbania-db`, `agentmemory` y `codebase-memory`. También están replicados en los subproyectos por si un agente necesita ejecutarse desde allí |
+| 3 | **Los 2 MCPs viven en la raíz** | El `opencode.json` raíz concentra `urbania-db` y `codebase-memory`. También están replicados en los subproyectos por si un agente necesita ejecutarse desde allí |
 | 4 | **Subproyecto = contexto específico** | Cada `01-api/`, `02-web/`, `03-app/` tiene su propio `opencode.json` con el mismo set de MCPs, pero apuntando a su proyecto (`CODEBASE_MEMORY_PROJECT` específico) y con rutas relativas ajustadas |
-| 5 | **Memoria compartida vía git** | `agentmemory` escribe en `00-shared/.agent-memory/` y se commitea al repo de documentation. Así todos los agentes comparten el mismo contexto de calentamiento entre sesiones |
-| 6 | **Grafo de código se indexa una vez** | `codebase-memory-mcp` indexó los 3 proyectos. Las DBs están en caché local. Si el código cambia, se actualiza automáticamente con `auto_index: true` |
+| 5 | **Grafo de código se indexa una vez** | `codebase-memory-mcp` indexó los 3 proyectos. Las DBs están en caché local. Si el código cambia, se actualiza automáticamente con `auto_index: true` |
 
 ### ¿Qué MCP usar para qué?
 
 | Necesitas... | Usa este MCP | Disponible desde |
 |---|---|---|
 | Consultar la BD PostgreSQL | `urbania-db` | Raíz y subproyectos |
-| Recuperar memoria de sesiones anteriores | `agentmemory` | Raíz y subproyectos |
 | Buscar funciones, clases, rutas en el código | `codebase-memory` | Raíz y subproyectos |
 | Documentación de librerías externas | `context7` (skill) | Raíz |
 
@@ -167,6 +164,17 @@ identidad visual compartida)?
 4. **Un cambio cross-project no se considera terminado hasta que está en `CHANGES_LOG.md` como "Sincronizado" en los 3 proyectos afectados.** Si una entrada lleva más de 3 días sin actualizarse, escalarla antes de continuar cualquier otra tarea.
 5. **Si encuentras una inconsistencia** entre este vault y el código real de cualquier proyecto, se reporta e informa de inmediato — mismo principio que ya rige en cada proyecto individualmente.
 6. **Siempre solución permanente, nunca deuda técnica.** Cuando exista un dilema entre una solución temporal (parche, workaround, config que funcione solo en dev) y una solución permanente que resuelva el problema para todos los entornos (desarrollo, staging, producción), se elige la solución permanente. Queda prohibido dejar deuda técnica a sabiendas — si una solución no puede ser permanente por una razón estrictamente técnica, se documenta el motivo en un ADR y se agenda su resolución. Esta regla aplica a agentes y humanos por igual.
+7. **No se implementa código sin diseño aprobado.** Ningún agente puede escribir código (migraciones, endpoints, componentes, pantallas, tests) de un feature, función o cambio que no tenga primero su diseño documentado y aprobado en el vault. El diseño mínimo requerido es:
+   - Panorama global en `00-shared/features/<NOMBRE>.md` con §1 a §8 completos, o ADR si es un cambio de arquitectura.
+   - Checklist §15 "Checklist de coherencia" del panorama completamente marcado como resuelto o con ítems explícitamente diferidos.
+   - Si el diseño no existe, el agente debe detenerse, informar al orquestador y esperar instrucciones. No puede suplir la ausencia de diseño implementando sobre la marcha.
+8. **Los checklists se actualizan AL implementar, no después.** Cuando un agente especializado (`@api-build`, `@web-build`, `@app-build`) termina de implementar código, DEBE:
+   - Volver al documento de panorama (`00-shared/features/<NOMBRE>.md`) y marcar los ítems de §15 y §16 que correspondan.
+   - Si implementó endpoints: marcar el ítem del §15 "Mapeo de acciones a endpoints coherente con API_CONTRACT".
+   - Si creó archivos (specs, endpoints, componentes): marcar los ítems del §16 correspondientes.
+   - Actualizar §13 "Especificaciones técnicas por proyecto" con el estado real.
+   - Si el feature está en una etapa intermedia (API listo, Web pendiente), debe reflejarlo en los checklists — no dejarlo todo sin marcar hasta el final.
+   - El orquestador valida esta actualización al recibir el RESULTADO DE SESIÓN antes de cerrar la sesión.
 
 ---
 
@@ -195,21 +203,16 @@ El router usa este resultado para:
 
 **Al iniciar** (antes de cualquier otra acción):
 ```
-git pull   # en este vault → sincroniza memoria del equipo desde 00-shared/.agent-memory/
 git pull   # en el repo de código activo → obtiene snapshot del grafo actualizado
 ```
 
 **Al cerrar** (después del Checklist Final del proyecto):
 ```
-# Si agentmemory registró nuevos patrones en esta sesión:
-git add 00-shared/.agent-memory/ && git commit -m "memory: <descripción breve>" && git push
-
 # Si el grafo de código cambió (codebase-memory-mcp actualiza .codebase-memory/):
 git add .codebase-memory/ && git commit -m "chore: update graph snapshot"
 ```
 
 > [!note] Herramientas de memoria
-> - **agentmemory** → contexto de calentamiento para el agente. Almacena en `00-shared/.agent-memory/`. Solo patrones emergentes del trabajo — nunca estado de features ni métricas (esos viven en SESSION_MANIFEST y FEATURES_INDEX).
 > - **codebase-memory-mcp** → grafo estructural del código fuente (call graphs, rutas, clases). Vive en `.codebase-memory/` dentro de cada repo de código.
 > - **context7** → documentación de librerías externas. Ya configurado.
 

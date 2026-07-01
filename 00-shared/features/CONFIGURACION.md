@@ -3,7 +3,7 @@ type: feature-panorama
 status: active
 module: shared
 tags: [configuracion, perfil, seguridad, shared]
-updated: 2026-06-22
+updated: 2026-06-29
 ---
 
 # Feature: Configuración (Layout, Perfil y Seguridad)
@@ -97,6 +97,36 @@ Sesión: activa → revocada
 
 Después de AUTH (sesión 2). API ya implementado.
 
-## 11. Documentos de implementación
+## 11. Especificaciones técnicas por proyecto
 
-> Se enlazarán aquí cuando el feature se diseñe e implemente (uno a la vez).
+| Proyecto | Documento | Estado |
+|---|---|---|
+| API | [[01-api/endpoints/CONFIGURACION]] (reusa endpoints de Auth) | ✅ Implementado vía AUTH |
+| Web | [[02-web/features/configuracion/CONFIGURACION_SPEC]] | ✅ Implementado |
+| App | N/A | N/A |
+
+## 12. Estado de sincronización
+
+Ver [[CHANGES_LOG]] — entrada CAMBIO-007 (implementación Web del feature Configuración).
+
+## 13. Checklist de coherencia
+
+- [x] Nombres de campos consistentes con [[GLOSSARY]]
+- [x] Inventario de pantallas (§5) agregado en [[FEATURES_INDEX]] catálogo de pantallas
+- [ ] Modelo de datos (§6): no aplica — el feature no introduce tablas nuevas, opera sobre `users` existente
+- [x] Mapeo de acciones a endpoints (§6/§9) coherente con [[01-api/API_CONTRACT]]
+- [x] Códigos de error nuevos: no se introdujeron — todos los errores son heredados de Auth ya documentados en [[01-api/API_CONTRACT]]
+- [x] Decisión consciente sobre self-service documentada: todos los endpoints operan sobre el usuario autenticado, sin RBAC de admin
+- [x] Cada proyecto afectado tiene una sesión planeada en su `*_IMPLEMENTATION_PLAN.md`
+
+## 14. Checklist de creación / implementación
+
+- [x] Fila presente en [[FEATURES_INDEX]] tabla de estado (actualizado a "En progreso" → Web: ✓)
+- [x] Entrada en [[CHANGES_LOG]] (CAMBIO-007)
+- [x] Documento de panorama creado: `00-shared/features/CONFIGURACION.md`
+- [x] API: endpoints documentados en `01-api/endpoints/CONFIGURACION.md` (reusa Auth)
+- [x] Web: creado `CONFIGURACION_SPEC.md` en `02-web/features/configuracion/`
+- [x] Web: creados 5 archivos de UI (`CONFIGURACION_UI_perfil.md`, `_seguridad.md`, `_cambiar-contrasena.md`, `_setup-mfa.md`, `_sesiones-activas.md`)
+- [x] Web: implementadas 2 páginas (ProfilePage, SecurityPage) + 4 componentes (ProfileForm, ChangePasswordSheet, MfaSetupSheet, ActiveSessionsList)
+- [x] Web: build + lint + type-check en verde; 20/20 tests pasan
+- [ ] App: N/A

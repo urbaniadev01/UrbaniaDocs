@@ -1,7 +1,7 @@
 ---
 name: api-build
 description: Implementa y modifica código en Urbania API (Laravel + PostgreSQL + DDD). Acceso completo a edición y bash.
-model: opencode-go/kimi-k2.7-code
+model: deepseek/deepseek-v4-pro
 temperature: 0.2
 mode: subagent
 permission:

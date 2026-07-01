@@ -22,7 +22,7 @@ updated: 2026-06-28
 > Ver [[00-shared/SYSTEM_CONTRACT]] §1 para el contrato formal entre proyectos.
 
 > [!note] Alcance actual
-> Endpoints **implementados**: Auth (`/auth/*`, §1.x) + Health Check (`/health`, §11.1) + Propiedades y Unidades (`/properties`, `/towers`, `/condominiums`, `/property-document-types`, `/property-types`, `/property-statuses`, §2-§5). Módulo Auth cerrado y congelado (ver [[API_SESSION_MANIFEST]]).
+> Endpoints **implementados**: Auth (`/auth/*`, §1.x) + Health Check (`/health`, §11.1) + Propiedades y Unidades (`/properties`, `/towers`, `/condominiums`, `/property-document-types`, `/property-types`, `/property-statuses`, §2-§5) + Comunicaciones — encuestas (`/comunicaciones/surveys`, §6). Módulo Auth cerrado y congelado (ver [[API_SESSION_MANIFEST]]).
 > Los demás módulos de negocio se diseñarán e implementarán uno a la vez (ver [[00-shared/FEATURES_INDEX]]).
 
 ---
@@ -127,11 +127,22 @@ updated: 2026-06-28
 ### §5 — Condominiums (Implementado)
 
 | # | Método | Ruta | Auth | Estado | Documento |
-|---|---|--------|------|------|--------|-----------|
+|---|---|---|--------|------|------|--------|-----------|
 | 5.1 | GET | `/condominiums` | Sí (admin) | Implementado | [[endpoints/CONDOMINIUMS]] §5.1 |
 | 5.2 | GET | `/condominiums/{id}` | Sí (admin) | Implementado | [[endpoints/CONDOMINIUMS]] §5.2 |
 | 5.3 | PATCH | `/condominiums/{id}` | Sí (admin) | Implementado | [[endpoints/CONDOMINIUMS]] §5.3 |
 | 5.4 | GET | `/condominiums/{id}/coefficient-validation` | Sí (admin) | Implementado | [[endpoints/CONDOMINIUMS]] §5.4 |
+
+### §6 — Comunicaciones (Parcialmente implementado)
+
+| # | Método | Ruta | Auth | Estado | Documento |
+|---|---|---|--------|------|------|--------|-----------|
+| 6.1 | GET | `/comunicaciones/surveys` | Sí (admin) | Implementado | [[endpoints/COMUNICACIONES]] §5 |
+| 6.2 | POST | `/comunicaciones/surveys` | Sí (admin) | Implementado | [[endpoints/COMUNICACIONES]] §6 |
+| 6.3 | GET | `/comunicaciones/surveys/{id}/results` | Sí (admin) | Implementado | [[endpoints/COMUNICACIONES]] §7 |
+| 6.4 | POST | `/comunicaciones/surveys/{id}/responses` | Sí | Implementado | [[endpoints/COMUNICACIONES]] §8 |
+
+> Nota: announcements, templates y channels están documentados en [[endpoints/COMUNICACIONES]] y se reflejarán en este índice cuando se marquen como implementados.
 
 ---
 

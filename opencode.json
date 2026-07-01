@@ -9,22 +9,9 @@
       "command": [
         "powershell",
         "-NoProfile",
-        "-Command",
-        "$p = (Select-String -Path 'API/.env' -Pattern '^DB_PASSWORD=(.+)').Matches[0].Groups[1].Value; npx -y @executeautomation/database-server --postgresql --host localhost --port 5433 --database urbania --user urbania --password $p"
+        "-File",
+        ".opencode/start-db-mcp.ps1"
       ],
-      "enabled": true
-    },
-    "agentmemory": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@rohitg00/agentmemory"
-      ],
-      "env": {
-        "MEMORY_STORAGE_PATH": "00-shared/.agent-memory",
-        "MEMORY_PROJECT": "urbania"
-      },
       "enabled": true
     },
     "codebase-memory": {

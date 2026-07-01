@@ -4,7 +4,7 @@ type: catalogo
 tags: [urbania-web, modulos, estado]
 status: vigente
 fuente_unica: false
-ultima_revision: 2026-06-27
+ultima_revision: 2026-06-29
 ---
 
 # 📋 WEB_FEATURES_INDEX
@@ -32,8 +32,10 @@ ultima_revision: 2026-06-27
 | #   | Módulo                      | Ruta                              | Prioridad | Estado      | Sesión   | Depende de              |
 | --- | --------------------------- | --------------------------------- | --------- | ----------- | -------- | ----------------------- |
 | 1   | Auth (Login, MFA, Logout)   | `/login`, `/login/mfa`            | P0        | ✅ Completado | Sesión 1 | API Auth                |
-| 2   | Layout + Perfil + Seguridad | `/settings`, `/settings/security` | P0        | ⬜ Pendiente | Sesión 2 | Sesión 1, API Auth      |
+| 2   | Layout + Perfil + Seguridad | `/settings`, `/settings/security` | P0        | 📐 Diseñado  | Sesión 2 | Sesión 1, API Auth      |
 | 3   | Propiedades y Unidades      | `/properties`, `/properties/towers`, `/properties/catalogs` | P0 | 📐 Diseñado | — | API Propiedades (§2-§5) |
+| 5   | Roles y Permisos (RBAC)     | `/admin/roles`, `/admin/usuarios`, `/admin/aprobaciones`, `/admin/auditoria` | P0 | 📐 Diseñado | — | Sesión 1, API Authorization |
+| 6   | Comunicaciones              | `/comunicaciones`, `/comunicaciones/nuevo`, `/comunicaciones/encuestas`, `/comunicaciones/canales` | P0 | 📐 Diseñado | — | Directorio, Roles y Permisos |
 
 ### Leyenda de estados
 | Ícono | Estado |
@@ -84,6 +86,25 @@ ultima_revision: 2026-06-27
 
 ---
 
+### Comunicaciones (P0) — Diseñado
+**Páginas**: `/comunicaciones`, `/comunicaciones/nuevo`, `/comunicaciones/cartelera`, `/comunicaciones/plantillas`, `/comunicaciones/encuestas`, `/comunicaciones/canales`
+**Componentes**: `AnnouncementComposer`, `SegmentPicker`, `ChannelToggles`, `DeliveryStats`, `SurveyBuilder`
+**Hooks**: `useAnnouncements`, `useAnnouncement`, `useCreateAnnouncement`, `useTemplates`, `useSurveys`, `useSurveyResults`, `useChannels`
+**API**: `GET/POST /comunicaciones/announcements`, `GET /comunicaciones/announcements/:id`, `*/comunicaciones/templates`, `POST /comunicaciones/surveys`, `GET /comunicaciones/surveys/:id/results`, `GET/PUT /comunicaciones/channels`
+**Docs**: [[02-web/features/comunicaciones/COMUNICACIONES_SPEC]], [[00-shared/features/COMUNICACIONES]], [[01-api/endpoints/COMUNICACIONES]]
+
+---
+
+### Roles y Permisos (P0) — Diseñado
+**Páginas**: `/admin/roles`, `/admin/roles/:id/permisos`, `/admin/usuarios`, `/admin/aprobaciones`, `/admin/auditoria`, `/admin/recursos`
+**Componentes**: `RoleForm`, `PermissionMatrix`, `ScopePicker`, `UserRoleAssigner`, `AuditTable`
+**Hooks**: `useRoles`, `useRole`, `useCreateRole`, `useUpdateRole`, `useSetRolePermissions`, `usePermissionsCatalog`, `useAssignRole`, `useRevokeAssignment`, `useApprovalRules`, `useAuditLog`
+**Guard nuevo**: `Can('recurso.accion')` — reemplaza `AdminOnlyRoute` (ver [[WEB_AUTH_IMPLEMENTATION]])
+**API**: `GET/POST /authorization/roles`, `PATCH /authorization/roles/:id`, `PUT /authorization/roles/:id/permissions`, `GET /authorization/permissions`, `POST/DELETE /authorization/assignments`, `POST /authorization/approval-rules`, `GET /authorization/audit`
+**Docs**: [[02-web/features/roles-permisos/ROLES_PERMISOS_SPEC]], [[00-shared/features/ROLES_PERMISOS]], [[01-api/endpoints/ROLES_PERMISOS]]
+
+---
+
 ### Layout + Configuración (P0) — Sesión 2
 **Páginas**: `/settings`, `/settings/security`
 **Componentes**: `DashboardShell`, `Sidebar`, `PageShell`, `ProfileForm`, `MfaSetupFlow`,
@@ -93,6 +114,7 @@ ultima_revision: 2026-06-27
   `useInactivityLogout`
 **API**: `PATCH /auth/me`, `POST /auth/mfa/setup`, `POST /auth/mfa/enable`,
   `POST /auth/mfa/disable`, `GET /auth/sessions`, `DELETE /auth/sessions/{id}`
+**Docs**: [[02-web/features/configuracion/CONFIGURACION_SPEC]], [[00-shared/features/CONFIGURACION]], [[01-api/endpoints/CONFIGURACION]]
 
 ---
 

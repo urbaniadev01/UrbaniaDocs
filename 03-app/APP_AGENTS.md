@@ -296,7 +296,7 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 | 10 | **Biometría con degradación correcta** — nunca asumir hardware disponible | Crash en dispositivos sin sensor biométrico |
 | 11 | **Actualizar [[APP_SESSION_MANIFEST]] al final de cada sesión** | Estado perdido entre sesiones; la siguiente iteración parte de datos incorrectos |
 | 12 | **Si el `flutter analyze` falla, no marcar sesión como completada** | Estado "completado" que en realidad no compila ni pasa análisis estático |
-| 13 | **La memoria (agentmemory) es contexto de calentamiento, no fuente de verdad** — si agentmemory dice X y [[APP_SESSION_MANIFEST]] dice Y, gana el manifest. Siempre. | Decisiones incorrectas basadas en estado de memoria obsoleto |
+| 13 | **[[APP_SESSION_MANIFEST]] es la única fuente de verdad del estado de sesión** — cualquier otra referencia de estado debe considerarse desactualizada hasta confirmarse contra el manifest. | Decisiones incorrectas basadas en estado obsoleto |
 
 ---
 
@@ -315,7 +315,6 @@ Flutter + Riverpod + go_router + Dio + Drift + flutter_secure_storage — Clean 
 - [ ] Estados de carga, error y vacío en toda vista con datos remotos
 - [ ] Bloqueos activos en [[APP_SESSION_MANIFEST]] §Bloqueos actualizados
 - [ ] [[APP_SESSION_MANIFEST]] actualizado con el estado real al cierre
-- [ ] Si agentmemory registró nuevos patrones: `git add 00-shared/.agent-memory/ && git commit -m "memory: <descripción>" && git push` (desde el vault)
 - [ ] Si el grafo cambió: `git add .codebase-memory/ && git commit -m "chore: update graph snapshot"` (desde `APP/`)
 
 ---

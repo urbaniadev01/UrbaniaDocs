@@ -73,7 +73,7 @@ graph TD
 D:\Programacion\URBANIA\            ← Raíz: vault de Obsidian + agentes + skills
 │
 ├── .opencode\                      ← Configuración de OpenCode
-│   ├── agents\                     ← TODOS los agentes (12 archivos)
+│   ├── agents\                     ← TODOS los agentes (14 archivos)
 │   │   ├── urbania.md              ← Router principal (deepseek-v4-flash) — único primario visible
 │   │   ├── context-reader.md       ← Subagente lector (deepseek-v4-flash)
 │   │   ├── rule-verifier.md        ← Subagente verificador (deepseek-v4-flash)
@@ -82,7 +82,7 @@ D:\Programacion\URBANIA\            ← Raíz: vault de Obsidian + agentes + ski
 │   │   ├── api-build.md            ← Subagente implementador API (kimi-k2.7-code)
 │   │   ├── api-review.md           ← Subagente revisor API (deepseek-v4-flash)
 │   │   ├── web-orchestrator.md     ← Subagente orquestador Web (deepseek-v4-pro)
-│   │   ├── web-build.md            ← Subagente implementador Web (deepseek-v4-flash)
+│   │   ├── web-build.md            ← Subagente implementador Web (minimax-m3)
 │   │   ├── app-orchestrator.md     ← Subagente orquestador App (deepseek-v4-pro)
 │   │   ├── app-build.md            ← Subagente implementador App (kimi-k2.7-code)
 │   │   └── test-runner.md          ← Subagente QA (deepseek-v4-flash)
@@ -279,12 +279,12 @@ graph TB
         AR["@api-review\ndeepseek-v4-flash"]
         WO["@web-orchestrator\ndeepseek-v4-pro"]
         APO["@app-orchestrator\ndeepseek-v4-pro"]
-        DOC["@doc-orchestrator\ndeepseek-v4-flash"]
+        DOC["@doc-orchestrator\nminimax-m3"]
     end
 
     subgraph IMPLEMENTADORES["Implementación (subagentes @mención)"]
         AB["@api-build\nkimi-k2.7-code"]
-        WB["@web-build\ndeepseek-v4-flash"]
+        WB["@web-build\nminimax-m3"]
         APB["@app-build\nkimi-k2.7-code"]
     end
 
@@ -390,8 +390,9 @@ La clave del sistema es que **no todos los pasos necesitan el mismo modelo**. El
 | Verificar reglas | `deepseek-v4-flash` | $0.14 / $0.28 | Match contra lista fija |
 | Planear y orquestar | `deepseek-v4-pro` | $1.74 / $3.48 | Razonamiento sobre arquitectura |
 | Escribir código (API, App) | `kimi-k2.7-code` | $0.95 / $4.00 | Especializado en coding |
-| Escribir código (Web) | `deepseek-v4-flash` | incluido Go | Alternativa eficiente para React/TS SPA |
-| Revisar sin modificar | `deepseek-v4-flash` | incluido Go | Análisis con 9.600 req/5h de margen |
+| Escribir código (Web) | `minimax-m3` | $0.30 / $1.20 | Mid-tier: React/TS con razonamiento |
+| Escribir documentación (docs) | `minimax-m3` | $0.30 / $1.20 | Razonamiento arquitectónico para features |
+| Revisar sin modificar | `deepseek-v4-flash` | $0.14 / $0.28 | Análisis con 31K req/5h de margen |
 
 > [!info] ¿Por qué Flash para lectura?
 > Flash cuesta ~120x menos que los modelos de razonamiento. En una sesión típica, el `context-reader` se invoca 2-3 veces y el `rule-verifier` 1-2 veces. Usar Flash en esos pasos reduce el costo de la sesión en ~40-60% sin pérdida de calidad donde importa.

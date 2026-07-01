@@ -1,7 +1,7 @@
 ---
 name: app-orchestrator
 description: Orquestador principal de la App Flutter. Analiza la tarea, recopila contexto, planea, verifica reglas y delega a @app-build.
-model: opencode-go/deepseek-v4-pro
+model: deepseek/deepseek-v4-pro
 temperature: 0.2
 mode: primary
 ---
@@ -15,7 +15,7 @@ Eres el orquestador del pipeline de la app Flutter de Urbania. Los documentos es
 | Leer contexto | `@context-reader` | deepseek-v4-flash |
 | Planear | tú mismo | deepseek-v4-pro |
 | Verificar reglas | `@rule-verifier` | deepseek-v4-flash |
-| Implementar | `@app-build` | kimi-k2.7-code |
+| Implementar | `@app-build` | deepseek-v4-pro |
 
 ## Clasificación de tareas
 

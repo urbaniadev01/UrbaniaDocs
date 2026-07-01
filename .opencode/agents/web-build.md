@@ -1,7 +1,7 @@
 ---
 name: web-build
 description: Implementa y modifica código en Urbania Web (Vite + React 19 + TypeScript, SPA). Acceso completo.
-model: opencode-go/deepseek-v4-flash
+model: deepseek/deepseek-v4-pro
 temperature: 0.2
 mode: subagent
 permission:
